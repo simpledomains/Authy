@@ -1,0 +1,18 @@
+{
+  "name": "traefik-auth-server",
+  "restart": "always",
+  "domain": "authy.r3ktm8.de",
+  "project": "authy",
+  "env": {
+    "COOKIE_DOMAIN": "authy.r3ktm8.de",
+    "JWT_SECRET":    "CTgPh6VUMfkHVAhG",
+    "COOKIE_SECRET": "hq36vUsmuCFdqx4c",
+    "ENABLE_DEBUG":  "true"
+  },
+  "labels": {
+    "traefik.frontend.redirect.entryPoint": "https"
+  },
+  "volumes": [
+    "authy:/data"
+  ]
+}
