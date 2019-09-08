@@ -1,5 +1,6 @@
 package de.reynok.authentication.core.database.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import de.reynok.authentication.core.security.validation.Md5PasswordValidator;
 import de.reynok.authentication.core.security.validation.ValidatorChain;
 import de.reynok.authentication.core.util.HashMapConverter;
@@ -22,20 +23,20 @@ import java.util.Map;
 public class Identity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Integer             id;
     @Column(nullable = false, unique = true)
-    private String  username;
+    private String              username;
     @Column(nullable = false)
-    private String  password;
-    private String  oneTimePassword;
-    private Boolean admin = false;
-    private Boolean locked = false;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private String              password;
+    private String              email;
+    private String              oneTimePassword;
+    private Boolean             admin       = false;
+    private Boolean             locked      = false;
     @Convert(converter = HashMapConverter.class)
-    private Map<String, String> metaData = new HashMap<>();
-
+    private Map<String, String> metaData    = new HashMap<>();
     @ManyToMany(targetEntity = Authority.class, fetch = FetchType.EAGER)
-    private List<Authority> authorities = new ArrayList<>();
-
+    private List<Authority>     authorities = new ArrayList<>();
 
 
     public void setPassword(String password) {

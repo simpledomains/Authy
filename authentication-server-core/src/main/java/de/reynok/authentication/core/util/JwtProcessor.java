@@ -25,6 +25,7 @@ public class JwtProcessor {
         claims.putIfAbsent("sub", identity.getUsername());
         claims.putIfAbsent("attributes", identity.getMetaData());
         claims.putIfAbsent("uid", identity.getId());
+        claims.putIfAbsent("administrator", identity.getAdmin().toString());
 
         return Jwts.builder()
                 .setHeaderParam("sub", identity.getUsername())

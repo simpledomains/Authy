@@ -2,8 +2,6 @@ package de.reynok.authentication.core.security;
 
 
 import de.reynok.authentication.core.configuration.Constants;
-import de.reynok.authentication.core.exception.SecurityTokenExpiredException;
-import de.reynok.authentication.core.exception.SecurityTokenInvalidException;
 import de.reynok.authentication.core.util.JwtProcessor;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
@@ -26,39 +24,34 @@ public class SpringAuthenticationInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
-        boolean isAllowed = false;
+        boolean isAllowed  = true;
+        Cookie  authCookie = null;
 
         if (handler instanceof HandlerMethod) {
             RequiresAuthentication annotation = ((HandlerMethod) handler).getMethod().getAnnotation(RequiresAuthentication.class);
 
             if (request.getCookies() != null) {
-                boolean hasCookie = false;
-
                 for (Cookie cookie : request.getCookies()) {
                     if (Constants.COOKIE_NAME.equals(cookie.getName())) {
-                        hasCookie = true;
-                        try {
-                            Claims result = jwtProcessor.validateToken(cookie.getValue());
-                            request.setAttribute(Constants.REQUEST_CLAIMS_FIELD, result);
-                            isAllowed = true;
-                            log.debug("(RequestAllowed) Accessing '{}' is authenticated, proceeding...", request.getRequestURI());
-                        } catch (SecurityTokenExpiredException e) {
-                            hasCookie = false;
-                            log.error("(RequestFailure) Accessing '{}' with a expired token.", request.getRequestURI(), e);
-                        } catch (SecurityTokenInvalidException e) {
-                            log.error("(RequestDenied) Accessing '{}' got denied, JWT failed to validate.", request.getRequestURI(), e);
-                        }
+                        authCookie = cookie;
+                        break;
                     }
                 }
-
-                if (annotation == null && !hasCookie) {
-                    isAllowed = true;
-                }
-            } else {
-                isAllowed = true;
             }
-        } else {
-            isAllowed = true;
+
+            if (annotation != null) {
+                if (authCookie == null) {
+                    isAllowed = false;
+                } else {
+                    Claims claims = jwtProcessor.validateToken(authCookie.getValue());
+
+                    Boolean isAdmin = Boolean.valueOf(claims.get("administrator", String.class));
+
+                    if (annotation.adminOnly() && !isAdmin) {
+                        isAllowed = false;
+                    }
+                }
+            }
         }
 
         if (!isAllowed) {

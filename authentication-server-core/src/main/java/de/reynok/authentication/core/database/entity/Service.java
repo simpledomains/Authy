@@ -23,15 +23,15 @@ public class Service {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-    private String name;
-    private Boolean enabled = true;
+    private Integer      id;
+    private String       name;
+    private Boolean      enabled       = true;
     @Convert(converter = ListConverter.class)
-    private List<String> allowedUrls = new ArrayList<>();
+    private List<String> allowedUrls   = new ArrayList<>();
     @Convert(converter = ListConverter.class)
     private List<String> requiredRoles = new ArrayList<>();
     @Enumerated(value = EnumType.STRING)
-    private ServiceMode mode = ServiceMode.AUTHORIZED;
+    private ServiceMode  mode          = ServiceMode.AUTHORIZED;
 
     public boolean isIdentityAllowed(Identity identity) {
         boolean isAllowed = false;

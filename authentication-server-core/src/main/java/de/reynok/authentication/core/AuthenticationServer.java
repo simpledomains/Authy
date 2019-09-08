@@ -61,6 +61,7 @@ public class AuthenticationServer {
             Identity identity = new Identity();
             identity.setUsername("admin");
             identity.setPassword("admin");
+            identity.setAdmin(true);
 
             identity.getAuthorities().add(authorityRepository.findByName("admin").get());
             identity.getAuthorities().add(authorityRepository.findByName("gitlab").get());
