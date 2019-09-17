@@ -1,4 +1,4 @@
-package de.reynok.authentication.core.configuration;
+package de.reynok.authentication.core;
 
 public interface Constants {
     String REQUEST_CLAIMS_FIELD = "CLAIMS";

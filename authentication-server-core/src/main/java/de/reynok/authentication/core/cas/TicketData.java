@@ -1,4 +1,4 @@
-package de.reynok.authentication.core.security.cas;
+package de.reynok.authentication.core.cas;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,13 +1,13 @@
-package de.reynok.authentication.core.web;
+package de.reynok.authentication.core.web.auth;
 
-import de.reynok.authentication.core.configuration.Constants;
+import de.reynok.authentication.core.Constants;
 import de.reynok.authentication.core.database.entity.Identity;
 import de.reynok.authentication.core.database.entity.Service;
 import de.reynok.authentication.core.database.repository.IdentityRepository;
-import de.reynok.authentication.core.security.ServiceValidation;
-import de.reynok.authentication.core.security.cas.TicketHandler;
-import de.reynok.authentication.core.security.cas.TicketType;
-import de.reynok.authentication.core.security.cas.ValidateResponse;
+import de.reynok.authentication.core.cas.ServiceValidation;
+import de.reynok.authentication.core.cas.TicketHandler;
+import de.reynok.authentication.core.cas.TicketType;
+import de.reynok.authentication.core.cas.ValidateResponse;
 import de.reynok.authentication.core.util.JwtProcessor;
 import de.reynok.authentication.core.web.api.LoginFailedResponse;
 import de.reynok.authentication.core.web.api.LoginRequest;
@@ -96,7 +96,7 @@ public class CASController {
         if (optionalIdentity.isPresent()) {
             Identity identity = optionalIdentity.get();
 
-            if (identity.checkPassword(body.getPassword())) {
+            if (identity.checkPassword(body.getPassword(), body.getSecurityPassword())) {
                 Cookie cookie = new Cookie(Constants.COOKIE_NAME, jwtProcessor.getJwtTokenFor(identity));
                 cookie.setMaxAge(60 * 60 * 12);
                 cookie.setPath("/");
@@ -110,7 +110,7 @@ public class CASController {
 
                 LoginResponse loginResponse = new LoginResponse();
 
-                if (body.getNoCas()) {
+                if (body.getCas()) {
                     loginResponse.setLocation(serviceUrl);
                 } else {
                     loginResponse.setLocation(getRedirectLogin(serviceUrl, identity)); // issues a new ticket

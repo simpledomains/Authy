@@ -1,4 +1,4 @@
-package de.reynok.authentication.core.security.cas;
+package de.reynok.authentication.core.cas;
 
 
 import de.reynok.authentication.core.database.entity.Authority;

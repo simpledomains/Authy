@@ -1,4 +1,4 @@
-package de.reynok.authentication.core.security.validation;
+package de.reynok.authentication.core.util.validation;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -9,9 +9,9 @@ import lombok.ToString;
 @Setter
 @ToString
 public class LoginRequest {
-    private String username;
-    private String password;
-    private String totp;
-    @JsonAlias("no-cas")
-    private Boolean noCas;
+    private String  username;
+    private String  password;
+    private String  securityPassword;
+    @JsonAlias("cas")
+    private Boolean cas;
 }
