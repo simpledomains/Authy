@@ -1,8 +1,9 @@
 package de.reynok.authentication.core.util;
 
-import de.reynok.authentication.core.database.entity.Identity;
-import de.reynok.authentication.core.exception.SecurityTokenExpiredException;
-import de.reynok.authentication.core.exception.SecurityTokenInvalidException;
+import de.reynok.authentication.core.api.models.Identity;
+import de.reynok.authentication.core.api.exception.SecurityTokenExpiredException;
+import de.reynok.authentication.core.api.exception.SecurityTokenInvalidException;
+import de.reynok.authentication.core.api.models.Service;
 import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -18,7 +19,7 @@ public class JwtProcessor {
     @Value("${app.secrets.jwt}")
     private String secret;
 
-    public String getJwtTokenFor(Identity identity) {
+    public String getJwtTokenFor(Identity identity, Service service) {
 
         Map<String, Object> claims = new HashMap<>();
 
@@ -30,7 +31,7 @@ public class JwtProcessor {
         return Jwts.builder()
                 .setHeaderParam("sub", identity.getUsername())
                 .setClaims(claims)
-                .setIssuer("Authentication Service")
+                .setIssuer("Authy (" + (service != null ? service.getName() : "Unknown") + ")")
                 .setExpiration(new Date(System.currentTimeMillis() + (1000 * 60 * 60 * 12)))
                 .setIssuedAt(new Date())
                 .signWith(SignatureAlgorithm.HS512, secret.getBytes(Charset.defaultCharset()))
@@ -42,9 +43,9 @@ public class JwtProcessor {
             return Jwts.parser().setSigningKey(secret.getBytes(Charset.defaultCharset()))
                     .parseClaimsJws(token)
                     .getBody();
-        } catch(SignatureException e) {
+        } catch (SignatureException | IllegalArgumentException e) {
             throw new SecurityTokenInvalidException(e);
-        } catch(ExpiredJwtException e) {
+        } catch (ExpiredJwtException e) {
             throw new SecurityTokenExpiredException("JWT expired", e);
         }
     }

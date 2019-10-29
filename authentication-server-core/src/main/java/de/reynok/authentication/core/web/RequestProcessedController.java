@@ -2,11 +2,11 @@ package de.reynok.authentication.core.web;
 
 
 import de.reynok.authentication.core.Constants;
-import de.reynok.authentication.core.database.entity.Identity;
-import de.reynok.authentication.core.database.repository.IdentityRepository;
-import de.reynok.authentication.core.web.api.RestError;
+import de.reynok.authentication.core.api.exception.AccessDeniedException;
+import de.reynok.authentication.core.api.models.Identity;
+import de.reynok.authentication.core.api.service.ServiceError;
+import de.reynok.authentication.core.logic.database.repository.IdentityRepository;
 import io.jsonwebtoken.Claims;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,17 +15,22 @@ import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletRequest;
 
 @Slf4j
-@RequiredArgsConstructor
 public class RequestProcessedController {
     protected final IdentityRepository identityRepository;
+
+    public RequestProcessedController(IdentityRepository identityRepository) {
+        this.identityRepository = identityRepository;
+    }
 
     protected Identity getIdentityFromRequest(HttpServletRequest request) {
         if (request.getAttribute(Constants.REQUEST_CLAIMS_FIELD) != null) {
             Claims claims = (Claims) request.getAttribute(Constants.REQUEST_CLAIMS_FIELD);
 
-            log.info("{}", claims);
+            if (claims != null) {
+                log.info("{}", claims);
 
-            return identityRepository.findByUsername(claims.get("sub").toString()).orElseThrow(EntityNotFoundException::new);
+                return identityRepository.findByUsername(claims.get("sub").toString()).orElseThrow(EntityNotFoundException::new);
+            }
         }
 
         throw new EntityNotFoundException();
@@ -33,11 +38,21 @@ public class RequestProcessedController {
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity entityNotFound(EntityNotFoundException e) {
-        return new RestError(e, e.getMessage() != null ? e.getMessage() : "Entity not found.", 404).toResponse();
+        return ResponseEntity.status(404)
+                .body(new ServiceError().setMessage(e.getMessage() != null ? e.getMessage() : "Entity not found."));
     }
 
     @ExceptionHandler(Throwable.class)
     public ResponseEntity throwable(Throwable e) {
-        return new RestError(e, e.getMessage() != null ? e.getMessage() : "A unknown error occurred.", 500).toResponse();
+        log.error("Unknown error thrown, {}", e.getMessage(), e);
+        return ResponseEntity.status(500)
+                .body(new ServiceError().setMessage(e.getMessage() != null ? e.getMessage() : "A unknown error occurred."));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity accessDenied(AccessDeniedException e) {
+        log.debug("AccessDenied Exception thrown... {}", e.getMessage(), e);
+        return ResponseEntity.status(e.getCode())
+                .body(new ServiceError().setMessage(e.getMessage()));
     }
 }

@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.AttributeConverter;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -18,9 +19,9 @@ public class HashMapConverter implements AttributeConverter<Map<String, String>,
     public String convertToDatabaseColumn(Map<String, String> stringStringMap) {
         try {
             return objectMapper.writeValueAsString(stringStringMap);
-        } catch (JsonProcessingException e) {
+        } catch (JsonProcessingException | NullPointerException e) {
             log.error("Failed to process hashMap to JSON due to {}", e.getMessage(), e);
-            return null;
+            return "{}"; // a empty JSON map
         }
     }
 
@@ -29,9 +30,9 @@ public class HashMapConverter implements AttributeConverter<Map<String, String>,
         TypeReference<Map<String, String>> reference = new TypeReference<Map<String, String>>() {};
         try {
             return objectMapper.readValue(s, reference);
-        } catch (IOException e) {
+        } catch (IOException | NullPointerException e) {
             log.error("Failed to read from json due to {}", e.getMessage(), e);
-            return null;
+            return new HashMap<>(); // a empty map
         }
     }
 }
