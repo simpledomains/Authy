@@ -1,11 +1,12 @@
 package de.reynok.authentication.core.web.auth;
 
 import de.reynok.authentication.core.Constants;
-import de.reynok.authentication.core.database.entity.Identity;
-import de.reynok.authentication.core.database.entity.Service;
-import de.reynok.authentication.core.database.repository.IdentityRepository;
-import de.reynok.authentication.core.cas.ServiceValidation;
-import de.reynok.authentication.core.cas.ValidateResponse;
+import de.reynok.authentication.core.api.models.Identity;
+import de.reynok.authentication.core.api.models.Service;
+import de.reynok.authentication.core.logic.cas.CasStatusCode;
+import de.reynok.authentication.core.logic.database.repository.IdentityRepository;
+import de.reynok.authentication.core.logic.cas.ServiceValidation;
+import de.reynok.authentication.core.logic.cas.CasXmlResponse;
 import de.reynok.authentication.core.util.JwtProcessor;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +26,9 @@ import java.io.IOException;
 @RestController
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class ForwardAuthController {
-    private final JwtProcessor       jwtProcessor;
+    private final JwtProcessor jwtProcessor;
     private final IdentityRepository identityRepository;
-    private final ServiceValidation  serviceValidation;
+    private final ServiceValidation serviceValidation;
 
     @Value("${app.domain:}")
     private String baseDomain;
@@ -42,8 +43,12 @@ public class ForwardAuthController {
         Service service = serviceValidation.isAllowed(serviceUrl);
 
         if (service == null) {
-            response.sendRedirect(baseDomain + "/#/cas/error?service=" + serviceUrl + "&code=" + ValidateResponse.StatusCode.MISSING_SERVICE);
+            response.sendRedirect(baseDomain + "/#/cas/error?service=" + serviceUrl + "&code=" + CasStatusCode.MISSING_SERVICE);
             return ResponseEntity.status(302).build();
+        }
+
+        if (service.getMode() == Service.ServiceMode.ANONYMOUS) {
+            return ResponseEntity.ok().build(); // indicates a anonymous route, no auth is required.
         }
 
         if (request.getAttribute(Constants.REQUEST_CLAIMS_FIELD) != null) {
@@ -54,7 +59,7 @@ public class ForwardAuthController {
             if (service.isIdentityAllowed(identity)) {
                 return ResponseEntity.ok().build();
             } else {
-                response.sendRedirect(baseDomain + "/#/cas/error?service=" + serviceUrl + "&code=" + ValidateResponse.StatusCode.DENIED);
+                response.sendRedirect(baseDomain + "/#/cas/error?service=" + serviceUrl + "&code=" + CasStatusCode.DENIED);
                 return ResponseEntity.status(302).build();
             }
         } else {

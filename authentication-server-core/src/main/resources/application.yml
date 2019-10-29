@@ -1,1 +1,15 @@
-#spring.data.rest.defaultMediaType: application/json
+logging:
+  level:
+    de:
+      reynok: DEBUG
+spring:
+  jpa:
+    show-sql: true
+
+app.version: ${env.CI_CONCURRENT_PROJECT_ID}
+
+spring.jackson.serialization.FAIL_ON_EMPTY_BEANS: false
+spring.jackson.default-property-inclusion: "non-absent"
+
+cas:
+  cookie-domain: localhost

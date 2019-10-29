@@ -19,6 +19,11 @@ module.exports = {
                 ws          : true,
                 changeOrigin: true
             },
+            '^/webauthn': {
+                target      : 'http://localhost:3000',
+                ws          : true,
+                changeOrigin: true
+            },
         }
     },
     configureWebpack: {

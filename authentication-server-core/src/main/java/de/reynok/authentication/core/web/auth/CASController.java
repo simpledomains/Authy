@@ -1,22 +1,23 @@
 package de.reynok.authentication.core.web.auth;
 
 import de.reynok.authentication.core.Constants;
-import de.reynok.authentication.core.database.entity.Identity;
-import de.reynok.authentication.core.database.entity.Service;
-import de.reynok.authentication.core.database.repository.IdentityRepository;
-import de.reynok.authentication.core.cas.ServiceValidation;
-import de.reynok.authentication.core.cas.TicketHandler;
-import de.reynok.authentication.core.cas.TicketType;
-import de.reynok.authentication.core.cas.ValidateResponse;
+import de.reynok.authentication.core.api.exception.AccessDeniedException;
+import de.reynok.authentication.core.api.exception.ServiceException;
+import de.reynok.authentication.core.api.exception.UnknownServiceException;
+import de.reynok.authentication.core.api.models.Identity;
+import de.reynok.authentication.core.api.models.Service;
+import de.reynok.authentication.core.api.service.LoginRequest;
+import de.reynok.authentication.core.api.service.LoginResponse;
+import de.reynok.authentication.core.conf.CASConfiguration;
+import de.reynok.authentication.core.logic.cas.*;
+import de.reynok.authentication.core.logic.database.repository.IdentityRepository;
 import de.reynok.authentication.core.util.JwtProcessor;
-import de.reynok.authentication.core.web.api.LoginFailedResponse;
-import de.reynok.authentication.core.web.api.LoginRequest;
-import de.reynok.authentication.core.web.api.LoginResponse;
+import de.reynok.authentication.core.util.validation.OneTimePasswordValidator;
+import de.reynok.authentication.core.web.RequestProcessedController;
 import io.jsonwebtoken.Claims;
-import lombok.RequiredArgsConstructor;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,39 +26,49 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
 @RestController
-@RequiredArgsConstructor(onConstructor_ = {@Autowired})
-public class CASController {
-    private final TicketHandler ticketHandler;
-    private final JwtProcessor jwtProcessor;
+public class CASController extends RequestProcessedController {
+    private final TicketHandler      ticketHandler;
+    private final JwtProcessor       jwtProcessor;
     private final IdentityRepository identityRepository;
-    private final ServiceValidation serviceValidation;
+    private final ServiceValidation  serviceValidation;
+    private final CASConfiguration   casConfiguration;
 
-    @Value("${app.domain:}")
-    private String baseDomain;
-    @Value("${app.cas.cookie.domain:#{null}}")
-    private String cookieDomain;
-
-    @GetMapping("/cas/logout")
-    public ResponseEntity logout(HttpServletResponse response) throws IOException {
-        Cookie cookie = new Cookie("CASTGC", "");
-        cookie.setMaxAge(1);
-
-        response.addCookie(cookie);
-        response.sendRedirect(baseDomain + "/");
-        return ResponseEntity.status(302).build();
+    @Autowired
+    public CASController(TicketHandler ticketHandler, JwtProcessor jwtProcessor, IdentityRepository identityRepository, ServiceValidation serviceValidation, CASConfiguration configuration) {
+        super(identityRepository);
+        this.jwtProcessor = jwtProcessor;
+        this.identityRepository = identityRepository;
+        this.serviceValidation = serviceValidation;
+        this.ticketHandler = ticketHandler;
+        this.casConfiguration = configuration;
     }
 
+    @GetMapping("/cas/logout")
+    public void logout(HttpServletResponse response) throws IOException {
+        Cookie cookie = new Cookie("CASTGC", "");
+        cookie.setMaxAge(1);
+        cookie.setPath(casConfiguration.getCookiePath());
+        cookie.setComment(casConfiguration.getCookieComment());
+        cookie.setDomain(casConfiguration.getCookieDomain());
+
+        response.addCookie(cookie);
+        response.sendRedirect(casConfiguration.getSystemDomain() + "/");
+        response.setStatus(302);
+    }
+
+    @CrossOrigin
     @GetMapping("/cas/login")
-    public ResponseEntity requestLogin(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "service") String serviceUrl) throws IOException {
+    public void requestLogin(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "service") String serviceUrl) throws IOException {
         Service service = serviceValidation.isAllowed(serviceUrl);
 
         if (service == null) {
-            response.sendRedirect(baseDomain + "/#/cas/error?service=" + request.getParameter("service") + "&code=" + ValidateResponse.StatusCode.MISSING_SERVICE);
-            return ResponseEntity.status(302).build();
+            response.sendRedirect(getRDUrl("error", request, CasStatusCode.MISSING_SERVICE));
+            response.setStatus(302);
         }
 
         if (request.getAttribute(Constants.REQUEST_CLAIMS_FIELD) != null) {
@@ -72,23 +83,26 @@ public class CASController {
                 loginResponse.setLocation(redirectUrl);
 
                 response.sendRedirect(redirectUrl);
-                return ResponseEntity.status(302).build();
+                response.setStatus(302);
             } else {
-                response.sendRedirect(baseDomain + "/#/cas/error?service=" + request.getParameter("service") + "&code=" + ValidateResponse.StatusCode.DENIED);
-                return ResponseEntity.status(302).build();
+                response.sendRedirect(getRDUrl("error", request, CasStatusCode.DENIED));
+                response.setStatus(302);
             }
         } else {
-            response.sendRedirect(baseDomain + "/#/cas/login?service=" + request.getParameter("service"));
-            return ResponseEntity.status(302).build();
+            response.sendRedirect(getRDUrl("login", request));
+            response.setStatus(302);
         }
     }
 
+    @CrossOrigin
     @PostMapping("/cas/login")
-    public ResponseEntity processAuthentication(HttpServletResponse response, @RequestBody LoginRequest body, @RequestParam("service") String serviceUrl) {
+    public ResponseEntity<LoginResponse> processAuthentication(HttpServletResponse response, @RequestBody LoginRequest body, @RequestParam("service") String serviceUrl) throws ServiceException {
         Service service = serviceValidation.isAllowed(serviceUrl);
 
+        log.info("Authentication Request for {} (from={}) as User {} (CAS: {}).", service, serviceUrl, body.getUsername(), body.getCas());
+
         if (service == null) {
-            return ResponseEntity.status(400).body(new LoginFailedResponse("No Service found for " + serviceUrl));
+            throw new UnknownServiceException("No Service found for " + serviceUrl);
         }
 
         Optional<Identity> optionalIdentity = identityRepository.findByUsername(body.getUsername());
@@ -96,14 +110,26 @@ public class CASController {
         if (optionalIdentity.isPresent()) {
             Identity identity = optionalIdentity.get();
 
-            if (identity.checkPassword(body.getPassword(), body.getSecurityPassword())) {
-                Cookie cookie = new Cookie(Constants.COOKIE_NAME, jwtProcessor.getJwtTokenFor(identity));
-                cookie.setMaxAge(60 * 60 * 12);
-                cookie.setPath("/");
-                cookie.setComment("CAS Auth Token");
+            if (identity.checkPassword(body.getPassword())) {
+                if (identity.getOtpSecret() != null && identity.getOtpSecret().length() > 0) {
+                    if (body.getSecurityPassword() != null) {
+                        OneTimePasswordValidator validator = new OneTimePasswordValidator(identity.getOtpSecret());
 
-                if (cookieDomain != null) {
-                    cookie.setDomain(cookieDomain);
+                        if (!validator.isValid(body.getSecurityPassword())) {
+                            throw new AccessDeniedException("Username or Password does not match.").setCode(409);
+                        }
+                    } else {
+                        throw new AccessDeniedException(null).setCode(409);
+                    }
+                }
+
+                Cookie cookie = new Cookie(Constants.COOKIE_NAME, jwtProcessor.getJwtTokenFor(identity, service));
+                cookie.setMaxAge(casConfiguration.getCookieMaxAge());
+                cookie.setPath(casConfiguration.getCookiePath());
+                cookie.setComment(casConfiguration.getCookieComment());
+
+                if (casConfiguration.getCookieDomain() != null) {
+                    cookie.setDomain(casConfiguration.getCookieDomain());
                 }
 
                 response.addCookie(cookie);
@@ -111,9 +137,9 @@ public class CASController {
                 LoginResponse loginResponse = new LoginResponse();
 
                 if (body.getCas()) {
-                    loginResponse.setLocation(serviceUrl);
-                } else {
                     loginResponse.setLocation(getRedirectLogin(serviceUrl, identity)); // issues a new ticket
+                } else {
+                    loginResponse.setLocation(serviceUrl);
                 }
 
                 return ResponseEntity.ok(loginResponse);
@@ -123,26 +149,55 @@ public class CASController {
         return ResponseEntity.status(403).build();
     }
 
-    @GetMapping(value = {"/cas/validate", "/cas/p3/serviceValidate", "/cas/serviceValidate"})
-    public ResponseEntity validate(HttpServletResponse response, @RequestParam("ticket") String ticket, @RequestParam("service") String service) {
-        ValidateResponse validateResponse = new ValidateResponse();
+    @GetMapping(value = {"/cas/validate", "/cas/p3/serviceValidate", "/cas/serviceValidate", "/cas/proxyValidate", "/cas/p3/proxyValidate"}, produces = "application/json")
+    @ApiOperation(response = Map.class, value = "Validates a Service Ticket", notes = "**ATTENTION**: Proxy-Tickets cannot be validated!", produces = "application/json")
+    public ResponseEntity validateAsJson(HttpServletResponse response, @RequestParam("ticket") String ticket, @RequestParam("service") String service) {
+        CasJsonResponse jsonResponse = new CasJsonResponse();
 
         Identity identity = ticketHandler.getTicketData(ticket, service);
 
-        if(identity != null) {
-            validateResponse.isSuccess(identity);
+        if (identity != null) {
+            jsonResponse.success(identity);
         } else {
-            validateResponse.isFailure(ValidateResponse.StatusCode.INVALID_TICKET, "Ticket " + ticket + " not recognized.");
+            jsonResponse.error(CasStatusCode.INVALID_TICKET, "Ticket " + ticket + " not recognized.");
+        }
+
+        return jsonResponse.toResponse();
+    }
+
+    /**
+     * ATTENTION: /proxyValidate is ONLY validating the normal service tickets, proxyTickets are NOT yet supported!
+     */
+    @GetMapping(value = {"/cas/validate", "/cas/p3/serviceValidate", "/cas/serviceValidate", "/cas/proxyValidate", "/cas/p3/proxyValidate"})
+    @ApiOperation(response = Map.class, value = "Validates a Service Ticket", notes = "**ATTENTION**: Proxy-Tickets cannot be validated!", produces = "application/xml")
+    public ResponseEntity validate(HttpServletResponse response, @RequestParam("ticket") String ticket, @RequestParam("service") String service) {
+        CasXmlResponse xmlResponse = new CasXmlResponse();
+
+        Identity identity = ticketHandler.getTicketData(ticket, service);
+
+        if (identity != null) {
+            xmlResponse.isSuccess(identity);
+        } else {
+            xmlResponse.isFailure(CasStatusCode.INVALID_TICKET, "Ticket " + ticket + " not recognized.");
         }
 
         response.setContentType("application/xml");
-        return ResponseEntity.ok(validateResponse.toString());
+        return ResponseEntity.ok(xmlResponse.toString());
+    }
+
+
+    private String getRDUrl(String type, HttpServletRequest request, CasStatusCode statusCode) {
+        return getRDUrl(type, request) + "&code=" + statusCode;
+    }
+
+    private String getRDUrl(String type, HttpServletRequest request) {
+        return casConfiguration.getSystemDomain() + "/#/cas/" + type + "?service=" + request.getParameter("service");
     }
 
     private String getRedirectLogin(String service, Identity identity) {
         String serviceUrl = service;
 
-        if(service.contains("?")) service += "&"; else service += "?";
+        if (service.contains("?")) { service += "&"; } else { service += "?"; }
         service += "ticket=" + ticketHandler.generateTicketFor(TicketType.ST, serviceUrl, identity);
 
         return service;

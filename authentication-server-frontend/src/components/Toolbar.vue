@@ -1,12 +1,12 @@
 <template>
     <div>
-        <v-app-bar app color="indigo" dark>
+        <v-app-bar dense app color="primary" dark>
             <v-app-bar-nav-icon @click="drawer = !drawer" v-if="isAdmin"></v-app-bar-nav-icon>
             <v-icon>fas fa-lock</v-icon>&nbsp; &nbsp;
             <v-toolbar-title>Authy - {{ location }}</v-toolbar-title>
 
             <div class="flex-grow-1"></div>
-            <v-btn fab small color="pink" v-if="showLogoutButton" @click="$emit('sign-out')">
+            <v-btn fab x-small color="pink" v-if="showLogoutButton" @click="signOut" elevation="1">
                 <v-icon small>fas fa-sign-out-alt</v-icon>
             </v-btn>
 
@@ -73,16 +73,16 @@
 
 <script>
     export default {
-        data    : () => ({
+        data: () => ({
             drawer: false,
         }),
-        props   : {
-            location    : String,
-            isAdmin     : Boolean,
-            processing  : Boolean,
+        props: {
+            location: String,
+            isAdmin: Boolean,
+            processing: Boolean,
             logoutButton: Boolean,
         },
-        methods : {
+        methods: {
             openMenu() {
                 if (this.isAdmin) {
                     this.drawer = true;
@@ -92,6 +92,10 @@
                 if (this.isAdmin) {
                     this.drawer = false;
                 }
+            },
+            signOut() {
+                localStorage.removeItem('AuthyUser');
+                window.location = '/cas/logout';
             }
         },
         computed: {

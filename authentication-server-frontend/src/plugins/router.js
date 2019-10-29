@@ -4,6 +4,7 @@ import Login from '../views/Login'
 import Home from "../views/Home";
 import AccessDenied from "../views/AccessDenied";
 import CasError from "../views/CasError";
+import RouteOverview from "../views/admin/RouteOverview";
 
 Vue.use(Router);
 
@@ -36,5 +37,13 @@ export default new Router({
             name: 'AccessDenied',
             component: AccessDenied
         },
+
+        // ADMIN
+
+        {
+            path: '/admin/routes',
+            name: 'AdminRoutes',
+            component: RouteOverview
+        }
     ]
 })

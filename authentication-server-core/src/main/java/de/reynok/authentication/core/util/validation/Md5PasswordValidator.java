@@ -1,7 +1,7 @@
 package de.reynok.authentication.core.util.validation;
 
 
-import de.reynok.authentication.core.database.entity.Identity;
+import de.reynok.authentication.core.api.models.Identity;
 import org.apache.commons.codec.digest.Md5Crypt;
 
 public class Md5PasswordValidator implements Validator<String> {

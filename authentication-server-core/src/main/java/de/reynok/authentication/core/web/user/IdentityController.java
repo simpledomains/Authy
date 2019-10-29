@@ -3,20 +3,18 @@ package de.reynok.authentication.core.web.user;
 import com.amdelamar.jotp.OTP;
 import com.amdelamar.jotp.type.Type;
 import de.reynok.authentication.core.Constants;
-import de.reynok.authentication.core.database.entity.Identity;
-import de.reynok.authentication.core.database.repository.IdentityRepository;
-import de.reynok.authentication.core.security.RequiresAuthentication;
+import de.reynok.authentication.core.annotations.WebRequiresAuthentication;
+import de.reynok.authentication.core.api.models.Identity;
+import de.reynok.authentication.core.api.service.LoginRequest;
+import de.reynok.authentication.core.logic.database.repository.IdentityRepository;
 import de.reynok.authentication.core.util.ImageHelper;
 import de.reynok.authentication.core.web.RequestProcessedController;
-import de.reynok.authentication.core.web.api.OneTimePasswordVerificationRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -39,13 +37,25 @@ public class IdentityController extends RequestProcessedController {
         super(identityRepository);
     }
 
-    @RequiresAuthentication
+    @WebRequiresAuthentication
     @GetMapping("/api/me")
     public Identity me(HttpServletRequest request) {
         return getIdentityFromRequest(request);
     }
 
-    @RequiresAuthentication
+    @WebRequiresAuthentication
+    @PatchMapping("/api/me")
+    public Identity patchMe(@RequestBody Map<String, Object> update, HttpServletRequest request) {
+        Identity identity = getIdentityFromRequest(request);
+
+        identity.updateFrom(update);
+
+        identityRepository.save(identity);
+
+        return identity;
+    }
+
+    @WebRequiresAuthentication
     @GetMapping("/api/profile/otp/start")
     public ResponseEntity initializeOneTimePassword(HttpSession httpSession, HttpServletRequest request) {
         Identity id = getIdentityFromRequest(request);
@@ -59,7 +69,7 @@ public class IdentityController extends RequestProcessedController {
         return ResponseEntity.ok(output);
     }
 
-    @RequiresAuthentication
+    @WebRequiresAuthentication
     @GetMapping(value = "/api/profile/otp/qrcode", produces = "image/png")
     public byte[] getQrCodeImageForOneTimePassword(HttpSession httpSession, HttpServletRequest request) {
         Identity id = getIdentityFromRequest(request);
@@ -73,14 +83,14 @@ public class IdentityController extends RequestProcessedController {
         return ImageHelper.createQrCode(OTP.getURL(obj, 6, Type.TOTP, issuer, id.getUsername()));
     }
 
-    @RequiresAuthentication
+    @WebRequiresAuthentication
     @PostMapping(value = "/api/profile/otp/verify")
-    public ResponseEntity verifyOneTimePassword(@RequestBody OneTimePasswordVerificationRequest verificationRequest, HttpServletRequest request, HttpSession httpSession) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
-        Identity id  = getIdentityFromRequest(request);
-        String   obj = (String) httpSession.getAttribute(Constants.OTP_SECRET);
+    public ResponseEntity verifyOneTimePassword(@RequestBody LoginRequest verificationRequest, HttpServletRequest request, HttpSession httpSession) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
+        Identity id = getIdentityFromRequest(request);
+        String obj = (String) httpSession.getAttribute(Constants.OTP_SECRET);
 
         if (obj != null) {
-            if (Objects.equals(verificationRequest.getTotp(), OTP.create(obj, OTP.timeInHex(), 6, Type.TOTP))) {
+            if (Objects.equals(verificationRequest.getSecurityPassword(), OTP.create(obj, OTP.timeInHex(), 6, Type.TOTP))) {
 
                 id.setOtpSecret(obj);
                 identityRepository.save(id);
@@ -92,5 +102,30 @@ public class IdentityController extends RequestProcessedController {
         } else {
             throw new IllegalArgumentException("TOTP Secret is empty, you need to start the verification process first.");
         }
+    }
+
+    @WebRequiresAuthentication
+    @PostMapping("/api/profile/api-token")
+    public ResponseEntity generateApiToken(HttpServletRequest request) {
+        Identity identity = getIdentityFromRequest(request);
+        String key = RandomStringUtils.randomAlphanumeric(32);
+
+        identity.setApiToken(key);
+
+        identityRepository.save(identity);
+
+        return ResponseEntity.status(202).body(key);
+    }
+
+    @WebRequiresAuthentication
+    @DeleteMapping("/api/profile/api-token")
+    public ResponseEntity deleteApiToken(HttpServletRequest request) {
+        Identity identity = getIdentityFromRequest(request);
+
+        identity.setApiToken(null);
+
+        identityRepository.save(identity);
+
+        return ResponseEntity.status(204).build();
     }
 }
