@@ -5,6 +5,7 @@ import Home from "../views/Home";
 import AccessDenied from "../views/AccessDenied";
 import CasError from "../views/CasError";
 import RouteOverview from "../views/admin/RouteOverview";
+import UserOverview from "../views/admin/UserOverview";
 
 Vue.use(Router);
 
@@ -44,6 +45,11 @@ export default new Router({
             path: '/admin/routes',
             name: 'AdminRoutes',
             component: RouteOverview
-        }
+        },
+        {
+            path: '/admin/users',
+            name: 'AdminUsersView',
+            component: UserOverview
+        },
     ]
 })

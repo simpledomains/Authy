@@ -1,103 +1,78 @@
 <template>
-    <basic-app>
-        <v-content class="ml-3 mr-3">
-            <v-row>
-                <v-col lg="6" offset-lg="3" sm="12" offset-sm="0" md="12" offset-md="0">
-                    <v-card>
-                        <v-toolbar dense color="primary" dark elevation="1" tile>
-                            <v-toolbar-title>
-                                <v-icon v-if="!user.admin">mdi-account</v-icon>
-                                <v-icon v-if="user.admin">mdi-shield-account</v-icon>
-                                My Profile
-                            </v-toolbar-title>
-                        </v-toolbar>
-                        <v-card-text v-if="user != null">
-                            <v-row>
-                                <v-col cols="12">
-                                    <v-alert type="success" color="success" border="bottom" v-if="user.otpEnabled">
-                                        You'r Account is secured by 2-FA
-                                    </v-alert>
-                                    <v-alert type="error" color="error" border="bottom" v-else>
-                                        You'r Account is not secured with 2-FA!
-                                    </v-alert>
-                                </v-col>
-                            </v-row>
-                            <v-row>
-                                <v-col cols="6">
-                                    <v-text-field
-                                            v-model="user.username"
-                                            :counter="24"
-                                            label="Username"
-                                            disabled
-                                            required>
-                                    </v-text-field>
-                                </v-col>
-                                <v-col cols="6">
-                                    <v-text-field
-                                            v-model="user.displayName"
-                                            :counter="24"
-                                            label="Display name"
-                                            required>
-                                    </v-text-field>
-                                </v-col>
-                                <v-col cols="6">
-                                    <v-text-field
-                                            v-model="user.email"
-                                            :counter="32"
-                                            label="E-Mail Address"
-                                            required>
-                                    </v-text-field>
-                                </v-col>
-                            </v-row>
-                            <v-row v-if="user.admin" class="d-none d-sm-flex">
-                                <v-col cols="10">
-                                    <v-text-field readonly label="API Token (only visible on first request)"
-                                                  v-model="apiToken"></v-text-field>
-                                </v-col>
-                                <v-col cols="2" justify="center" align-self="center">
-                                    <v-btn elevation="1" dark fab small color="deep-orange" :loading="isApiRefreshing"
-                                           @click="requestApiToken">
-                                        <v-icon>mdi-refresh</v-icon>
-                                    </v-btn>
-                                </v-col>
-                            </v-row>
-                        </v-card-text>
-                        <v-divider/>
-                        <v-card-actions>
-                            <v-btn elevation="1" color="indigo" dark @click="saveUpdateForm()">
-                                <v-icon>mdi-content-save-outline</v-icon>&nbsp; Save
-                            </v-btn>
-
-                            <v-btn elevation="1" color="warning" dark @click="changePassword()">
-                                <v-icon>mdi-key-star</v-icon>&nbsp; Change Password
-                            </v-btn>
-
-                            <v-btn elevation="1" color="success" dark @click="enableTwoFactor()"
-                                   v-if="!user.otpEnabled">
-                                Enable &nbsp;
-                                <v-icon>mdi-two-factor-authentication</v-icon>
-                            </v-btn>
-
-                            <!--
-                            <v-btn elevation="1" color="success" dark @click="registerU2FDevice()">
-                                Register Authenticator &nbsp;
-                                <v-icon>mdi-shield-account-outline</v-icon>
-                            </v-btn>
-                            -->
-
-                            <v-btn elevation="1" color="error" dark @click="disableTwoFactor()" v-if="user.otpEnabled">
-                                Disable &nbsp;
-                                <v-icon>mdi-two-factor-authentication</v-icon>
-                            </v-btn>
-
-                            <v-btn elevation="1" color="blue-grey" dark @click="getCurrentUser(true)"
-                                   class="d-none d-md-flex">
-                                <v-icon>mdi-account-convert</v-icon>&nbsp; Refresh
-                            </v-btn>
-                        </v-card-actions>
-                    </v-card>
-                </v-col>
-            </v-row>
+    <basic-app location="Home">
+        <v-content>
+            <v-container>
+                <v-row>
+                    <v-col>
+                        <v-card>
+                            <v-toolbar dense color="primary" dark>
+                                <v-toolbar-title>
+                                    <v-icon class="mb-1">mdi-account</v-icon>
+                                    My Profile
+                                </v-toolbar-title>
+                                <v-spacer></v-spacer>
+                                <v-btn icon :loading="isApiRefreshing" @click="getCurrentUser(true)">
+                                    <v-icon>mdi-reload</v-icon>
+                                </v-btn>
+                            </v-toolbar>
+                            <v-card-text>
+                                <v-row>
+                                    <v-col cols="12" lg="6">
+                                        <v-text-field v-model="user.username" disabled
+                                                      prepend-inner-icon="mdi-account-badge"
+                                                      suffix="Username"></v-text-field>
+                                    </v-col>
+                                    <v-col cols="12" lg="6">
+                                        <v-text-field v-model="user.email"
+                                                      prepend-inner-icon="mdi-email-newsletter"
+                                                      suffix="E-Mail"></v-text-field>
+                                    </v-col>
+                                    <v-col cols="12" lg="6">
+                                        <v-text-field v-model="user.displayName"
+                                                      prepend-inner-icon="mdi-account-card-details-outline"
+                                                      suffix="Display-Name"></v-text-field>
+                                    </v-col>
+                                </v-row>
+                                <v-row v-if="user.admin">
+                                    <v-col cols="12" lg="6">
+                                        <v-text-field v-model="apiToken" readonly :loading="isApiRefreshing"
+                                                      prepend-inner-icon="mdi-api"
+                                                      suffix="API Token"
+                                                      append-outer-icon="mdi-reload"
+                                                      @click:append-outer="requestApiToken()"></v-text-field>
+                                    </v-col>
+                                </v-row>
+                            </v-card-text>
+                            <v-card-text v-if="!user.getOtpEnabled">
+                                <v-alert color="error" dense type="error" elevation="4">
+                                    You'r Account is not secured with
+                                    <v-icon class="pb-1">mdi-two-factor-authentication</v-icon>
+                                    !<br>
+                                    This is highly recommended!
+                                </v-alert>
+                            </v-card-text>
+                            <v-card-actions>
+                                <v-btn small color="success" :loading="isApiRefreshing" @click="saveUpdateForm()">
+                                    <v-icon small left>mdi-content-save-all</v-icon>
+                                    Save
+                                </v-btn>
+                                <v-btn small dark color="blue-grey" @click="changePassword()">
+                                    <v-icon small left>mdi-lock-reset</v-icon>
+                                    Change Password
+                                </v-btn>
+                                <v-btn v-if="user.otpEnabled" small color="error" @click="disableTwoFactor()">
+                                    <v-icon small left>mdi-two-factor-authentication</v-icon>
+                                    Disable
+                                </v-btn>
+                                <v-btn v-if="!user.otpEnabled" small color="success" @click="enableTwoFactor()">
+                                    <v-icon small left>mdi-two-factor-authentication</v-icon>
+                                    Enable
+                                </v-btn>
+                            </v-card-actions>
+                        </v-card>
+                    </v-col>
+                </v-row>
+            </v-container>
         </v-content>
     </basic-app>
 </template>
@@ -152,7 +127,18 @@
                 });
             },
             disableTwoFactor() {
-                this.updateLocalUser({otpSecret: null});
+                sweetalert2.fire({
+                    type: 'warning',
+                    title: 'Are you sure?',
+                    text: 'If you wanna really disable 2FA, press OK',
+                    showCancelButton: true,
+                    cancelButtonText: 'Abort',
+                    confirmButtonText: 'Agree',
+                }).then(r => {
+                    if (r.value) {
+                        this.updateLocalUser({otpSecret: null});
+                    }
+                });
             },
             enableTwoFactor() {
                 axios.get('/api/profile/otp/start').then(() => {

@@ -8,7 +8,7 @@ Vue.use(Vuetify, {directives});
 
 export default new Vuetify({
     theme: {
-        dark: false,
+        dark: true,
         themes:{
             dark: {
                 primary: colors.indigo,
