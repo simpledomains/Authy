@@ -43,7 +43,7 @@
                                     </v-col>
                                 </v-row>
                             </v-card-text>
-                            <v-card-text v-if="!user.getOtpEnabled">
+                            <v-card-text v-if="!user.otpEnabled">
                                 <v-alert color="error" dense type="error" elevation="4">
                                     You'r Account is not secured with
                                     <v-icon class="pb-1">mdi-two-factor-authentication</v-icon>
