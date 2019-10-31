@@ -27,7 +27,7 @@ public class AuthenticationServer {
     public Docket docket() {
         return (new Docket(DocumentationType.SWAGGER_2))
                 .select()
-                .paths(PathSelectors.regex("/(api|cas)/.*"))
+                .paths(PathSelectors.regex("/api/admin/.*"))
                 .build()
                 .apiInfo(apiInfo());
     }

@@ -211,6 +211,7 @@
         },
         mounted() {
             this.$refs.txtUsername.focus();
+            this.$frontendConfiguration(this.$vuetify);
         }
     }
 </script>

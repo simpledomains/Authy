@@ -1,0 +1,17 @@
+version: '3'
+services:
+  authy:
+    image: docker.io/sealife/forward-auth-server:java
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+    hostname: authy.example.com
+    restart: unless-stopped
+    environment:
+      APP_SECRETS_JWT: somESecReTKey12354!
+      CAS_SYSTEM_DOMAIN: https://auth.example.com
+      CAS_COOKIE_DOMAIN: example.com
+      SPRING_DATASOURCE_URL: "jdbc:mysql://example.com/auth?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC"
+      SPRING_DATASOURCE_USERNAME: authy
+      SPRING_DATASOURCE_PASSWORD: myDatabasePassword
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "true"

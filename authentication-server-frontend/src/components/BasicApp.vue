@@ -34,6 +34,7 @@
         },
         mounted() {
             this.getCurrentUser(true);
+            this.$frontendConfiguration(this.$vuetify);
         }
     }
 </script>
