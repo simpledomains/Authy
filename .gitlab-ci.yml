@@ -40,3 +40,14 @@ publish-docker:
   script:
     - "docker login -u=$DOCKER_HUB_USER -p=$DOCKER_HUB_PASSWORD"
     - "docker push $DOCKER_NAMESPACE/$DOCKER_IMAGE_NAME:java"
+
+publish-internal:
+  stage: publish
+  image: docker:latest
+  allow_failure: true
+  services:
+    - docker:dind
+  script:
+    - "docker login -u=gitlab-ci-token -p=$CI_JOB_TOKEN $CI_REGISTRY"
+    - "docker tag $DOCKER_NAMESPACE/$DOCKER_IMAGE_NAME:java $CI_REGISTRY/sealife-docker/cas:java"
+    - "docker push $CI_REGISTRY/sealife-docker/cas:java"

@@ -87,7 +87,7 @@
     import axios from "axios";
     import sweetalert2 from 'sweetalert2';
     import BasicApp from "../components/BasicApp";
-    import {create} from '@github/webauthn-json';
+    //import {create} from '@github/webauthn-json';
 
     export default {
         components: {BasicApp},

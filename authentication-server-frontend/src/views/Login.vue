@@ -86,8 +86,8 @@
 <script>
     import axios from "axios";
     import Footer from "../components/Footer";
-    import {get} from '@github/webauthn-json';
-    import {fromByteArray, toByteArray} from 'base64-js';
+    //import {get} from '@github/webauthn-json';
+    //import {fromByteArray, toByteArray} from 'base64-js';
 
     export default {
         props: ['cas'],
