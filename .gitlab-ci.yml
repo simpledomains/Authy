@@ -3,6 +3,12 @@ variables:
   DOCKER_NAMESPACE: sealife
   MAVEN_CLI_OPTS: "-s .m2/settings.xml --batch-mode -P r3ktm8"
   MAVEN_OPTS: "-Dmaven.repo.local=/cache/maven-repository"
+  DOCKER_TAG_LOCAL: "$CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:$CI_COMMIT_REF_NAME"
+  DOCKER_TAG_LOCAL_LATEST: "$CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:latest"
+  DOCKER_TAG_LOCAL_DEVELOP: "$CI_REGISTRY/$CI_PROJECT_NAMESPACE/$CI_PROJECT_NAME:develop"
+  DOCKER_TAG_REMOTE: "docker.io/$DOCKER_NAMESPACE/$DOCKER_IMAGE_NAME:$CI_COMMIT_REF_NAME"
+  DOCKER_TAG_REMOTE_LATEST: "docker.io/$DOCKER_NAMESPACE/$DOCKER_IMAGE_NAME:latest"
+  DOCKER_TAG_REMOTE_DEVELOP: "docker.io/$DOCKER_NAMESPACE/$DOCKER_IMAGE_NAME:develop"
 
 
 stages:
@@ -14,7 +20,7 @@ build-app:
   stage: build
   image: maven:3.6.2-jdk-12
   variables:
-    VUE_APP_CI_COMMIT_SHORT_SHA: "$CI_COMMIT_SHORT_SHA"
+    VUE_APP_CI_COMMIT_SHORT_SHA: "p$CI_PIPELINE_ID/j$JOB_ID"
   script:
     - "curl --silent https://git.r3ktm8.de/snippets/2/raw | sh"
     - "mvn $MAVEN_CLI_OPTS clean package"
@@ -29,25 +35,36 @@ build-docker:
     - docker:dind
   script:
     - "docker pull openjdk:12"
-    - "docker build -t $DOCKER_NAMESPACE/$DOCKER_IMAGE_NAME:java ."
+    - "docker build -t $DOCKER_TAG_LOCAL -t $DOCKER_TAG_LOCAL_LATEST -t $DOCKER_TAG_REMOTE -t $DOCKER_TAG_REMOTE_LATEST -t $DOCKER_TAG_REMOTE_DEVELOP -t $DOCKER_TAG_LOCAL_DEVELOP ."
 
-publish-docker:
+publish docker tags:
   stage: publish
   image: docker:latest
   allow_failure: true
   services:
     - docker:dind
+  only:
+    - tags
   script:
     - "docker login -u=$DOCKER_HUB_USER -p=$DOCKER_HUB_PASSWORD"
-    - "docker push $DOCKER_NAMESPACE/$DOCKER_IMAGE_NAME:java"
+    - "docker push $DOCKER_TAG_REMOTE"
+    - "docker push $DOCKER_TAG_REMOTE_LATEST"
 
-publish-internal:
+    - "docker login -u=gitlab-ci-token -p=$CI_JOB_TOKEN $CI_REGISTRY"
+    - "docker push $DOCKER_TAG_LOCAL"
+    - "docker push $DOCKER_TAG_LOCAL_LATEST"
+
+publish docker develop:
   stage: publish
   image: docker:latest
   allow_failure: true
   services:
     - docker:dind
+  except:
+    - tags
   script:
+    - "docker login -u=$DOCKER_HUB_USER -p=$DOCKER_HUB_PASSWORD"
+    - "docker push $DOCKER_TAG_REMOTE_DEVELOP"
+
     - "docker login -u=gitlab-ci-token -p=$CI_JOB_TOKEN $CI_REGISTRY"
-    - "docker tag $DOCKER_NAMESPACE/$DOCKER_IMAGE_NAME:java $CI_REGISTRY/sealife-docker/cas:java"
-    - "docker push $CI_REGISTRY/sealife-docker/cas:java"
+    - "docker push $DOCKER_TAG_LOCAL_DEVELOP"

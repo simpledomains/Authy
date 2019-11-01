@@ -13,3 +13,5 @@ spring.jackson.default-property-inclusion: "non-absent"
 
 cas:
   cookie-domain: localhost
+  system:
+    api-documentation-exposed: true
