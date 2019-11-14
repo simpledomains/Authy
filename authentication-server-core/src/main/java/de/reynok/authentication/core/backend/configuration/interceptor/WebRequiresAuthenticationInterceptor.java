@@ -55,12 +55,16 @@ public class WebRequiresAuthenticationInterceptor extends AuthyWebInterceptor {
                 } else {
                     Claims claims = (Claims) request.getAttribute(Constants.REQUEST_CLAIMS_FIELD);
 
+                    log.debug("Claims used: {}", claims);
+
                     if (claims != null) {
                         if (annotation.adminOnly() && !Boolean.parseBoolean(claims.get("administrator", String.class))) {
+                            log.debug("Access denied, resource is admin only but user is not admin");
                             allowed.set(false);
                         }
                     } else {
                         if (identity == null || (annotation.adminOnly() && !identity.getAdmin())) {
+                            log.debug("Access denied, identity is null or resource was admin only and found identity is no admin (api token)");
                             allowed.set(false);
                         }
                     }
