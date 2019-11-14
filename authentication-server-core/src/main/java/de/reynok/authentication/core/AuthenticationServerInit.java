@@ -17,11 +17,11 @@ import javax.annotation.PostConstruct;
 public class AuthenticationServerInit {
 
     @Autowired
-    private IdentityRepository identityRepository;
+    private IdentityRepository  identityRepository;
     @Autowired
     private AuthorityRepository authorityRepository;
     @Autowired
-    private ServiceRepository serviceRepository;
+    private ServiceRepository   serviceRepository;
 
     @PostConstruct
     private void initialize() {
@@ -34,19 +34,9 @@ public class AuthenticationServerInit {
             applicationService.setEnabled(true);
             serviceRepository.save(applicationService);
 
-            Service authedService = new Service();
-            authedService.setName("Protect some app");
-            authedService.getAllowedUrls().add("https://google.com*");
-            authedService.setMode(Service.ServiceMode.AUTHORIZED);
-            authedService.getRequiredRoles().add("admin");
-            authedService.getRequiredRoles().add("cloud");
-            authedService.getRequiredRoles().add("monitoring");
-            authedService.getRequiredRoles().add("sysadmin");
-            serviceRepository.save(authedService);
-
             Service service = new Service();
             service.setName("Allow all");
-            service.setEnabled(false);
+            service.setEnabled(true);
             service.getAllowedUrls().add("*");
             service.setMode(Service.ServiceMode.PUBLIC);
             serviceRepository.save(service);

@@ -27,7 +27,7 @@ public abstract class AbstractAuthyController {
             Claims claims = (Claims) request.getAttribute(Constants.REQUEST_CLAIMS_FIELD);
 
             if (claims != null) {
-                log.info("{}", claims);
+                log.debug("{} {} (principal={})", request.getMethod(), request.getRequestURI(), claims.getSubject());
 
                 return identityRepository.findByUsername(claims.get("sub").toString()).orElseThrow(EntityNotFoundException::new);
             }
