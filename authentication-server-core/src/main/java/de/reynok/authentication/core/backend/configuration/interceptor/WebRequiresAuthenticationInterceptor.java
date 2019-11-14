@@ -32,7 +32,7 @@ public class WebRequiresAuthenticationInterceptor extends AuthyWebInterceptor {
 
         AtomicBoolean allowed = new AtomicBoolean(true);
 
-        Cookie[] cookies = request.getCookies() != null ? request.getCookies() : new Cookie[0];
+        Cookie[] cookies  = request.getCookies() != null ? request.getCookies() : new Cookie[0];
         Identity identity = null;
 
         String authorizationHeader = request.getHeader("Authorization");
@@ -40,9 +40,12 @@ public class WebRequiresAuthenticationInterceptor extends AuthyWebInterceptor {
         if (handler instanceof HandlerMethod) {
             Optional<Cookie> authCookie = Stream.of(cookies).filter(cookie -> cookie.getName().equals(Constants.COOKIE_NAME)).findFirst();
 
+            log.debug("Is cookie there? {}", authCookie.isPresent());
+
             WebRequiresAuthentication annotation = ((HandlerMethod) handler).getMethod().getAnnotation(WebRequiresAuthentication.class);
 
             if (authorizationHeader != null && "Bearer".equals(authorizationHeader.split(" ")[0])) {
+                log.debug("Authorization header is present ...");
                 identity = getIdentityRepository().findByApiToken(authorizationHeader.split(" ")[1]).orElseThrow(AccessDeniedException::new);
             }
 
@@ -66,6 +69,7 @@ public class WebRequiresAuthenticationInterceptor extends AuthyWebInterceptor {
         }
 
         if (!allowed.get()) {
+            log.debug("Access Denied for Request {} {} from {}", request.getMethod(), request.getRequestURI(), request.getRemoteAddr());
             response.sendError(403);
         }
 
