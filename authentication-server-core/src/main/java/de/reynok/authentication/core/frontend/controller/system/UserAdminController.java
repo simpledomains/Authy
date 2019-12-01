@@ -26,7 +26,7 @@ public class UserAdminController extends AbstractAuthyController {
 
     @WebRequiresAuthentication(adminOnly = true)
     @GetMapping("/api/admin/users")
-    public Iterable<Identity> identities() {
+    public List<Identity> identities() {
         return identityRepository.findAll();
     }
 

@@ -10,6 +10,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -27,7 +28,7 @@ public class AuthorityAdminController extends AbstractAuthyController {
     @GetMapping("/admin/authorities")
     @WebRequiresAuthentication(adminOnly = true)
     @ApiOperation(response = Authority.class, responseContainer = "List", value = "Get all authorities")
-    public Iterable<Authority> identities() {
+    public List<Authority> identities() {
         return authorityRepository.findAll();
     }
 
