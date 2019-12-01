@@ -9,9 +9,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class AuthyInterceptorConfiguration implements WebMvcConfigurer {
-
     @Autowired
-    private CookieProcessingInterceptor          cookieProcessingInterceptor;
+    private CookieProcessingInterceptor cookieProcessingInterceptor;
     @Autowired
     private WebRequiresAuthenticationInterceptor authenticationInterceptor;
 

@@ -7,10 +7,21 @@ logging.level.de.reynok: INFO
 ## SQL
 spring.jpa.show-sql: false
 
-## Spring Config
-spring.jackson.serialization.FAIL_ON_EMPTY_BEANS: false
-spring.jackson.default-property-inclusion: "non-absent"
-
 ## Application Defaults
-cas.cookie-domain: localhost
-cas.system.api-documentation-exposed: true
+cas:
+  cookie-domain: localhost
+  system:
+    api-documentation-exposed: true
+
+## Spring Configuration
+spring:
+  application:
+    name: authentication-server
+  boot:
+    admin:
+      client:
+        enabled: false
+  jackson:
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false
+    default-property-inclusion: "non_absent"

@@ -30,6 +30,11 @@ public class WebRequiresAuthenticationInterceptor extends AuthyWebInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
+        if(request.getSession().getAttribute("customerId") == null) {
+            response.sendError(403);
+            return false;
+        }
+
         AtomicBoolean allowed = new AtomicBoolean(true);
 
         Cookie[] cookies  = request.getCookies() != null ? request.getCookies() : new Cookie[0];
