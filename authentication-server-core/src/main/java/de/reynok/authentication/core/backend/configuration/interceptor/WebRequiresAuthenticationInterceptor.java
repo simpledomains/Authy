@@ -2,11 +2,11 @@ package de.reynok.authentication.core.backend.configuration.interceptor;
 
 
 import de.reynok.authentication.core.Constants;
-import de.reynok.authentication.core.backend.configuration.WebRequiresAuthentication;
 import de.reynok.authentication.core.backend.components.JwtProcessor;
-import de.reynok.authentication.core.shared.exceptions.AccessDeniedException;
+import de.reynok.authentication.core.backend.configuration.WebRequiresAuthentication;
 import de.reynok.authentication.core.backend.database.entity.Identity;
 import de.reynok.authentication.core.backend.database.repository.IdentityRepository;
+import de.reynok.authentication.core.shared.exceptions.AccessDeniedException;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -29,12 +29,6 @@ public class WebRequiresAuthenticationInterceptor extends AuthyWebInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-
-        if(request.getSession().getAttribute("customerId") == null) {
-            response.sendError(403);
-            return false;
-        }
-
         AtomicBoolean allowed = new AtomicBoolean(true);
 
         Cookie[] cookies  = request.getCookies() != null ? request.getCookies() : new Cookie[0];
