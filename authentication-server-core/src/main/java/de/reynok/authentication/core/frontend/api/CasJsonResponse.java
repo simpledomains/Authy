@@ -28,7 +28,7 @@ public class CasJsonResponse {
     }
 
     public void success(Identity identity) {
-        success = false;
+        success = true;
 
         HashMap<String, Object> successObject = new HashMap<>();
         HashMap<String, Object> attributes    = new HashMap<>();
@@ -36,7 +36,7 @@ public class CasJsonResponse {
         successObject.put("user", identity.getUsername());
         successObject.put("attributes", attributes);
 
-        if (!identity.getMetaData().isEmpty()) {
+        if (identity.getMetaData() != null && !identity.getMetaData().isEmpty()) {
             for (String metaKey : identity.getMetaData().keySet()) {
                 attributes.put(metaKey, identity.getMetaData().getOrDefault(metaKey, null));
             }
