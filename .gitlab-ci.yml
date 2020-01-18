@@ -4,30 +4,4 @@ include:
 variables:
   DOCKER_IMAGE_NAME: forward-auth-server
   DOCKER_NAMESPACE: sealife
-
-
-## SKIP MAVEN STEPS (they will be triggered due to pom.xml existence)
-test:
-  rules:
-    - if: '$DONOTSKIPMAVEN'
-
-compile maven (without version):
-  rules:
-    - if: '$DONOTSKIPMAVEN'
-
-compile maven (with version):
-  rules:
-    - if: '$DONOTSKIPMAVEN'
-
-
-## ADD DEPLOYMENT TO REMOTE DOCKER (docker.io)
-docker publish develop remote:
-  <<: *publish_docker
-  rules:
-    - exists:
-        - Dockerfile
-      if: '$CI_COMMIT_REF_NAME == "develop" && $DOCKER_HUB_USER && $DOCKER_HUB_PASSWORD'
-  script:
-    - docker login -u=$DOCKER_HUB_USER -p=$DOCKER_HUB_PASSWORD
-    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA $DOCKER_NAMESPACE/$DOCKER_IMAGE_NAME:develop
-    - docker push $DOCKER_NAMESPACE/$DOCKER_IMAGE_NAME:develop
+  SKIP_MAVEN: true
