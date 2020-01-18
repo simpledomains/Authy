@@ -1,4 +1,4 @@
-FROM maven:3.6
+FROM maven:3.6-jdk-13
 WORKDIR /build
 ADD . ./
 RUN mvn -s .docker/settings.xml --batch-mode -P r3ktm8 clean package
