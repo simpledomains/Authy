@@ -4,4 +4,4 @@ include:
 variables:
   DOCKER_IMAGE_NAME: forward-auth-server
   DOCKER_NAMESPACE: sealife
-  SKIP_MAVEN: true
+  SKIP_MAVEN: "true"
