@@ -12,12 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
 
 @Slf4j
 @Component
@@ -31,16 +28,11 @@ public class WebRequiresAuthenticationInterceptor extends AuthyWebInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         AtomicBoolean allowed = new AtomicBoolean(true);
 
-        Cookie[] cookies  = request.getCookies() != null ? request.getCookies() : new Cookie[0];
         Identity identity = null;
 
         String authorizationHeader = request.getHeader("Authorization");
 
         if (handler instanceof HandlerMethod) {
-            Optional<Cookie> authCookie = Stream.of(cookies).filter(cookie -> cookie.getName().equals(Constants.COOKIE_NAME)).findFirst();
-
-            log.debug("Is cookie there? {}", authCookie.isPresent());
-
             WebRequiresAuthentication annotation = ((HandlerMethod) handler).getMethod().getAnnotation(WebRequiresAuthentication.class);
 
             if (authorizationHeader != null && "Bearer".equals(authorizationHeader.split(" ")[0])) {
@@ -48,11 +40,13 @@ public class WebRequiresAuthenticationInterceptor extends AuthyWebInterceptor {
                 identity = getIdentityRepository().findByApiToken(authorizationHeader.split(" ")[1]).orElseThrow(AccessDeniedException::new);
             }
 
+            Object claimContent = request.getAttribute(Constants.REQUEST_CLAIMS_FIELD);
+
             if (annotation != null) {
-                if (authCookie.isEmpty() && identity == null) {
+                if (identity == null && claimContent == null) {
                     allowed.set(false);
                 } else {
-                    Claims claims = (Claims) request.getAttribute(Constants.REQUEST_CLAIMS_FIELD);
+                    Claims claims = (Claims) claimContent;
 
                     log.debug("Claims used: {}", claims);
 
