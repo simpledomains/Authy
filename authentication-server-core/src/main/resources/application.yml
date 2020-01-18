@@ -1,15 +1,27 @@
-logging:
-  level:
-    de:
-      reynok: DEBUG
-spring:
-  jpa:
-    show-sql: true
+## System Configuration
+server.port: 8080
 
-app.version: ${env.CI_CONCURRENT_PROJECT_ID}
+## Logging
+logging.level.de.reynok: INFO
 
-spring.jackson.serialization.FAIL_ON_EMPTY_BEANS: false
-spring.jackson.default-property-inclusion: "non-absent"
+## SQL
+spring.jpa.show-sql: false
 
+## Application Defaults
 cas:
   cookie-domain: localhost
+  system:
+    api-documentation-exposed: true
+
+## Spring Configuration
+spring:
+  application:
+    name: authentication-server
+  boot:
+    admin:
+      client:
+        enabled: false
+  jackson:
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false
+    default-property-inclusion: "non_absent"

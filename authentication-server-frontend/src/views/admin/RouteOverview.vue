@@ -1,5 +1,5 @@
 <template>
-    <basic-app>
+    <basic-app location="Admin (Routes)">
         <v-content class="pl-3 pr-3">
             <v-row>
                 <v-col offset="3" cols="6">

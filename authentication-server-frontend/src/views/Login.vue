@@ -9,8 +9,7 @@
                         Sign in
                     </v-card-title>
                     <v-card-text>
-                        <v-alert class="ma-2" icon="mdi-key-star" v-if="status === ST.LOGIN_SUCCESS" type="success"
-                                 border="bottom">
+                        <v-alert class="ma-2" elevation="4" icon="mdi-key-star" v-if="status === ST.LOGIN_SUCCESS" type="success">
                             Login Success!
                         </v-alert>
                         <div v-if="status !== ST.LOGIN_SUCCESS">
@@ -87,8 +86,8 @@
 <script>
     import axios from "axios";
     import Footer from "../components/Footer";
-    import {get} from '@github/webauthn-json';
-    import {fromByteArray, toByteArray} from 'base64-js';
+    //import {get} from '@github/webauthn-json';
+    //import {fromByteArray, toByteArray} from 'base64-js';
 
     export default {
         props: ['cas'],
@@ -179,6 +178,8 @@
                         if (err.response && err.response.status === 409) {
                             this.setStatus(this.ST.SECURITY_TOKEN_REQUIRED, this.ST.SECURITY_TOKEN_REQUIRED);
 
+                            setTimeout(() => this.$refs.txtOtpCode.focus(), 230);
+
                             if (err.response.data.message) {
                                 this.errorCode = err.response.data.message;
                             }
@@ -207,6 +208,10 @@
                     this.setStatus(this.ST.IDLE, this.ST.IDLE);
                 })
             }
+        },
+        mounted() {
+            this.$refs.txtUsername.focus();
+            this.$frontendConfiguration(this.$vuetify);
         }
     }
 </script>

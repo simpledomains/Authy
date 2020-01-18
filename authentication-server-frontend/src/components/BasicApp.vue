@@ -1,6 +1,6 @@
 <template>
     <v-app v-if="user != null" v-touch="{right: () => $refs.toolbar.openMenu(), left: () => $refs.toolbar.closeMenu()}">
-        <toolbar ref="toolbar" location="Home" :is-admin="user && user.admin" logout-button></toolbar>
+        <toolbar ref="toolbar" :location="location" :is-admin="user && user.admin" logout-button></toolbar>
 
         <slot></slot>
 
@@ -14,6 +14,7 @@
 
     export default {
         components: {Toolbar, AppFooter},
+        props: ['location'],
         data: () => ({
             user: null,
         }),
@@ -33,6 +34,7 @@
         },
         mounted() {
             this.getCurrentUser(true);
+            this.$frontendConfiguration(this.$vuetify);
         }
     }
 </script>
