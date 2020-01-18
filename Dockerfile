@@ -1,6 +1,6 @@
 FROM maven:3.6
 WORKDIR /build
-COPY * .
+ADD . ./
 RUN mvn -s .docker/settings.xml --batch-mode -P r3ktm8 clean package
 
 FROM openjdk:12
