@@ -6,6 +6,7 @@ import de.reynok.authentication.core.backend.database.entity.Service;
 import de.reynok.authentication.core.backend.database.repository.AuthorityRepository;
 import de.reynok.authentication.core.backend.database.repository.IdentityRepository;
 import de.reynok.authentication.core.backend.database.repository.ServiceRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -14,14 +15,12 @@ import javax.annotation.PostConstruct;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class AuthenticationServerInit {
 
-    @Autowired
-    private IdentityRepository  identityRepository;
-    @Autowired
-    private AuthorityRepository authorityRepository;
-    @Autowired
-    private ServiceRepository   serviceRepository;
+    private final IdentityRepository  identityRepository;
+    private final AuthorityRepository authorityRepository;
+    private final ServiceRepository   serviceRepository;
 
     @PostConstruct
     private void initialize() {

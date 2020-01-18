@@ -37,7 +37,6 @@ To use Authy as a Forward-Auth Server in Traefik 1.7.x you simply need to add a 
 traefik.frontend.auth.forward.address=https://auth.example.com/auth
 ```
 
-
 ### As a Forward-Auth Server in Traefik 2.x
 
 TBD
@@ -54,3 +53,36 @@ If this is the case, you do this:
 - host: auth.example.com
 - path: /cas
 
+## Client-Certificate Authentication
+
+The client certificate authentication is used to authenticate without a username or password - just with a SSL certificate installed locally.
+Before using this method you need to create your own CA certificate.
+After some configuration your users should be able to manage user certificates from the UI.
+
+### Create CA
+
+1. Create a CA private key.
+    ```bash
+   openssl genrsa -aes256 -out ca.pem 8192
+    ```
+2. Create the public CA certificate
+    ```bash
+   openssl req -x509 -new -nodes -extensions v3_ca \
+        -key ca.pem \
+        -days 3096 \
+        -out ca.pub.pem \
+        -sha512
+    ```
+
+### Configuration
+
+To enable the CC-Authentication-Workflow you need to specify the location of the public-key of your CA in ``server.ssl.client-auth-ca-cert``.
+
+```yaml
+server:
+  ssl:
+    client-auth-ca-cert: /data/ca.pub.pem
+cas:
+  frontend:
+    clientCertAuth: true    
+```

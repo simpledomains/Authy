@@ -1,71 +1,10 @@
-variables:
-  DOCKER_IMAGE_NAME: forward-auth-server
-  DOCKER_NAMESPACE: sealife
-  DOCKER_INTERNAL_NAMESPACE: sealife-docker
-  MAVEN_CLI_OPTS: "-s .m2/settings.xml --batch-mode -P r3ktm8"
-  MAVEN_OPTS: "-Dmaven.repo.local=/cache/maven-repository"
-  DOCKER_TAG_LOCAL: "$CI_REGISTRY/$DOCKER_INTERNAL_NAMESPACE/$CI_PROJECT_NAME:$CI_COMMIT_REF_NAME"
-  DOCKER_TAG_LOCAL_LATEST: "$CI_REGISTRY/$DOCKER_INTERNAL_NAMESPACE/$CI_PROJECT_NAME:latest"
-  DOCKER_TAG_LOCAL_DEVELOP: "$CI_REGISTRY/$DOCKER_INTERNAL_NAMESPACE/$CI_PROJECT_NAME:develop"
-  DOCKER_TAG_REMOTE: "docker.io/$DOCKER_NAMESPACE/$DOCKER_IMAGE_NAME:$CI_COMMIT_REF_NAME"
-  DOCKER_TAG_REMOTE_LATEST: "docker.io/$DOCKER_NAMESPACE/$DOCKER_IMAGE_NAME:latest"
-  DOCKER_TAG_REMOTE_DEVELOP: "docker.io/$DOCKER_NAMESPACE/$DOCKER_IMAGE_NAME:develop"
+include:
+  - remote: 'https://git.virtuellewolke.de/generic/ci-templates/raw/master/maven+docker.gitlab-ci.yml'
 
+compile maven (without version):
+  rules:
+    - if: '$DONOTSKIPMAVEN'
 
-stages:
-  - build
-  - docker
-  - publish
-
-build-app:
-  stage: build
-  image: maven:3.6.2-jdk-12
-  variables:
-    VUE_APP_CI_COMMIT_SHORT_SHA: "$CI_JOB_ID"
-  script:
-    - "curl --silent https://git.r3ktm8.de/snippets/2/raw | sh"
-    - "mvn $MAVEN_CLI_OPTS clean package"
-  artifacts:
-    paths:
-      - authentication-server-core/target/*.jar
-
-build-docker:
-  stage: docker
-  image: docker:latest
-  services:
-    - docker:dind
-  script:
-    - "docker pull openjdk:12"
-    - "docker build -t $DOCKER_TAG_LOCAL -t $DOCKER_TAG_LOCAL_LATEST -t $DOCKER_TAG_REMOTE -t $DOCKER_TAG_REMOTE_LATEST -t $DOCKER_TAG_REMOTE_DEVELOP -t $DOCKER_TAG_LOCAL_DEVELOP ."
-
-publish docker tags:
-  stage: publish
-  image: docker:latest
-  allow_failure: true
-  services:
-    - docker:dind
-  only:
-    - tags
-  script:
-    - "docker login -u=$DOCKER_HUB_USER -p=$DOCKER_HUB_PASSWORD"
-    - "docker push $DOCKER_TAG_REMOTE"
-    - "docker push $DOCKER_TAG_REMOTE_LATEST"
-
-    - "docker login -u=gitlab-ci-token -p=$CI_JOB_TOKEN $CI_REGISTRY"
-    - "docker push $DOCKER_TAG_LOCAL"
-    - "docker push $DOCKER_TAG_LOCAL_LATEST"
-
-publish docker develop:
-  stage: publish
-  image: docker:latest
-  allow_failure: true
-  services:
-    - docker:dind
-  except:
-    - tags
-  script:
-    - "docker login -u=$DOCKER_HUB_USER -p=$DOCKER_HUB_PASSWORD"
-    - "docker push $DOCKER_TAG_REMOTE_DEVELOP"
-
-    - "docker login -u=gitlab-ci-token -p=$CI_JOB_TOKEN $CI_REGISTRY"
-    - "docker push $DOCKER_TAG_LOCAL_DEVELOP"
+compile maven (with version):
+  rules:
+    - if: '$DONOTSKIPMAVEN'

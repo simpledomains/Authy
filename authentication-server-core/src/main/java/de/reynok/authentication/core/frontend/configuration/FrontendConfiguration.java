@@ -10,5 +10,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConfigurationProperties(prefix = "cas.frontend")
 public class FrontendConfiguration {
-    private Boolean darkMode = false;
+    private Boolean darkMode       = false;
+    private Boolean clientCertAuth = false;
 }
