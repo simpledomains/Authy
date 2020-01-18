@@ -31,7 +31,9 @@ import java.security.cert.X509Certificate;
 public class X509CertificateAuthenticatorInterceptor extends AuthyWebInterceptor {
 
     @Value("${server.ssl.client-auth-ca-cert:ca.pem}")
-    private File caCertLocation;
+    private File   caCertLocation;
+    @Value("${server.ssl.client-auth-header-name:X-SSL-Cert}")
+    private String headerName;
 
     public X509CertificateAuthenticatorInterceptor(JwtProcessor jwtProcessor, IdentityRepository identityRepository) {
         super(jwtProcessor, identityRepository);
@@ -39,7 +41,7 @@ public class X509CertificateAuthenticatorInterceptor extends AuthyWebInterceptor
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String certHeaderFromProxy = request.getHeader("X-SSL-Cert");
+        String certHeaderFromProxy = request.getHeader(headerName);
 
         if (certHeaderFromProxy != null) {
             CertificateFactory factory = CertificateFactory.getInstance("X.509");
