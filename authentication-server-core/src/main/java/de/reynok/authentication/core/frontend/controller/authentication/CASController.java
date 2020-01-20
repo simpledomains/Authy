@@ -37,25 +37,25 @@ import java.util.Optional;
 @Slf4j
 @RestController
 public class CASController extends AbstractAuthyController {
-    private final TicketHandler ticketHandler;
-    private final JwtProcessor       jwtProcessor;
-    private final IdentityRepository identityRepository;
-    private final ServiceValidation serviceValidation;
+    private final TicketHandler        ticketHandler;
+    private final JwtProcessor         jwtProcessor;
+    private final IdentityRepository   identityRepository;
+    private final ServiceValidation    serviceValidation;
     private final ConfigurationContext configurationContext;
 
     @Autowired
     public CASController(TicketHandler ticketHandler, JwtProcessor jwtProcessor, IdentityRepository identityRepository, ServiceValidation serviceValidation, ConfigurationContext configuration) {
         super(identityRepository);
-        this.jwtProcessor = jwtProcessor;
-        this.identityRepository = identityRepository;
-        this.serviceValidation = serviceValidation;
-        this.ticketHandler = ticketHandler;
+        this.jwtProcessor         = jwtProcessor;
+        this.identityRepository   = identityRepository;
+        this.serviceValidation    = serviceValidation;
+        this.ticketHandler        = ticketHandler;
         this.configurationContext = configuration;
     }
 
     @GetMapping("/cas/logout")
     public void logout(HttpServletResponse response) throws IOException {
-        Cookie cookie = new Cookie("CASTGC", "");
+        Cookie cookie = new Cookie(Constants.COOKIE_NAME, "");
         cookie.setMaxAge(1);
         cookie.setPath(configurationContext.getCookiePath());
         cookie.setComment(configurationContext.getCookieComment());
@@ -202,7 +202,11 @@ public class CASController extends AbstractAuthyController {
     private String getRedirectLogin(String service, Identity identity) {
         String serviceUrl = service;
 
-        if (service.contains("?")) { service += "&"; } else { service += "?"; }
+        if (service.contains("?")) {
+            service += "&";
+        } else {
+            service += "?";
+        }
         service += "ticket=" + ticketHandler.generateTicketFor(TicketType.ST, serviceUrl, identity);
 
         return service;

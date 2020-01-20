@@ -7,3 +7,8 @@ cas.system-domain: http://localhost:8080
 
 ## Logging
 logging.level.de.reynok: DEBUG
+
+cas:
+  frontend:
+    clientCertAuth: true
+    darkMode: false

@@ -37,20 +37,20 @@ public abstract class AbstractAuthyController {
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity entityNotFound(EntityNotFoundException e) {
+    public ResponseEntity<ServiceError> entityNotFound(EntityNotFoundException e) {
         return ResponseEntity.status(404)
                 .body(new ServiceError().setMessage(e.getMessage() != null ? e.getMessage() : "Entity not found."));
     }
 
     @ExceptionHandler(Throwable.class)
-    public ResponseEntity throwable(Throwable e) {
+    public ResponseEntity<ServiceError> throwable(Throwable e) {
         log.error("Unknown error thrown, {}", e.getMessage(), e);
         return ResponseEntity.status(500)
                 .body(new ServiceError().setMessage(e.getMessage() != null ? e.getMessage() : "A unknown error occurred."));
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity accessDenied(AccessDeniedException e) {
+    public ResponseEntity<ServiceError> accessDenied(AccessDeniedException e) {
         log.debug("AccessDenied Exception thrown... {}", e.getMessage(), e);
         return ResponseEntity.status(e.getCode())
                 .body(new ServiceError().setMessage(e.getMessage()));

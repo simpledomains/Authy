@@ -1,6 +1,6 @@
 package de.reynok.authentication.core.shared.exceptions;
 
-public class ServiceException extends Exception {
+public class ServiceException extends RuntimeException {
     public ServiceException() {
     }
 

@@ -1,3 +1,4 @@
+<!--suppress CheckTagEmptyBody -->
 <template>
     <basic-app location="Home">
         <v-content>
@@ -10,7 +11,7 @@
                                     <v-icon class="mb-1">mdi-account</v-icon>
                                     My Profile
                                 </v-toolbar-title>
-                                <v-spacer></v-spacer>
+                                <v-spacer/>
                                 <v-btn icon :loading="isApiRefreshing" @click="getCurrentUser(true)">
                                     <v-icon>mdi-reload</v-icon>
                                 </v-btn>
@@ -20,17 +21,17 @@
                                     <v-col cols="12" lg="6">
                                         <v-text-field v-model="user.username" disabled
                                                       prepend-inner-icon="mdi-account-badge"
-                                                      suffix="Username"></v-text-field>
+                                                      suffix="Username"/>
                                     </v-col>
                                     <v-col cols="12" lg="6">
                                         <v-text-field v-model="user.email"
                                                       prepend-inner-icon="mdi-email-newsletter"
-                                                      suffix="E-Mail"></v-text-field>
+                                                      suffix="E-Mail"/>
                                     </v-col>
                                     <v-col cols="12" lg="6">
                                         <v-text-field v-model="user.displayName"
                                                       prepend-inner-icon="mdi-account-card-details-outline"
-                                                      suffix="Display-Name"></v-text-field>
+                                                      suffix="Display-Name"/>
                                     </v-col>
                                 </v-row>
                                 <v-row v-if="user.admin">
@@ -39,7 +40,7 @@
                                                       prepend-inner-icon="mdi-api"
                                                       suffix="API Token"
                                                       append-outer-icon="mdi-reload"
-                                                      @click:append-outer="requestApiToken()"></v-text-field>
+                                                      @click:append-outer="requestApiToken()"/>
                                     </v-col>
                                 </v-row>
                             </v-card-text>
