@@ -61,13 +61,22 @@ public class X509Manager {
     public boolean isRevoked(BigInteger serial) {
         ClientAuthCert cert = clientAuthCertRepository.findById(serial).orElse(null);
 
-        return cert != null && cert.isRevoked();
+        return cert == null || cert.isRevoked();
     }
 
     public void revoke(BigInteger serial) {
         ClientAuthCert cert = clientAuthCertRepository.findById(serial).orElse(null);
 
         if (cert != null) {
+            cert.setRevokedAt(LocalDateTime.now());
+            clientAuthCertRepository.save(cert);
+        }
+    }
+
+    public void revoke(BigInteger serial, Identity isAllowedBy) {
+        ClientAuthCert cert = clientAuthCertRepository.findById(serial).orElse(null);
+
+        if (cert != null && cert.getIdentity().equals(isAllowedBy)) {
             cert.setRevokedAt(LocalDateTime.now());
             clientAuthCertRepository.save(cert);
         }
@@ -81,8 +90,9 @@ public class X509Manager {
     }
 
     public byte[] issuePfx(Identity identity) throws IOException {
-        if (!frontendConfiguration.getClientCertAuth())
+        if (!frontendConfiguration.getClientCertAuth()) {
             throw new ServiceException("X509 authentication is not enabled.");
+        }
 
         Integer userId = identity.getId();
 

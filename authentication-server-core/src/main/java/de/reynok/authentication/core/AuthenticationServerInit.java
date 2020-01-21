@@ -55,7 +55,7 @@ public class AuthenticationServerInit {
             identity.setEmail("admin@example.com");
             identity.setDisplayName("Administrator");
             identity.setApiToken("7KVEfk8dG7sxTGngUwpFAgyc89SHRR6jssCaeukDHUVSQbJx7exMR5GVBqdbGyyu");
-            identity.setOtpSecret("JBSWY3DPEHPK3PXP");
+            //identity.setOtpSecret("JBSWY3DPEHPK3PXP");
 
             identity.getAuthorities().add(authorityRepository.findByName("admin").get());
 
