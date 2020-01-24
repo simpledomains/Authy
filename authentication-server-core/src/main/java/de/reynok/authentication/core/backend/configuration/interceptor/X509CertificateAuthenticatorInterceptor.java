@@ -43,6 +43,8 @@ public class X509CertificateAuthenticatorInterceptor extends AuthyWebInterceptor
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String certHeaderFromProxy = request.getHeader(headerName);
 
+        log.debug("X509Certificate expected to be in header {} and, is there?: {}", headerName, certHeaderFromProxy != null);
+
         if (certHeaderFromProxy != null) {
             CertificateFactory factory = CertificateFactory.getInstance("X.509");
 
