@@ -5,6 +5,7 @@ import de.reynok.authentication.core.backend.components.JwtProcessor;
 import de.reynok.authentication.core.backend.components.X509Manager;
 import de.reynok.authentication.core.backend.database.repository.IdentityRepository;
 import de.reynok.authentication.core.shared.exceptions.SecurityTokenInvalidException;
+import io.jsonwebtoken.lang.Assert;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -44,6 +45,7 @@ public class X509CertificateAuthenticatorInterceptor extends AuthyWebInterceptor
         String certHeaderFromProxy = request.getHeader(headerName);
 
         log.debug("X509Certificate expected to be in header {} and, is there?: {}", headerName, certHeaderFromProxy != null);
+        log.trace("X509Certificate received in {}:\n{}", headerName, certHeaderFromProxy);
 
         if (certHeaderFromProxy != null) {
             CertificateFactory factory = CertificateFactory.getInstance("X.509");
@@ -51,6 +53,7 @@ public class X509CertificateAuthenticatorInterceptor extends AuthyWebInterceptor
             String decoded = UriUtils.decode(certHeaderFromProxy, Charset.defaultCharset());
             decoded = decoded.replaceAll("-----(.*)-----", "");
             decoded = decoded.replaceAll("\n", "");
+
 
             try (InputStream bis = new ByteArrayInputStream(Base64.decode(decoded))) {
                 X509Certificate certificate = (X509Certificate) factory.generateCertificate(bis);
@@ -91,6 +94,9 @@ public class X509CertificateAuthenticatorInterceptor extends AuthyWebInterceptor
 
         if (!certificate.equals(ca)) {
             try {
+                Assert.notNull(ca, "CA cannot be null");
+                Assert.notNull(certificate, "Certificate cannot be null");
+
                 certificate.verify(ca.getPublicKey());
                 certificate.checkValidity();
                 ca.checkValidity();
@@ -100,7 +106,7 @@ public class X509CertificateAuthenticatorInterceptor extends AuthyWebInterceptor
                     throw new RuntimeException("Certificate " + certificate.getSerialNumber().toString() + " revoked or unknown.");
                 }
             } catch (Exception e) {
-                log.debug(e.getMessage());
+                log.debug(e.getMessage(), e);
                 return false;
             }
         }

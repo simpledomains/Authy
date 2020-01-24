@@ -1,11 +1,5 @@
-## System Configuration
-server.port: 8080
-
 ## Logging
 logging.level.de.reynok: INFO
-
-## SQL
-spring.jpa.show-sql: false
 
 ## Application Defaults
 cas:
@@ -17,6 +11,8 @@ cas:
 spring:
   application:
     name: authentication-server
+  jpa:
+    show-sql: false
   boot:
     admin:
       client:
