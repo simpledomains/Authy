@@ -48,7 +48,7 @@ public class X509Manager {
 
     @SneakyThrows
     public X509Certificate getCaCertificate() {
-        if (caCache != null) {
+        if (caCache == null) {
             CertificateFactory factory = CertificateFactory.getInstance("X.509");
             try (FileInputStream fis = new FileInputStream(caPublicCert)) {
                 caCache = (X509Certificate) factory.generateCertificate(fis);
