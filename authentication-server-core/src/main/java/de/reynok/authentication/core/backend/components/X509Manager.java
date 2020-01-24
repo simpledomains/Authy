@@ -52,6 +52,8 @@ public class X509Manager {
             CertificateFactory factory = CertificateFactory.getInstance("X.509");
             try (FileInputStream fis = new FileInputStream(caPublicCert)) {
                 caCache = (X509Certificate) factory.generateCertificate(fis);
+            } catch (Throwable e) {
+                log.trace("Failed importing CA certificate from {} due to {}", caPublicCert, e.getMessage(), e);
             }
         }
 
