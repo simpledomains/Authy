@@ -96,9 +96,11 @@ public class X509CertificateAuthenticatorInterceptor extends AuthyWebInterceptor
                 ca.checkValidity();
 
                 if (x509Manager.isRevoked(certificate.getSerialNumber())) {
+                    log.info("X509 Certificate {} is revoked.", certificate.getSerialNumber());
                     throw new RuntimeException("Certificate " + certificate.getSerialNumber().toString() + " revoked or unknown.");
                 }
             } catch (Exception e) {
+                log.debug(e.getMessage());
                 return false;
             }
         }
