@@ -1,8 +1,8 @@
 <template>
     <v-app v-if="user != null" v-touch="{right: () => $refs.toolbar.openMenu(), left: () => $refs.toolbar.closeMenu()}">
-        <toolbar ref="toolbar" :location="location" :is-admin="user && user.admin" logout-button></toolbar>
+        <toolbar ref="toolbar" :location="location" :is-admin="user && user.admin" logout-button/>
 
-        <slot></slot>
+        <slot/>
 
         <app-footer/>
     </v-app>

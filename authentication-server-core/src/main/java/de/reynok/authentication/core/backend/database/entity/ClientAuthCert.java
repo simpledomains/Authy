@@ -2,6 +2,7 @@ package de.reynok.authentication.core.backend.database.entity;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 
 import javax.persistence.*;
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
+@ToString
 public class ClientAuthCert {
     @Id
     private BigInteger serial;

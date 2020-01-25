@@ -3,73 +3,103 @@
     <basic-app location="Home">
         <v-content>
             <v-container>
+                <v-row v-if="!user.otpEnabled">
+                    <v-col>
+                        <v-alert color="error" dense type="error" elevation="4">
+                            You'r Account is not secured with
+                            <v-icon class="pb-1">mdi-two-factor-authentication</v-icon>
+                            !<br>
+                            This is highly recommended!
+                        </v-alert>
+                    </v-col>
+                </v-row>
                 <v-row>
                     <v-col>
                         <v-card>
                             <v-toolbar dense color="primary" dark>
                                 <v-toolbar-title>
                                     <v-icon class="mb-1">mdi-account</v-icon>
-                                    My Profile
+                                    My Account
                                 </v-toolbar-title>
                                 <v-spacer/>
                                 <v-btn icon :loading="isApiRefreshing" @click="getCurrentUser(true)">
                                     <v-icon>mdi-reload</v-icon>
                                 </v-btn>
                             </v-toolbar>
-                            <v-card-text>
-                                <v-row>
-                                    <v-col cols="12" lg="6">
-                                        <v-text-field v-model="user.username" disabled
-                                                      prepend-inner-icon="mdi-account-badge"
-                                                      suffix="Username"/>
-                                    </v-col>
-                                    <v-col cols="12" lg="6">
-                                        <v-text-field v-model="user.email"
-                                                      prepend-inner-icon="mdi-email-newsletter"
-                                                      suffix="E-Mail"/>
-                                    </v-col>
-                                    <v-col cols="12" lg="6">
-                                        <v-text-field v-model="user.displayName"
-                                                      prepend-inner-icon="mdi-account-card-details-outline"
-                                                      suffix="Display-Name"/>
-                                    </v-col>
-                                </v-row>
-                                <v-row v-if="user.admin">
-                                    <v-col cols="12" lg="6">
-                                        <v-text-field v-model="apiToken" readonly :loading="isApiRefreshing"
-                                                      prepend-inner-icon="mdi-api"
-                                                      suffix="API Token"
-                                                      append-outer-icon="mdi-reload"
-                                                      @click:append-outer="requestApiToken()"/>
-                                    </v-col>
-                                </v-row>
-                            </v-card-text>
-                            <v-card-text v-if="!user.otpEnabled">
-                                <v-alert color="error" dense type="error" elevation="4">
-                                    You'r Account is not secured with
-                                    <v-icon class="pb-1">mdi-two-factor-authentication</v-icon>
-                                    !<br>
-                                    This is highly recommended!
-                                </v-alert>
-                            </v-card-text>
-                            <v-card-actions>
-                                <v-btn small color="success" :loading="isApiRefreshing" @click="saveUpdateForm()">
-                                    <v-icon small left>mdi-content-save-all</v-icon>
-                                    Save
-                                </v-btn>
-                                <v-btn small dark color="blue-grey" @click="changePassword()">
-                                    <v-icon small left>mdi-lock-reset</v-icon>
-                                    Change Password
-                                </v-btn>
-                                <v-btn v-if="user.otpEnabled" small color="error" @click="disableTwoFactor()">
-                                    <v-icon small left>mdi-two-factor-authentication</v-icon>
-                                    Disable
-                                </v-btn>
-                                <v-btn v-if="!user.otpEnabled" small color="success" @click="enableTwoFactor()">
-                                    <v-icon small left>mdi-two-factor-authentication</v-icon>
-                                    Enable
-                                </v-btn>
-                            </v-card-actions>
+
+                            <v-tabs v-model="tab" background-color="primary darken-2" dark>
+                                <v-tabs-slider/>
+
+                                <v-tab href="#tab-identity">
+                                    Personal Data
+                                </v-tab>
+                                <v-tab href="#tab-security">
+                                    Security
+                                </v-tab>
+
+                                <v-tab-item value="tab-identity">
+                                    <v-card-text>
+                                        <v-row>
+                                            <v-col cols="12" lg="6">
+                                                <v-text-field v-model="user.username" disabled
+                                                              prepend-inner-icon="mdi-account-badge"
+                                                              suffix="Username"/>
+                                            </v-col>
+                                            <v-col cols="12" lg="6">
+                                                <v-text-field v-model="user.email"
+                                                              prepend-inner-icon="mdi-email-newsletter"
+                                                              suffix="E-Mail"/>
+                                            </v-col>
+                                            <v-col cols="12" lg="6">
+                                                <v-text-field v-model="user.displayName"
+                                                              prepend-inner-icon="mdi-account-card-details-outline"
+                                                              suffix="Display-Name"/>
+                                            </v-col>
+                                        </v-row>
+                                        <v-row v-if="user.admin">
+                                            <v-col cols="12" lg="6">
+                                                <v-text-field v-model="apiToken" readonly :loading="isApiRefreshing"
+                                                              prepend-inner-icon="mdi-api"
+                                                              suffix="API Token"
+                                                              append-outer-icon="mdi-reload"
+                                                              @click:append-outer="requestApiToken()"/>
+                                            </v-col>
+                                        </v-row>
+                                    </v-card-text>
+                                    <v-card-actions>
+                                        <v-btn small color="success" :loading="isApiRefreshing"
+                                               @click="saveUpdateForm()">
+                                            <v-icon small left>mdi-content-save-all</v-icon>
+                                            Save
+                                        </v-btn>
+                                    </v-card-actions>
+                                </v-tab-item>
+                                <v-tab-item value="tab-security">
+                                    <v-card-text>
+                                        <h3 v-if="clientCertAuth">Client Auth Certificates (mTLS)</h3>
+                                        <x509-list v-if="clientCertAuth" :x509list="x509"
+                                                   v-on:updated="fetchX509Certificates"/>
+                                    </v-card-text>
+                                    <v-card-actions>
+                                        <v-btn v-if="user.otpEnabled" small color="error" @click="disableTwoFactor()">
+                                            <v-icon small left>mdi-two-factor-authentication</v-icon>
+                                            Disable
+                                        </v-btn>
+                                        <v-btn v-if="!user.otpEnabled" small color="success" @click="enableTwoFactor()">
+                                            <v-icon small left>mdi-two-factor-authentication</v-icon>
+                                            Enable
+                                        </v-btn>
+                                        <v-btn small dark color="blue-grey" @click="changePassword()">
+                                            <v-icon small left>mdi-lock-reset</v-icon>
+                                            Change Password
+                                        </v-btn>
+                                        <v-btn small dark color="pink" @click="requestX509()">
+                                            <v-icon small left>mdi-certificate-outline</v-icon>
+                                            Issue new X509
+                                        </v-btn>
+                                    </v-card-actions>
+                                </v-tab-item>
+                            </v-tabs>
                         </v-card>
                     </v-col>
                 </v-row>
@@ -88,36 +118,56 @@
     import axios from "axios";
     import sweetalert2 from 'sweetalert2';
     import BasicApp from "../components/BasicApp";
-    //import {create} from '@github/webauthn-json';
+    import X509List from "../components/X509List";
 
     export default {
-        components: {BasicApp},
+        components: {X509List, BasicApp},
 
         data: () => ({
             user: {},
+            tab: null,
             password: '',
             apiToken: '',
             isApiRefreshing: false,
+            isX509Refreshing: false,
+            clientCertAuth: false,
+            x509: [],
         }),
 
         methods: {
-            /*
-            async registerU2FDevice() {
-                let response = await axios.post('/webauthn/registration/start');
-                response = response.data;
+            fetchX509Certificates() {
+                this.isX509Refreshing = true;
 
-                let credential = await create({
-                    publicKey: response
+                axios.get('/api/x509/my').then(r => {
+                    this.x509 = r.data;
+                }).finally(() => {
+                    this.isX509Refreshing = false;
+                })
+            },
+            requestX509() {
+                axios({
+                    url: '/api/x509/issue',
+                    method: 'GET',
+                    responseType: 'blob'
+                }).then(r => {
+                    console.log(r);
+
+                    let a = document.createElement("a");
+                    document.body.appendChild(a);
+                    a.style = "display: none";
+
+                    let blob = new Blob([r.data], {type: "octet/stream;charset=utf-8", encoding: "UTF-8"});
+                    let url = window.URL.createObjectURL(blob);
+
+                    a.href = window.URL.createObjectURL(blob);
+                    a.download = this.user.username + ".pfx";
+                    a.click();
+                    document.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                }).finally(() => {
+                    this.fetchX509Certificates();
                 });
-
-                try {
-                    credential.clientExtensionResults = credential.getClientExtensionResults();
-                } catch (e) {
-                    credential.clientExtensionResults = {};
-                }
-
-                let finish = await axios.post('/webauthn/registration/finish', credential, {responseType: 'text'});
-            },*/
+            },
             requestApiToken() {
                 this.isApiRefreshing = true;
 
@@ -231,6 +281,14 @@
         },
         mounted() {
             this.getCurrentUser();
+
+            let localConfig = localStorage.getItem('AuthyConfig');
+            localConfig = JSON.parse(localConfig);
+            this.clientCertAuth = localConfig.clientAuthCert;
+
+            if (this.clientCertAuth) {
+                this.fetchX509Certificates();
+            }
         }
     }
 </script>
