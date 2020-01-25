@@ -22,6 +22,7 @@ import de.reynok.authentication.core.frontend.controller.AbstractAuthyController
 import io.jsonwebtoken.Claims;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -54,7 +55,7 @@ public class CASController extends AbstractAuthyController {
     }
 
     @GetMapping("/cas/logout")
-    public void logout(HttpServletResponse response) throws IOException {
+    public void logout(HttpServletResponse response, @RequestParam(required = false, value = "service") String serviceUrl) throws IOException {
         Cookie cookie = new Cookie(Constants.COOKIE_NAME, "");
         cookie.setMaxAge(1);
         cookie.setPath(configurationContext.getCookiePath());
@@ -62,7 +63,13 @@ public class CASController extends AbstractAuthyController {
         cookie.setDomain(configurationContext.getCookieDomain());
 
         response.addCookie(cookie);
-        response.sendRedirect(configurationContext.getSystemDomain() + "/");
+
+        if (serviceUrl == null || StringUtils.isBlank(serviceUrl)) {
+            response.sendRedirect(configurationContext.getSystemDomain() + "/");
+        } else {
+            response.sendRedirect(serviceUrl);
+        }
+
         response.setStatus(302);
     }
 
