@@ -42,10 +42,18 @@ public class X509CertificateAuthenticatorInterceptor extends AuthyWebInterceptor
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        try {
+            return preHandle(request, response);
+        } catch (Throwable e) {
+            log.error("There was a error requesting with X509 certificate.", e);
+            return true;
+        }
+    }
+
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String certHeaderFromProxy = request.getHeader(headerName);
 
         log.debug("X509Certificate expected to be in header {} and, is there?: {}", headerName, certHeaderFromProxy != null);
-        log.trace("X509Certificate received in {}:\n{}", headerName, certHeaderFromProxy);
 
         if (certHeaderFromProxy != null) {
             CertificateFactory factory = CertificateFactory.getInstance("X.509");
@@ -53,6 +61,10 @@ public class X509CertificateAuthenticatorInterceptor extends AuthyWebInterceptor
             String decoded = UriUtils.decode(certHeaderFromProxy, Charset.defaultCharset());
             decoded = decoded.replaceAll("-----(.*)-----", "");
             decoded = decoded.replaceAll("\n", "");
+            decoded = decoded.replaceAll("%3D", "=");
+            decoded = decoded.replaceAll("%2F", "/");
+
+            log.trace("X509Certificate received in {} was decoded to:\n{}", headerName, decoded);
 
 
             try (InputStream bis = new ByteArrayInputStream(Base64.decode(decoded))) {
