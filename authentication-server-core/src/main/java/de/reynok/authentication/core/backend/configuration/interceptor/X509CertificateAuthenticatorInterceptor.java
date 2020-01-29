@@ -64,12 +64,19 @@ public class X509CertificateAuthenticatorInterceptor extends AuthyWebInterceptor
             decoded = decoded.replaceAll("%3D", "=");
             decoded = decoded.replaceAll("%2F", "/");
 
+            String[] certificateList = decoded.split(",");
+
+            if (certificateList.length > 1) {
+                log.warn("The Client from {} supplied more then 1 client certificate ({})!", request.getRemoteAddr(), certificateList.length);
+            }
+
             log.trace("X509Certificate received in {} was decoded to:\n{}", headerName, decoded);
 
-
-            try (InputStream bis = new ByteArrayInputStream(Base64.decode(decoded))) {
-                X509Certificate certificate = (X509Certificate) factory.generateCertificate(bis);
-                handleAuthenticationWithKey(request, certificate);
+            for (String cert : certificateList) {
+                try (InputStream bis = new ByteArrayInputStream(Base64.decode(cert))) {
+                    X509Certificate certificate = (X509Certificate) factory.generateCertificate(bis);
+                    handleAuthenticationWithKey(request, certificate);
+                }
             }
         }
 
@@ -117,12 +124,14 @@ public class X509CertificateAuthenticatorInterceptor extends AuthyWebInterceptor
                     log.info("X509 Certificate {} is revoked.", certificate.getSerialNumber());
                     throw new RuntimeException("Certificate " + certificate.getSerialNumber().toString() + " revoked or unknown.");
                 }
+
+                return true;
             } catch (Exception e) {
                 log.debug(e.getMessage(), e);
                 return false;
             }
         }
 
-        return true;
+        return false;
     }
 }
