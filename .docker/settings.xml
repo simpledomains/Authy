@@ -46,6 +46,8 @@
         </profile>
     </profiles>
 
+    <localRepository>/cache/maven-repository</localRepository>
+
     <activeProfiles>
         <activeProfile>r3ktm8</activeProfile>
     </activeProfiles>
