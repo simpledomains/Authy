@@ -4,6 +4,7 @@ include:
 variables:
   DOCKER_IMAGE_NAME: forward-auth-server
   DOCKER_NAMESPACE: sealife
+  MAVEN_VERSION: 3.6-jdk-13
   MAVEN_ARGS: "-s .docker/settings.xml --batch-mode -P r3ktm8"
   VUE_APP_CI_COMMIT_SHORT_SHA: "$CI_JOB_ID"
   MAVEN_PREPARE_SCRIPT: "" # will be set to empty string to prevent executing VW-script
