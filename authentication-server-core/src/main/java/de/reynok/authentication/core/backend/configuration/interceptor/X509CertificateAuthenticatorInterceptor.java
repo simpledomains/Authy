@@ -43,10 +43,18 @@ public class X509CertificateAuthenticatorInterceptor extends AuthyWebInterceptor
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        try {
+            return preHandle(request, response);
+        } catch (Throwable e) {
+            log.error("There was a error requesting with X509 certificate.", e);
+            return true;
+        }
+    }
+
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String certHeaderFromProxy = request.getHeader(headerName);
 
         log.debug("X509Certificate expected to be in header {} and, is there?: {}", headerName, certHeaderFromProxy != null);
-        log.trace("X509Certificate received in {}:\n{}", headerName, certHeaderFromProxy);
 
         if (certHeaderFromProxy != null) {
             CertificateFactory factory = CertificateFactory.getInstance("X.509");
@@ -54,11 +62,22 @@ public class X509CertificateAuthenticatorInterceptor extends AuthyWebInterceptor
             String decoded = UriUtils.decode(certHeaderFromProxy, Charset.defaultCharset());
             decoded = decoded.replaceAll("-----(.*)-----", "");
             decoded = decoded.replaceAll("\n", "");
+            decoded = decoded.replaceAll("%3D", "=");
+            decoded = decoded.replaceAll("%2F", "/");
 
+            String[] certificateList = decoded.split(",");
 
-            try (InputStream bis = new ByteArrayInputStream(Base64.decode(decoded))) {
-                X509Certificate certificate = (X509Certificate) factory.generateCertificate(bis);
-                handleAuthenticationWithKey(request, certificate);
+            if (certificateList.length > 1) {
+                log.warn("The Client from {} supplied more then 1 client certificate ({})!", request.getRemoteAddr(), certificateList.length);
+            }
+
+            log.trace("X509Certificate received in {} was decoded to:\n{}", headerName, decoded);
+
+            for (String cert : certificateList) {
+                try (InputStream bis = new ByteArrayInputStream(Base64.decode(cert))) {
+                    X509Certificate certificate = (X509Certificate) factory.generateCertificate(bis);
+                    handleAuthenticationWithKey(request, certificate);
+                }
             }
         }
 
@@ -110,12 +129,14 @@ public class X509CertificateAuthenticatorInterceptor extends AuthyWebInterceptor
                 } else {
                     x509Manager.markAsUsed(dbCert);
                 }
+
+                return true;
             } catch (Exception e) {
                 log.debug(e.getMessage(), e);
                 return false;
             }
         }
 
-        return true;
+        return false;
     }
 }

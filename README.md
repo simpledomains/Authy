@@ -1,5 +1,11 @@
 # Authy
 
+![Docker Pulls](https://img.shields.io/docker/pulls/sealife/forward-auth-server?style=for-the-badge)
+![Docker Pulls](https://img.shields.io/docker/stars/sealife/forward-auth-server?style=for-the-badge)
+
+![Docker Pulls](https://img.shields.io/microbadger/layers/sealife/forward-auth-server/develop?style=for-the-badge)
+![Docker Pulls](https://img.shields.io/microbadger/image-size/sealife/forward-auth-server/develop?style=for-the-badge)
+
 ## Features
 
 - CAS 2.0 (without Proxy-Feature)
