@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -56,7 +55,7 @@ public class X509ClientAuthController extends AbstractAuthyController {
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + identity.getUsername() + ".pfx")
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .contentType(MediaType.valueOf("application/x-pkcs12"))
                 .contentLength(data.length)
                 .body(resource);
     }
@@ -64,12 +63,7 @@ public class X509ClientAuthController extends AbstractAuthyController {
     @WebRequiresAuthentication
     @DeleteMapping(value = "/{serial}")
     public ResponseEntity<Void> revokeCertificate(HttpServletRequest request, @PathVariable("serial") BigInteger serial) throws IOException {
-        Identity       identity = getIdentityFromRequest(request);
-        ClientAuthCert cert     = certRepository.findById(serial).orElseThrow();
-
-        if (cert.getIdentity().equals(identity) || identity.getAdmin()) {
-            cert.setRevokedAt(LocalDateTime.now());
-            certRepository.save(cert);
+        if (x509Manager.revoke(serial, getIdentityFromRequest(request))) {
             return ResponseEntity.ok().build();
         }
 

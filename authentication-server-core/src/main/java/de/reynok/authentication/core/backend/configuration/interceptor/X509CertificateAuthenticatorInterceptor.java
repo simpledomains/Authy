@@ -3,6 +3,7 @@ package de.reynok.authentication.core.backend.configuration.interceptor;
 import de.reynok.authentication.core.Constants;
 import de.reynok.authentication.core.backend.components.JwtProcessor;
 import de.reynok.authentication.core.backend.components.X509Manager;
+import de.reynok.authentication.core.backend.database.entity.ClientAuthCert;
 import de.reynok.authentication.core.backend.database.repository.IdentityRepository;
 import de.reynok.authentication.core.shared.exceptions.SecurityTokenInvalidException;
 import io.jsonwebtoken.lang.Assert;
@@ -101,9 +102,13 @@ public class X509CertificateAuthenticatorInterceptor extends AuthyWebInterceptor
                 certificate.checkValidity();
                 ca.checkValidity();
 
-                if (x509Manager.isRevoked(certificate.getSerialNumber())) {
+                ClientAuthCert dbCert = x509Manager.getCertificateFor(certificate.getSerialNumber());
+
+                if (x509Manager.isRevoked(dbCert)) {
                     log.info("X509 Certificate {} is revoked.", certificate.getSerialNumber());
                     throw new RuntimeException("Certificate " + certificate.getSerialNumber().toString() + " revoked or unknown.");
+                } else {
+                    x509Manager.markAsUsed(dbCert);
                 }
             } catch (Exception e) {
                 log.debug(e.getMessage(), e);

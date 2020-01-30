@@ -60,10 +60,25 @@ public class X509Manager {
         return caCache;
     }
 
-    public boolean isRevoked(BigInteger serial) {
-        ClientAuthCert cert = clientAuthCertRepository.findById(serial).orElse(null);
+    public ClientAuthCert getCertificateFor(BigInteger serial) {
+        return clientAuthCertRepository.findById(serial).orElse(null);
+    }
 
+    public boolean isRevoked(ClientAuthCert cert) {
         return cert == null || cert.isRevoked();
+    }
+
+    public boolean isRevoked(BigInteger serial) {
+        return isRevoked(getCertificateFor(serial));
+    }
+
+    public void markAsUsed(ClientAuthCert cert) {
+        if (cert != null) {
+            if (cert.getLastAccess() == null || LocalDateTime.now().isAfter(cert.getLastAccess().plusMinutes(10))) {
+                cert.setLastAccess(LocalDateTime.now());
+                clientAuthCertRepository.save(cert);
+            }
+        }
     }
 
     public void revoke(BigInteger serial) {
@@ -75,20 +90,15 @@ public class X509Manager {
         }
     }
 
-    public void revoke(BigInteger serial, Identity isAllowedBy) {
-        ClientAuthCert cert = clientAuthCertRepository.findById(serial).orElse(null);
+    public boolean revoke(BigInteger serial, Identity identity) {
+        ClientAuthCert cert = clientAuthCertRepository.findById(serial).orElseThrow();
 
-        if (cert != null && cert.getIdentity().equals(isAllowedBy)) {
+        if (cert != null && (cert.getIdentity().equals(identity) || (identity != null && identity.getAdmin()))) {
             cert.setRevokedAt(LocalDateTime.now());
             clientAuthCertRepository.save(cert);
+            return true;
         }
-    }
-
-    public void markLastAccess(ClientAuthCert cert) {
-        if (cert.getLastAccess() == null || LocalDateTime.now().isBefore(LocalDateTime.now().minusMinutes(10))) {
-            cert.setLastAccess(LocalDateTime.now());
-            clientAuthCertRepository.save(cert);
-        }
+        return false;
     }
 
     public byte[] issuePfx(Identity identity) throws IOException {
