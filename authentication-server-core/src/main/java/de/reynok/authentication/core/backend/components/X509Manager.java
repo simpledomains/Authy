@@ -13,6 +13,9 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jmx.export.annotation.ManagedOperation;
+import org.springframework.jmx.export.annotation.ManagedResource;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -25,10 +28,12 @@ import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.List;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
+@ManagedResource
 public class X509Manager {
     @Value("${server.ssl.client-auth-config.public-key:ca.pub.pem}")
     private File   caPublicCert;
@@ -45,6 +50,24 @@ public class X509Manager {
     private final IdentityRepository       identityRepository;
     private final ClientAuthCertRepository clientAuthCertRepository;
     private final FrontendConfiguration    frontendConfiguration;
+
+    @ManagedOperation(description = "Cleans the revoked certificates")
+    @Scheduled(fixedDelayString = "${app.security.x509.cleanup-timer:1800000}")
+    public void cleanupRevoked() {
+        if (frontendConfiguration.getClientCertAuth()) {
+            log.info("Cleaning revoked certificates ...");
+
+            List<ClientAuthCert> certs = clientAuthCertRepository.findAllByRevokedAtLessThanAndRevokedAtIsNotNull(LocalDateTime.now().minusDays(1));
+
+            if (log.isDebugEnabled()) {
+                certs.forEach(cert -> log.debug("Deleting revoked certificate {}, revoked at {} for identity {}", cert.getSerial(), cert.getRevokedAt(), cert.getIdentity().getId()));
+            }
+
+            clientAuthCertRepository.deleteAll(certs);
+
+            log.info("Cleaned {} revoked certificates ...", certs.size());
+        }
+    }
 
     @SneakyThrows
     public X509Certificate getCaCertificate() {
