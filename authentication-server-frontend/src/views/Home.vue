@@ -145,27 +145,45 @@
                 })
             },
             requestX509() {
-                axios({
-                    url: '/api/x509/issue',
-                    method: 'GET',
-                    responseType: 'blob'
+
+                sweetalert2.fire({
+                    type: 'info',
+                    title: 'Do you want this X509 to have a Name?',
+                    input: 'text',
+                    showCancelButton: true,
+                    cancelButtonText: 'Abort',
+                    confirmButtonText: 'Create',
                 }).then(r => {
-                    console.log(r);
+                    if (r.dismiss) return;
 
-                    let a = document.createElement("a");
-                    document.body.appendChild(a);
-                    a.style = "display: none";
+                    let url = '/api/x509/issue';
 
-                    let blob = new Blob([r.data], {type: "octet/stream;charset=utf-8", encoding: "UTF-8"});
-                    let url = window.URL.createObjectURL(blob);
+                    if (r.value) {
+                        url = url + '?deviceName=' + r.value;
+                    }
 
-                    a.href = window.URL.createObjectURL(blob);
-                    a.download = this.user.username + ".pfx";
-                    a.click();
-                    document.removeChild(a);
-                    window.URL.revokeObjectURL(url);
-                }).finally(() => {
-                    this.fetchX509Certificates();
+                    axios({
+                        url: url,
+                        method: 'GET',
+                        responseType: 'blob'
+                    }).then(r => {
+                        console.log(r);
+
+                        let a = document.createElement("a");
+                        document.body.appendChild(a);
+                        a.style = "display: none";
+
+                        let blob = new Blob([r.data], {type: "octet/stream;charset=utf-8", encoding: "UTF-8"});
+                        let url = window.URL.createObjectURL(blob);
+
+                        a.href = window.URL.createObjectURL(blob);
+                        a.download = this.user.username + ".pfx";
+                        a.click();
+                        document.removeChild(a);
+                        window.URL.revokeObjectURL(url);
+                    }).finally(() => {
+                        this.fetchX509Certificates();
+                    });
                 });
             },
             requestApiToken() {
@@ -229,6 +247,10 @@
                     }).catch(() => {
                         this.$router.push('/login?service=/');
                     });
+                }
+
+                if (this.clientCertAuth) {
+                    this.fetchX509Certificates();
                 }
             },
             changePassword() {

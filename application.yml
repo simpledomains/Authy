@@ -6,7 +6,7 @@ app.secrets.jwt: dJHDjkahdjknsjkchnbJKHNKJWndk
 cas.system-domain: http://localhost:8080
 
 ## Logging
-logging.level.de.reynok: DEBUG
+logging.level.de.reynok: INFO
 
 cas:
   frontend:

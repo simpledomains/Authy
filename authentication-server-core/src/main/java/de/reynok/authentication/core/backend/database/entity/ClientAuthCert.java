@@ -20,6 +20,8 @@ public class ClientAuthCert {
     @ManyToOne(targetEntity = Identity.class, fetch = FetchType.LAZY)
     private Identity identity;
 
+    private String name;
+
     @Convert(converter = Jsr310JpaConverters.LocalDateTimeConverter.class)
     private LocalDateTime issuedAt;
     @Convert(converter = Jsr310JpaConverters.LocalDateTimeConverter.class)

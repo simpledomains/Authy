@@ -28,7 +28,7 @@ public class X509ClientAuthController extends AbstractAuthyController {
     public X509ClientAuthController(IdentityRepository identityRepository, ClientAuthCertRepository certRepository, X509Manager x509Manager) {
         super(identityRepository);
         this.certRepository = certRepository;
-        this.x509Manager    = x509Manager;
+        this.x509Manager = x509Manager;
     }
 
     @WebRequiresAuthentication(adminOnly = true)
@@ -49,7 +49,7 @@ public class X509ClientAuthController extends AbstractAuthyController {
     public ResponseEntity<ByteArrayResource> issueNew(HttpServletRequest request) throws IOException {
         Identity identity = getIdentityFromRequest(request);
 
-        byte[] data = x509Manager.issuePfx(identity);
+        byte[] data = x509Manager.issuePfx(identity, request.getParameter("deviceName"));
 
         ByteArrayResource resource = new ByteArrayResource(data);
 

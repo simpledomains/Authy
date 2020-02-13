@@ -118,16 +118,19 @@ public class X509Manager {
 
         if (cert != null && (cert.getIdentity().equals(identity) || (identity != null && identity.getAdmin()))) {
             cert.setRevokedAt(LocalDateTime.now());
+            log.info("Revoked {} for Identitiy {}", cert.getSerial(), identity.getId());
             clientAuthCertRepository.save(cert);
             return true;
         }
         return false;
     }
 
-    public byte[] issuePfx(Identity identity) throws IOException {
+    public byte[] issuePfx(Identity identity, String certificateName) throws IOException {
         if (!frontendConfiguration.getClientCertAuth()) {
             throw new ServiceException("X509 authentication is not enabled.");
         }
+
+        log.info("Issuing X509 mTLS certificate for Identity {} with the Name {}", identity.getId(), certificateName);
 
         Integer userId = identity.getId();
 
@@ -143,6 +146,7 @@ public class X509Manager {
         clientAuthCert.setSerial(serial);
         clientAuthCert.setIdentity(identity);
         clientAuthCert.setIssuedAt(LocalDateTime.now());
+        clientAuthCert.setName(certificateName);
 
         clientAuthCertRepository.save(clientAuthCert);
 

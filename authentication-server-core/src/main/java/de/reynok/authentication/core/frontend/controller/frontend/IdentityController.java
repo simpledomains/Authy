@@ -57,7 +57,7 @@ public class IdentityController extends AbstractAuthyController {
 
     @WebRequiresAuthentication
     @GetMapping("/api/profile/otp/start")
-    public ResponseEntity initializeOneTimePassword(HttpSession httpSession, HttpServletRequest request) {
+    public ResponseEntity<Map<?, ?>> initializeOneTimePassword(HttpSession httpSession, HttpServletRequest request) {
         Identity id = getIdentityFromRequest(request);
 
         httpSession.setAttribute(Constants.OTP_SECRET, OTP.randomBase32(20));
@@ -85,9 +85,9 @@ public class IdentityController extends AbstractAuthyController {
 
     @WebRequiresAuthentication
     @PostMapping(value = "/api/profile/otp/verify")
-    public ResponseEntity verifyOneTimePassword(@RequestBody LoginRequest verificationRequest, HttpServletRequest request, HttpSession httpSession) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
-        Identity id = getIdentityFromRequest(request);
-        String obj = (String) httpSession.getAttribute(Constants.OTP_SECRET);
+    public ResponseEntity<?> verifyOneTimePassword(@RequestBody LoginRequest verificationRequest, HttpServletRequest request, HttpSession httpSession) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
+        Identity id  = getIdentityFromRequest(request);
+        String   obj = (String) httpSession.getAttribute(Constants.OTP_SECRET);
 
         if (obj != null) {
             if (Objects.equals(verificationRequest.getSecurityPassword(), OTP.create(obj, OTP.timeInHex(), 6, Type.TOTP))) {
@@ -106,11 +106,13 @@ public class IdentityController extends AbstractAuthyController {
 
     @WebRequiresAuthentication
     @PostMapping("/api/profile/api-token")
-    public ResponseEntity generateApiToken(HttpServletRequest request) {
+    public ResponseEntity<String> generateApiToken(HttpServletRequest request) {
         Identity identity = getIdentityFromRequest(request);
-        String key = RandomStringUtils.randomAlphanumeric(32);
+        String   key      = RandomStringUtils.randomAlphanumeric(32);
 
         identity.setApiToken(key);
+
+        log.info("Identity {} requested a new API token, old token was revoked immediately", identity.getId());
 
         identityRepository.save(identity);
 
@@ -119,10 +121,12 @@ public class IdentityController extends AbstractAuthyController {
 
     @WebRequiresAuthentication
     @DeleteMapping("/api/profile/api-token")
-    public ResponseEntity deleteApiToken(HttpServletRequest request) {
+    public ResponseEntity<?> deleteApiToken(HttpServletRequest request) {
         Identity identity = getIdentityFromRequest(request);
 
         identity.setApiToken(null);
+
+        log.info("Identity {} revoked his API token completely", identity.getId());
 
         identityRepository.save(identity);
 
