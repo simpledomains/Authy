@@ -167,10 +167,10 @@
                         method: 'GET',
                         responseType: 'blob'
                     }).then(r => {
-                        console.log(r);
-
+                        // region download from memory
                         let a = document.createElement("a");
                         document.body.appendChild(a);
+                        // noinspection JSValidateTypes
                         a.style = "display: none";
 
                         let blob = new Blob([r.data], {type: "octet/stream;charset=utf-8", encoding: "UTF-8"});
@@ -181,6 +181,7 @@
                         a.click();
                         document.removeChild(a);
                         window.URL.revokeObjectURL(url);
+                        // endregion
                     }).finally(() => {
                         this.fetchX509Certificates();
                     });

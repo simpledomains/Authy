@@ -2,7 +2,7 @@
     <div>
         <v-app-bar dense app color="primary" dark>
             <v-app-bar-nav-icon @click="drawer = !drawer" v-if="isAdmin"></v-app-bar-nav-icon>
-            <v-icon>fas fa-lock</v-icon>&nbsp; &nbsp;
+            <v-icon left>fas fa-lock</v-icon>&nbsp; &nbsp;
             <v-toolbar-title>Authy - {{ location }}</v-toolbar-title>
 
             <div class="flex-grow-1"></div>

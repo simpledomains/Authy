@@ -12,3 +12,4 @@ cas:
   frontend:
     clientCertAuth: true
     darkMode: false
+  test-mode: true
