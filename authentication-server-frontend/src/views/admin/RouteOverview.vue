@@ -13,7 +13,7 @@
 
                         <v-card-text>
                             <v-row>
-                                <v-col class="col col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3" v-for="item in services"
+                                <v-col class="col col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3" v-for="item in services"
                                        :key="item.name">
                                     <service-visualization :item="item"
                                                            v-on:start="patchService($event, 'enabled', true)"

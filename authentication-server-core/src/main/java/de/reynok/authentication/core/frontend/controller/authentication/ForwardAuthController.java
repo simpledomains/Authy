@@ -25,9 +25,9 @@ import java.io.IOException;
 @RestController
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class ForwardAuthController {
-    private final JwtProcessor jwtProcessor;
+    private final JwtProcessor       jwtProcessor;
     private final IdentityRepository identityRepository;
-    private final ServiceValidation serviceValidation;
+    private final ServiceValidation  serviceValidation;
 
     @Value("${app.domain:}")
     private String baseDomain;
@@ -53,7 +53,7 @@ public class ForwardAuthController {
         if (request.getAttribute(Constants.REQUEST_CLAIMS_FIELD) != null) {
             Claims claims = (Claims) request.getAttribute(Constants.REQUEST_CLAIMS_FIELD);
 
-            Identity identity = identityRepository.findByUsername(claims.get("sub").toString()).orElseThrow(EntityNotFoundException::new);
+            Identity identity = identityRepository.findByUsername(claims.get("sub").toString()).orElse(null);
 
             if (service.isIdentityAllowed(identity)) {
                 return ResponseEntity.ok().build();

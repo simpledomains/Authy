@@ -97,6 +97,23 @@ public class AuthenticationServerInit implements InitializingBean {
             service.getRequiredRoles().add("family");
             service.getRequiredRoles().add("system_admin");
             service.getRequiredRoles().add("root");
+            service.getRequiredRoles().add("root2");
+            service.getRequiredRoles().add("root3");
+            service.getRequiredRoles().add("root4");
+            serviceRepository.save(service);
+
+            service = new Service();
+            service.setName("Admin Only");
+            service.setEnabled(true);
+            service.getAllowedUrls().add("https://[A-z]+.seatech.dev/*");
+            service.setMode(Service.ServiceMode.ADMIN);
+            serviceRepository.save(service);
+
+            service = new Service();
+            service.setName("Anonymous.");
+            service.setEnabled(false);
+            service.getAllowedUrls().add("http://*");
+            service.setMode(Service.ServiceMode.ANONYMOUS);
             serviceRepository.save(service);
         }
     }

@@ -9,6 +9,7 @@ Vue.config.productionTip = false;
 
 Vue.prototype.$version = process.env.VUE_APP_CI_COMMIT_SHORT_SHA || 'local-snapshot';
 Vue.prototype.$frontendConfiguration = frontendConfiguration;
+Vue.prototype.$testMode = process.env.VUE_APP_TEST_MODE === 'true' || false;
 
 new Vue({
     router,
