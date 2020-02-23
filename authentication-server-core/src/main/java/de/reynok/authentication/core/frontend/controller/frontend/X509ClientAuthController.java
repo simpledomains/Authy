@@ -1,11 +1,11 @@
 package de.reynok.authentication.core.frontend.controller.frontend;
 
-import de.reynok.authentication.core.backend.components.X509Manager;
+import io.virtuellewolke.authentication.core.spring.components.X509Manager;
 import de.reynok.authentication.core.backend.configuration.WebRequiresAuthentication;
-import de.reynok.authentication.core.backend.database.entity.ClientAuthCert;
-import de.reynok.authentication.core.backend.database.entity.Identity;
-import de.reynok.authentication.core.backend.database.repository.ClientAuthCertRepository;
-import de.reynok.authentication.core.backend.database.repository.IdentityRepository;
+import io.virtuellewolke.authentication.core.database.entity.ClientAuthCert;
+import io.virtuellewolke.authentication.core.database.entity.Identity;
+import io.virtuellewolke.authentication.core.database.repository.ClientAuthCertRepository;
+import io.virtuellewolke.authentication.core.database.repository.IdentityRepository;
 import de.reynok.authentication.core.frontend.controller.AbstractAuthyController;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;

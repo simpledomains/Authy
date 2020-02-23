@@ -1,8 +1,8 @@
 package de.reynok.authentication.core.frontend.api;
 
 
-import de.reynok.authentication.core.backend.database.entity.Authority;
-import de.reynok.authentication.core.backend.database.entity.Identity;
+import io.virtuellewolke.authentication.core.database.entity.Authority;
+import io.virtuellewolke.authentication.core.database.entity.Identity;
 import de.reynok.authentication.core.backend.modules.cas.CasStatusCode;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;

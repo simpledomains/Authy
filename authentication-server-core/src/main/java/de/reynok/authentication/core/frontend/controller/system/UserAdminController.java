@@ -1,9 +1,9 @@
 package de.reynok.authentication.core.frontend.controller.system;
 
 import de.reynok.authentication.core.backend.configuration.WebRequiresAuthentication;
-import de.reynok.authentication.core.backend.database.entity.Identity;
-import de.reynok.authentication.core.backend.database.repository.AuthorityRepository;
-import de.reynok.authentication.core.backend.database.repository.IdentityRepository;
+import io.virtuellewolke.authentication.core.database.entity.Identity;
+import io.virtuellewolke.authentication.core.database.repository.AuthorityRepository;
+import io.virtuellewolke.authentication.core.database.repository.IdentityRepository;
 import de.reynok.authentication.core.frontend.controller.AbstractAuthyController;
 import org.springframework.web.bind.annotation.*;
 

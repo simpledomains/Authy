@@ -1,26 +1,25 @@
 package de.reynok.authentication.core.frontend.controller.authentication;
 
 import de.reynok.authentication.core.Constants;
+import io.virtuellewolke.authentication.core.spring.components.JwtProcessor;
+import de.reynok.authentication.core.backend.configuration.ConfigurationContext;
+import io.virtuellewolke.authentication.core.database.entity.Identity;
+import io.virtuellewolke.authentication.core.database.entity.Service;
+import io.virtuellewolke.authentication.core.database.repository.IdentityRepository;
+import de.reynok.authentication.core.backend.modules.cas.CasStatusCode;
+import io.virtuellewolke.authentication.core.spring.components.ServiceValidation;
+import de.reynok.authentication.core.backend.modules.cas.TicketHandler;
+import de.reynok.authentication.core.backend.modules.cas.TicketType;
+import de.reynok.authentication.core.frontend.api.CasJsonResponse;
+import de.reynok.authentication.core.frontend.api.CasXmlResponse;
+import de.reynok.authentication.core.frontend.api.LoginRequest;
+import de.reynok.authentication.core.frontend.api.LoginResponse;
+import de.reynok.authentication.core.frontend.controller.AbstractAuthyController;
 import de.reynok.authentication.core.shared.exceptions.AccessDeniedException;
 import de.reynok.authentication.core.shared.exceptions.ServiceException;
 import de.reynok.authentication.core.shared.exceptions.UnknownServiceException;
-import de.reynok.authentication.core.frontend.api.CasJsonResponse;
-import de.reynok.authentication.core.frontend.api.CasXmlResponse;
-import de.reynok.authentication.core.backend.modules.cas.CasStatusCode;
-import de.reynok.authentication.core.backend.modules.cas.ServiceValidation;
-import de.reynok.authentication.core.backend.modules.cas.TicketHandler;
-import de.reynok.authentication.core.backend.modules.cas.TicketType;
-import de.reynok.authentication.core.backend.database.entity.Identity;
-import de.reynok.authentication.core.backend.database.entity.Service;
-import de.reynok.authentication.core.frontend.api.LoginRequest;
-import de.reynok.authentication.core.frontend.api.LoginResponse;
-import de.reynok.authentication.core.backend.configuration.ConfigurationContext;
-import de.reynok.authentication.core.backend.database.repository.IdentityRepository;
-import de.reynok.authentication.core.backend.components.JwtProcessor;
 import de.reynok.authentication.core.shared.util.validation.OneTimePasswordValidator;
-import de.reynok.authentication.core.frontend.controller.AbstractAuthyController;
 import io.jsonwebtoken.Claims;
-import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +31,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -162,7 +160,6 @@ public class CASController extends AbstractAuthyController {
     }
 
     @GetMapping(value = {"/cas/validate", "/cas/p3/serviceValidate", "/cas/serviceValidate", "/cas/proxyValidate", "/cas/p3/proxyValidate"}, produces = "application/json")
-    @ApiOperation(response = Map.class, value = "Validates a Service Ticket", notes = "**ATTENTION**: Proxy-Tickets cannot be validated!", produces = "application/json")
     public ResponseEntity validateAsJson(HttpServletResponse response, @RequestParam("ticket") String ticket, @RequestParam("service") String service) {
         CasJsonResponse jsonResponse = new CasJsonResponse();
 
@@ -181,7 +178,6 @@ public class CASController extends AbstractAuthyController {
      * ATTENTION: /proxyValidate is ONLY validating the normal service tickets, proxyTickets are NOT yet supported!
      */
     @GetMapping(value = {"/cas/validate", "/cas/p3/serviceValidate", "/cas/serviceValidate", "/cas/proxyValidate", "/cas/p3/proxyValidate"})
-    @ApiOperation(response = Map.class, value = "Validates a Service Ticket", notes = "**ATTENTION**: Proxy-Tickets cannot be validated!", produces = "application/xml")
     public ResponseEntity validate(HttpServletResponse response, @RequestParam("ticket") String ticket, @RequestParam("service") String service) {
         CasXmlResponse xmlResponse = new CasXmlResponse();
 

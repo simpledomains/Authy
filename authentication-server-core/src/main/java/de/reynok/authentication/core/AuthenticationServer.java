@@ -7,7 +7,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @Slf4j
 @EnableScheduling
-@SpringBootApplication
 public class AuthenticationServer {
 
     public static void main(String[] args) {

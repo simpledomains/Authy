@@ -1,0 +1,8 @@
+app:
+  secrets:
+    jwt: 234357643857893
+
+logging:
+  level:
+    io:
+      virtuellewolke: DEBUG

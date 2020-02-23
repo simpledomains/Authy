@@ -1,7 +1,7 @@
 package de.reynok.authentication.core.shared.util.validation;
 
 
-import de.reynok.authentication.core.backend.database.entity.Identity;
+import io.virtuellewolke.authentication.core.database.entity.Identity;
 import org.apache.commons.codec.digest.Md5Crypt;
 
 public class Md5PasswordValidator implements Validator<String> {

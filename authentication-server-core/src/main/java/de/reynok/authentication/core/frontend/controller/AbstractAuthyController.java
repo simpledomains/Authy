@@ -3,9 +3,9 @@ package de.reynok.authentication.core.frontend.controller;
 
 import de.reynok.authentication.core.Constants;
 import de.reynok.authentication.core.shared.exceptions.AccessDeniedException;
-import de.reynok.authentication.core.backend.database.entity.Identity;
+import io.virtuellewolke.authentication.core.database.entity.Identity;
 import de.reynok.authentication.core.frontend.api.ServiceError;
-import de.reynok.authentication.core.backend.database.repository.IdentityRepository;
+import io.virtuellewolke.authentication.core.database.repository.IdentityRepository;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

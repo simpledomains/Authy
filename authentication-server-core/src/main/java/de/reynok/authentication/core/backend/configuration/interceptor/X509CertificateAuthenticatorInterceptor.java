@@ -1,10 +1,10 @@
 package de.reynok.authentication.core.backend.configuration.interceptor;
 
 import de.reynok.authentication.core.Constants;
-import de.reynok.authentication.core.backend.components.JwtProcessor;
-import de.reynok.authentication.core.backend.components.X509Manager;
-import de.reynok.authentication.core.backend.database.entity.ClientAuthCert;
-import de.reynok.authentication.core.backend.database.repository.IdentityRepository;
+import io.virtuellewolke.authentication.core.spring.components.JwtProcessor;
+import io.virtuellewolke.authentication.core.spring.components.X509Manager;
+import io.virtuellewolke.authentication.core.database.entity.ClientAuthCert;
+import io.virtuellewolke.authentication.core.database.repository.IdentityRepository;
 import de.reynok.authentication.core.shared.exceptions.SecurityTokenInvalidException;
 import io.jsonwebtoken.lang.Assert;
 import lombok.extern.slf4j.Slf4j;

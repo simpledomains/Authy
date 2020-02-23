@@ -1,6 +1,7 @@
 package de.reynok.authentication.core.backend.components;
 
-import de.reynok.authentication.core.backend.database.entity.Identity;
+import io.virtuellewolke.authentication.core.database.entity.Identity;
+import io.virtuellewolke.authentication.core.spring.components.JwtProcessor;
 import lombok.NoArgsConstructor;
 import org.junit.Test;
 import org.junit.runner.RunWith;

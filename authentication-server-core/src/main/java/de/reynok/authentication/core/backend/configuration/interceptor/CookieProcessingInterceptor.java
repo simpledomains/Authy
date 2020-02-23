@@ -1,8 +1,8 @@
 package de.reynok.authentication.core.backend.configuration.interceptor;
 
 import de.reynok.authentication.core.Constants;
-import de.reynok.authentication.core.backend.components.JwtProcessor;
-import de.reynok.authentication.core.backend.database.repository.IdentityRepository;
+import io.virtuellewolke.authentication.core.spring.components.JwtProcessor;
+import io.virtuellewolke.authentication.core.database.repository.IdentityRepository;
 import de.reynok.authentication.core.shared.exceptions.SecurityTokenInvalidException;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;

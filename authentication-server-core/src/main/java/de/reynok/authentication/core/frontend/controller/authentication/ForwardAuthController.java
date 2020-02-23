@@ -1,12 +1,12 @@
 package de.reynok.authentication.core.frontend.controller.authentication;
 
 import de.reynok.authentication.core.Constants;
-import de.reynok.authentication.core.backend.database.entity.Identity;
-import de.reynok.authentication.core.backend.database.entity.Service;
+import io.virtuellewolke.authentication.core.database.entity.Identity;
+import io.virtuellewolke.authentication.core.database.entity.Service;
 import de.reynok.authentication.core.backend.modules.cas.CasStatusCode;
-import de.reynok.authentication.core.backend.database.repository.IdentityRepository;
-import de.reynok.authentication.core.backend.modules.cas.ServiceValidation;
-import de.reynok.authentication.core.backend.components.JwtProcessor;
+import io.virtuellewolke.authentication.core.database.repository.IdentityRepository;
+import io.virtuellewolke.authentication.core.spring.components.ServiceValidation;
+import io.virtuellewolke.authentication.core.spring.components.JwtProcessor;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;

@@ -1,12 +1,10 @@
 package de.reynok.authentication.core.frontend.controller.system;
 
 import de.reynok.authentication.core.backend.configuration.WebRequiresAuthentication;
-import de.reynok.authentication.core.backend.database.entity.Authority;
-import de.reynok.authentication.core.backend.database.repository.AuthorityRepository;
-import de.reynok.authentication.core.backend.database.repository.IdentityRepository;
+import io.virtuellewolke.authentication.core.database.entity.Authority;
+import io.virtuellewolke.authentication.core.database.repository.AuthorityRepository;
+import io.virtuellewolke.authentication.core.database.repository.IdentityRepository;
 import de.reynok.authentication.core.frontend.controller.AbstractAuthyController;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
@@ -15,7 +13,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
-@Api(produces = "application/json", value = "Authorities")
 public class AuthorityAdminController extends AbstractAuthyController {
 
     private final AuthorityRepository authorityRepository;
@@ -27,7 +24,6 @@ public class AuthorityAdminController extends AbstractAuthyController {
 
     @GetMapping("/admin/authorities")
     @WebRequiresAuthentication(adminOnly = true)
-    @ApiOperation(response = Authority.class, responseContainer = "List", value = "Get all authorities")
     public List<Authority> identities() {
         return authorityRepository.findAll();
     }

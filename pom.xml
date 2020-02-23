@@ -10,20 +10,19 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
-    <modules>
-        <module>authentication-server-core</module>
-        <module>authentication-server-frontend</module>
-    </modules>
-
     <packaging>pom</packaging>
     <groupId>de.reynok</groupId>
     <artifactId>authentication-server</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-
     <name>authentication-server</name>
     <description>
         A authentication Server to be used as a Forward Authentication service or as a CAS backend.
     </description>
+
+    <modules>
+        <module>authentication-server-core</module>
+        <module>authentication-server-frontend</module>
+    </modules>
 
     <properties>
         <java.version>12</java.version>
