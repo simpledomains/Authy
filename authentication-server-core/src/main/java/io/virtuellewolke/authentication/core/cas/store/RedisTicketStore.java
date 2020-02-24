@@ -8,6 +8,7 @@ import io.virtuellewolke.authentication.core.cas.TicketStore;
 import io.virtuellewolke.authentication.core.cas.model.Ticket;
 import io.virtuellewolke.authentication.core.cas.store.clients.JedisConnectionFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -25,6 +26,9 @@ public class RedisTicketStore implements TicketStore {
     private final ObjectMapper           objectMapper;
 
     private final InMemoryTicketStore fallback = new InMemoryTicketStore();
+
+    @Setter
+    private boolean fallbackEnabled = true;
 
     @Scheduled(fixedDelay = 10000)
     public void cleanupFallback() {
@@ -88,8 +92,12 @@ public class RedisTicketStore implements TicketStore {
         try {
             return callback.get();
         } catch (Exception e) {
-            log.warn("There is a problem with Redis, using Fallback.");
-            return resilienceCallback.get();
+            if (fallbackEnabled) {
+                log.warn("There is a problem with Redis, using Fallback.");
+                return resilienceCallback.get();
+            } else {
+                throw e;
+            }
         }
     }
 
@@ -98,8 +106,12 @@ public class RedisTicketStore implements TicketStore {
         try {
             callback.exec();
         } catch (Exception e) {
-            log.warn("There is a problem with Redis, using Fallback.");
-            resilienceCallback.exec();
+            if (fallbackEnabled) {
+                log.warn("There is a problem with Redis, using Fallback.");
+                resilienceCallback.exec();
+            } else {
+                throw e;
+            }
         }
     }
 
