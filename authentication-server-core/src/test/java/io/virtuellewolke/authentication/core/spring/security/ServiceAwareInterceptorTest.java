@@ -1,6 +1,8 @@
 package io.virtuellewolke.authentication.core.spring.security;
 
 import io.virtuellewolke.authentication.core.spring.components.ServiceValidation;
+import io.virtuellewolke.authentication.core.spring.helper.ServiceRequestHelper;
+import io.virtuellewolke.authentication.core.spring.security.mods.ServiceAwareInterceptor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,7 +21,7 @@ class ServiceAwareInterceptorTest {
     private ServiceValidation serviceValidation;
 
     @Test
-    public void testAuthentication() throws Exception {
+    public void testGetService() throws Exception {
         MockHttpServletRequest req = new MockHttpServletRequest("GET", "/");
 
         req.addParameter("service", "/");
@@ -28,7 +30,7 @@ class ServiceAwareInterceptorTest {
 
         interceptor.preHandle(req, null, null);
 
-        Assertions.assertNotNull(SecureContext.getSecureContext(req));
+        Assertions.assertNotNull(ServiceRequestHelper.getService(req));
     }
 
     private static class DefaultTestImplementation extends ServiceAwareInterceptor {

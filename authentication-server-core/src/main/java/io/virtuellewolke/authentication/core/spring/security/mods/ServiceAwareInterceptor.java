@@ -1,17 +1,17 @@
-package io.virtuellewolke.authentication.core.spring.security;
+package io.virtuellewolke.authentication.core.spring.security.mods;
 
 import io.virtuellewolke.authentication.core.database.entity.Service;
 import io.virtuellewolke.authentication.core.spring.components.ServiceValidation;
+import io.virtuellewolke.authentication.core.spring.helper.ServiceRequestHelper;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @Slf4j
-public abstract class ServiceAwareInterceptor implements SecureContextInterceptor {
+public abstract class ServiceAwareInterceptor implements AuthyInterceptor {
 
-    private static final String SERVICE_REQUEST_NAME = "AuthyRequestedService";
-    private static final String SERVICE_PARAMETER    = "service";
+    private static final String SERVICE_PARAMETER = "service";
 
     private ServiceValidation serviceValidation;
 
@@ -30,19 +30,10 @@ public abstract class ServiceAwareInterceptor implements SecureContextIntercepto
 
             log.debug("Detected Service {} for url {}", service, parameter);
 
-            if (service != null) {
-                request.setAttribute(SERVICE_REQUEST_NAME, service);
-            }
+            ServiceRequestHelper.setService(service, request);
         }
 
         return process(request, response, handler);
-    }
-
-    public Service getService(HttpServletRequest request) {
-        if (request.getAttribute(SERVICE_REQUEST_NAME) != null) {
-            return (Service) request.getAttribute(SERVICE_REQUEST_NAME);
-        }
-        return null;
     }
 
     private String getServiceUrlFromRequest(HttpServletRequest request) {

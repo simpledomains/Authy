@@ -1,10 +1,13 @@
 package io.virtuellewolke.authentication.core.cas.store;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.virtuellewolke.authentication.core.cas.model.Ticket;
 import io.virtuellewolke.authentication.core.cas.store.clients.ClientConnectException;
 import io.virtuellewolke.authentication.core.cas.store.clients.JedisConnectionFactory;
 import org.junit.jupiter.api.*;
+import org.slf4j.LoggerFactory;
 
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -21,10 +24,15 @@ class RedisTicketStoreFallbackTest {
         configuration.setHost("localhost");
         configuration.setPort(6379);
         configuration.setSsl(false);
+        configuration.setMaxConnectAttempts(0); // never retry - faster tests
+        configuration.setTimeout(java.time.Duration.parse("PT0.500S"));
 
         JedisConnectionFactory connectionFactory = new JedisConnectionFactory(configuration);
 
         ticketStore = new RedisTicketStore(connectionFactory, objm);
+
+        Logger rootLogger = (Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
+        rootLogger.setLevel(Level.ALL);
     }
 
     @BeforeEach

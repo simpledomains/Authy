@@ -1,12 +1,6 @@
 ## Logging
 logging.level.de.reynok: INFO
 
-## Application Defaults
-cas:
-  cookie-domain: localhost
-  system:
-    api-documentation-exposed: true
-
 ## Spring Configuration
 spring:
   application:
@@ -25,4 +19,5 @@ spring:
     exclude:
       - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
   redis:
-    enabled: true
+    enabled: false
+    timeout: PT0.500S

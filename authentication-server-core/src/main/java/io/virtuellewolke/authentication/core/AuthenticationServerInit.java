@@ -9,6 +9,7 @@ import io.virtuellewolke.authentication.core.database.repository.IdentityReposit
 import io.virtuellewolke.authentication.core.database.repository.ServiceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -60,12 +61,13 @@ public class AuthenticationServerInit implements InitializingBean {
             identity.setAdmin(true);
             identity.setEmail("admin@example.com");
             identity.setDisplayName("Administrator");
+            identity.setApiToken(RandomStringUtils.randomAlphanumeric(32));
 
             identity.getAuthorities().add(authorityRepository.findByName("admin").get());
 
             identityRepository.save(identity);
 
-            log.info("Adding Administrator Account (admin/admin) cuz there is no admin ?!?.");
+            log.warn("Administrator-Account was added (username='admin', password='admin', apiToken='{}')", identity.getApiToken());
         }
     }
 }

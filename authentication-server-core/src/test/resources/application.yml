@@ -5,4 +5,8 @@ app:
 logging:
   level:
     io:
-      virtuellewolke: DEBUG
+      virtuellewolke: TRACE
+
+spring.redis:
+  enabled: false
+  timeout: PT0.500S

@@ -1,4 +1,4 @@
-package io.virtuellewolke.authentication.core.impl.service;
+package io.virtuellewolke.authentication.core.api.service;
 
 import de.reynok.authentication.core.backend.modules.cas.TicketType;
 import de.reynok.authentication.core.frontend.api.LoginRequest;
