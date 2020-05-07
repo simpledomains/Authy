@@ -65,7 +65,7 @@ public class ServiceAdminController extends AbstractAuthyController {
     @WebRequiresAuthentication(adminOnly = true)
     @GetMapping("/api/admin/route/find")
     public Service getServiceByUrl(@RequestParam("service") String url) {
-        Service service = serviceValidation.isAllowed(url);
+        Service service = serviceValidation.getRegisteredServiceFor(url);
         if (service != null) return service;
         throw new EntityNotFoundException("Service for " + url + " not found.");
     }

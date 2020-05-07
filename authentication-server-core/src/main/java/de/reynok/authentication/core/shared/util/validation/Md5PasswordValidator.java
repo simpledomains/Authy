@@ -14,6 +14,8 @@ public class Md5PasswordValidator implements Validator<String> {
 
     @Override
     public boolean isValid(String argument) {
+        if (argument == null || identity == null) return false;
+
         String plainEncrypt = Md5Crypt.md5Crypt(argument.getBytes(), identity.getPassword());
 
         return identity.getPassword().equals(plainEncrypt);

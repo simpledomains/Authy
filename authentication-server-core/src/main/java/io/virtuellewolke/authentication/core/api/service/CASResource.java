@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.net.URI;
 
 @Tag(name = "Authy - CAS Endpoint")
 @RequestMapping("/cas")
@@ -28,6 +29,12 @@ public interface CASResource {
 
 
     @CrossOrigin
-    @RequestMapping(value = "/login", method = RequestMethod.POST)
-    ResponseEntity<LoginResponse> login(HttpServletResponse response, @RequestBody LoginRequest body, @RequestParam("service") String serviceUrl);
+    @RequestMapping(value = "/login", method = RequestMethod.POST, produces = "application/json")
+    ResponseEntity<LoginResponse> login(HttpServletRequest req, HttpServletResponse response, @RequestBody LoginRequest body, @RequestParam("service") String serviceUrl);
+
+    @CrossOrigin
+    @RequestMapping(value = "/login", method = RequestMethod.GET, produces = "application/json")
+    default ResponseEntity<LoginResponse> loginPage(HttpServletRequest request, @RequestParam("service") String service) {
+        return ResponseEntity.ok().location(URI.create("/#/login?service=" + service)).build();
+    }
 }

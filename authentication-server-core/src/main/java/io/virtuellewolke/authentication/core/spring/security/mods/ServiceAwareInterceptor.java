@@ -26,7 +26,7 @@ public abstract class ServiceAwareInterceptor implements AuthyInterceptor {
         String parameter = getServiceUrlFromRequest(request);
 
         if (parameter != null) {
-            Service service = serviceValidation.isAllowed(parameter);
+            Service service = serviceValidation.getRegisteredServiceFor(parameter);
 
             log.debug("Detected Service {} for url {}", service, parameter);
 
@@ -42,13 +42,17 @@ public abstract class ServiceAwareInterceptor implements AuthyInterceptor {
         } else if (request.getHeader("x-forwarded-proto") != null) {
             String url = "";
 
-            url += request.getHeader("x-forwarded-proto");
+            url += getRequestHeader(request, "x-forwarded-proto");
             url += "://";
-            url += request.getHeader("x-forwarded-host");
-            url += request.getHeader("x-forwarded-uri");
+            url += getRequestHeader(request, "x-forwarded-host");
+            url += getRequestHeader(request, "x-forwarded-uri");
 
             return url;
         }
         return null;
+    }
+
+    private String getRequestHeader(HttpServletRequest request, String parameter) {
+        return request.getHeader(parameter) == null ? "" : request.getHeader(parameter);
     }
 }

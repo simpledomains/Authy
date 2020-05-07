@@ -1,20 +1,23 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Login from '../views/Login'
-import Home from "../views/Home";
-import AccessDenied from "../views/AccessDenied";
-import CasError from "../views/CasError";
-import RouteOverview from "../views/admin/RouteOverview";
-import UserOverview from "../views/admin/UserOverview";
+import Profile from "../views/Profile";
+//import AccessDenied from "../views/AccessDenied";
+//import CasError from "../views/CasError";
+//import RouteOverview from "../views/admin/RouteOverview";
+//import UserOverview from "../views/admin/UserOverview";
 
 Vue.use(Router);
 
-export default new Router({
+let router = new Router({
     routes: [
         {
             path: '/',
-            name: 'Home',
-            component: Home
+            name: 'Profile',
+            component: Profile,
+            meta: {
+                authenticated: true,
+            }
         },
         {
             path: '/login',
@@ -29,27 +32,39 @@ export default new Router({
             props: {cas: true}
         },
         {
-            path: '/cas/error',
-            name: 'CasError',
-            component: CasError
+            path: '/logout',
+            name: 'Logout',
+            component: {
+                mounted() {
+                    this.$store.commit('removeToken');
+                    this.$router.push({path: '/login', query: {service: '/'}});
+                }
+            },
         },
         {
-            path: '/access-denied',
-            name: 'AccessDenied',
-            component: AccessDenied
-        },
-
-        // ADMIN
-
-        {
-            path: '/admin/routes',
-            name: 'AdminRoutes',
-            component: RouteOverview
-        },
-        {
-            path: '/admin/users',
-            name: 'AdminUsersView',
-            component: UserOverview
-        },
+            path: '/admin/test',
+            component: () => {
+            },
+            meta: {
+                authenticated: true
+            }
+        }
     ]
 })
+
+router.beforeEach((to, from, next) => {
+    if (to.matched.some(r => r.meta.authenticated)) {
+        if (Vue.prototype.$store.state.authenticationToken === "") {
+            next({
+                path: '/login',
+                query: {service: '/'}
+            });
+        } else {
+            next();
+        }
+    } else {
+        next();
+    }
+})
+
+export default router;

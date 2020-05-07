@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 public class ServiceValidation {
     private final ServiceRepository serviceRepository;
 
-    public Service isAllowed(String serviceUrl) {
+    public Service getRegisteredServiceFor(String serviceUrl) {
         Service       result      = null;
         List<Service> serviceList = serviceRepository.findAll();
 

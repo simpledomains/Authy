@@ -1,7 +1,7 @@
 package io.virtuellewolke.authentication.core.database.entity;
 
-import de.reynok.authentication.core.shared.util.PartialUpdateableModel;
 import de.reynok.authentication.core.shared.util.ListConverter;
+import de.reynok.authentication.core.shared.util.PartialUpdateableModel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -59,6 +59,10 @@ public class Service extends PartialUpdateableModel {
             log.warn("Identity {} is not allowed to access the service {}", identity, this);
 
         return isAllowed;
+    }
+
+    public boolean isIdentityNotAllowed(Identity identity) {
+        return !isIdentityAllowed(identity);
     }
 
     @Override

@@ -20,3 +20,6 @@ target/
 *.csr
 *.key
 *.pfx
+
+### Others ###
+*.pid

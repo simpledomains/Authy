@@ -38,7 +38,7 @@ public class ForwardAuthController {
         log.info("Forward Auth request for {}", serviceUrl);
         log.info("User has Cookie? {}", request.getAttribute(Constants.REQUEST_CLAIMS_FIELD) != null);
 
-        Service service = serviceValidation.isAllowed(serviceUrl);
+        Service service = serviceValidation.getRegisteredServiceFor(serviceUrl);
 
         if (service == null) {
             response.sendRedirect(baseDomain + "/#/cas/error?service=" + serviceUrl + "&code=" + CasStatusCode.MISSING_SERVICE);

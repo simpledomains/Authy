@@ -58,7 +58,7 @@ public class InMemoryTicketStore implements TicketStore {
 
     @Override
     public void save(Ticket ticket) {
-        tickets.add(new ExpirableTicket(ticket, LocalDateTime.now().plusSeconds(15)));
+        tickets.add(new ExpirableTicket(ticket, LocalDateTime.now().plusMinutes(15)));
     }
 
     @Override
