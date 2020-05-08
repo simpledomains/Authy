@@ -13,6 +13,7 @@ public class UpdateUserRequest extends UpdateRequest<Identity> {
         updateField(source, "apiToken");
         updateField(source, "otpSecret");
         updateField(source, "locked");
+        updateField(source, "admin", ((identity, o) -> identity.setAdmin(o.toString().toLowerCase().equals("true"))));
         return source;
     }
 }

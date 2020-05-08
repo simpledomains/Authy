@@ -5,6 +5,7 @@ import Profile from "../views/Profile";
 import Logout from "../views/Logout";
 import AdminUsers from "../views/AdminUsers";
 import AdminUsersCreate from "../views/AdminUsersCreate";
+import AdminUsersModify from "../views/AdminUsersModify";
 //import AccessDenied from "../views/AccessDenied";
 //import CasError from "../views/CasError";
 //import RouteOverview from "../views/admin/RouteOverview";
@@ -58,6 +59,13 @@ let router = new Router({
         {
             path: '/admin/users/create',
             component: AdminUsersCreate,
+            meta: {
+                admin: true
+            }
+        },
+        {
+            path: '/admin/user/:id',
+            component: AdminUsersModify,
             meta: {
                 admin: true
             }
