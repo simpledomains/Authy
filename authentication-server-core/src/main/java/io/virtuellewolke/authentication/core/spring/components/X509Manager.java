@@ -157,7 +157,6 @@ public class X509Manager {
             int code = process.waitFor();
 
             if (code != 0) {
-
                 throw new IOException("Process " + Arrays.toString(cmd) + " returned non-zero status " + code);
             }
         } catch (IOException | InterruptedException e) {

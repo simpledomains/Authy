@@ -48,9 +48,9 @@ public class CasXmlResponse {
             attributes.addElement("cas:displayName").setText(identity.getDisplayName());
         }
 
-        if (identity.getAvatar() != null && identity.getAvatar().length() > 0) {
-            attributes.addElement("cas:avatar").setText(identity.getAvatar());
-        }
+        //if (identity.getAvatar() != null && identity.getAvatar().length > 0) {
+        //    attributes.addElement("cas:avatar").setText(identity.getAvatar());
+        //}
     }
 
     @Override

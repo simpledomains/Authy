@@ -17,6 +17,8 @@ public class X509ManagerConfiguration {
     private Long    cleanupTimer           = 1800000L;
     private Boolean enabled                = false;
 
+    private String httpHeaderName = "X-SSL-Cert";
+
     private String organisation = "Authentication Server";
     private String countryCode  = "DE";
 }

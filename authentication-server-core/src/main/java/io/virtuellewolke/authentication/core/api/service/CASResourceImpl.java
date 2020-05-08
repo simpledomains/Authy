@@ -115,6 +115,7 @@ public class CASResourceImpl implements CASResource {
                 );
     }
 
+    // TODO: multiple returns...
     @Override
     public ResponseEntity<LoginResponse> loginPage(HttpServletRequest request, String serviceUrl) {
         if (SecureContextRequestHelper.hasSecureContext(request)) {
@@ -138,7 +139,11 @@ public class CASResourceImpl implements CASResource {
             return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(URI.create("/#/error?code=" + AuthFailedResponse.ErrorCode.INVALID_SERVICE + "&service=" + serviceUrl)).build();
         }
 
-        return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(URI.create("/#/login?service=" + serviceUrl)).build();
+        if (serviceUrl.equals("/")) {
+            return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(URI.create("/#/login?service=" + serviceUrl)).build();
+        } else {
+            return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(URI.create("/#/cas/login?service=" + serviceUrl)).build();
+        }
     }
 
     @Override

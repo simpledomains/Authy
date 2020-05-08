@@ -1,8 +1,8 @@
 package io.virtuellewolke.authentication.core.database.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import de.reynok.authentication.core.shared.util.PartialUpdateableModel;
 import de.reynok.authentication.core.shared.util.HashMapConverter;
+import de.reynok.authentication.core.shared.util.PartialUpdateableModel;
 import de.reynok.authentication.core.shared.util.validation.Md5PasswordValidator;
 import de.reynok.authentication.core.shared.util.validation.StringEqualsValidator;
 import de.reynok.authentication.core.shared.util.validation.ValidatorChain;
@@ -12,7 +12,15 @@ import lombok.Setter;
 import lombok.ToString;
 import org.apache.commons.codec.digest.Md5Crypt;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Convert;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +44,7 @@ public class Identity extends PartialUpdateableModel {
     private String              password;
     private String              email;
     private String              displayName;
-    private String              avatar;
+    private byte[]              avatar;
     @Column(unique = true)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String              apiToken;

@@ -1,8 +1,8 @@
 package de.reynok.authentication.core.frontend.api;
 
+import de.reynok.authentication.core.backend.modules.cas.CasStatusCode;
 import io.virtuellewolke.authentication.core.database.entity.Authority;
 import io.virtuellewolke.authentication.core.database.entity.Identity;
-import de.reynok.authentication.core.backend.modules.cas.CasStatusCode;
 import org.springframework.http.ResponseEntity;
 
 import java.util.HashMap;
@@ -54,9 +54,9 @@ public class CasJsonResponse {
             attributes.put("displayName", identity.getDisplayName());
         }
 
-        if (identity.getAvatar() != null && identity.getAvatar().length() > 0) {
-            attributes.put("avatar", identity.getAvatar());
-        }
+        //if (identity.getAvatar() != null && identity.getAvatar().length > 0) {
+        //    attributes.put("avatar", identity.getAvatar());
+        //}
 
         serviceResponse.put("authenticationSuccess", successObject);
     }

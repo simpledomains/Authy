@@ -70,5 +70,18 @@ public class AuthenticationServerInit implements InitializingBean {
 
             log.warn("Administrator-Account was added (username='admin', password='admin', apiToken='{}')", identity.getApiToken());
         }
+
+        if (identityRepository.findByAdmin(false).size() == 0) {
+            Identity identity = new Identity();
+            identity.setUsername("user");
+            identity.setPassword("user");
+            identity.setAdmin(false);
+            identity.setEmail("user@example.com");
+            identity.setDisplayName("A User");
+
+            identityRepository.save(identity);
+
+            log.warn("User-Account was added (username='user', password='user', apiToken='{}')", identity.getApiToken());
+        }
     }
 }

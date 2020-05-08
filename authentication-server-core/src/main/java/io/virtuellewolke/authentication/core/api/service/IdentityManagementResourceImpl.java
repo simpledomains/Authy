@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 
 @RestController
@@ -26,5 +27,10 @@ public class IdentityManagementResourceImpl implements IdentityManagementResourc
             return ResponseEntity.ok(context.getIdentity());
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @Override
+    public ResponseEntity<Identity> patchIdentity(Map<String, String> updateData) {
+        return null;
     }
 }
