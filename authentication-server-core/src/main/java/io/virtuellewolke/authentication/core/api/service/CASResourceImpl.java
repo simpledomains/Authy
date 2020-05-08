@@ -74,10 +74,10 @@ public class CASResourceImpl implements CASResource {
         Identity identity = identityRepository.findByUsername(login.getUsername()).orElse(null);
         Service  service  = serviceValidation.getRegisteredServiceFor(serviceUrl);
 
-        if (service == null) throw new LoginFailedException(LoginResponse.ErrorCode.SERVICE_NOT_ALLOWED);
+        if (service == null) { throw new LoginFailedException(LoginResponse.ErrorCode.SERVICE_NOT_ALLOWED); }
 
         if (identity != null) {
-            if (identity.getLocked()) throw new LoginFailedException(LoginResponse.ErrorCode.USER_ACCOUNT_BLOCKED);
+            if (identity.getLocked()) { throw new LoginFailedException(LoginResponse.ErrorCode.USER_ACCOUNT_BLOCKED); }
 
             if (identity.getOtpEnabled()) {
                 if (StringUtils.isBlank(login.getSecurityPassword())) {
@@ -85,18 +85,21 @@ public class CASResourceImpl implements CASResource {
                 } else {
                     OneTimePasswordValidator otpValidator = new OneTimePasswordValidator(identity.getOtpSecret());
 
-                    if (otpValidator.isNotValid(login.getSecurityPassword()))
+                    if (otpValidator.isNotValid(login.getSecurityPassword())) {
                         throw new LoginFailedException(LoginResponse.ErrorCode.CREDENTIAL_ERROR);
+                    }
                 }
             }
 
             Md5PasswordValidator validator = new Md5PasswordValidator(identity);
 
-            if (validator.isNotValid(login.getPassword()))
+            if (validator.isNotValid(login.getPassword())) {
                 throw new LoginFailedException(LoginResponse.ErrorCode.CREDENTIAL_ERROR);
+            }
 
-            if (service.isIdentityNotAllowed(identity))
+            if (service.isIdentityNotAllowed(identity)) {
                 throw new LoginFailedException(LoginResponse.ErrorCode.USER_ACCOUNT_DENIED);
+            }
         } else {
             throw new LoginFailedException(LoginResponse.ErrorCode.CREDENTIAL_ERROR);
         }
@@ -138,6 +141,15 @@ public class CASResourceImpl implements CASResource {
         return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(URI.create("/#/login?service=" + serviceUrl)).build();
     }
 
+    @Override
+    public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
+        Cookie cookie = new Cookie(Constants.COOKIE_NAME, "");
+        cookie.setMaxAge(1);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+        return ResponseEntity.ok().build();
+    }
+
     @ExceptionHandler(LoginFailedException.class)
     public ResponseEntity<LoginResponse> handleLoginFailedException(LoginFailedException e) {
         if (e.getErrorCode() != null) {
@@ -159,7 +171,7 @@ public class CASResourceImpl implements CASResource {
         Cookie cookie = new Cookie(Constants.COOKIE_NAME, jwtProcessor.getJwtTokenFor(
                 identity, service
         ));
-        cookie.setMaxAge(3600);
+        cookie.setMaxAge(60 * 60 * 12);
         cookie.setPath("/");
         cookie.setComment("Authy CAS Token");
 

@@ -5,7 +5,11 @@ import de.reynok.authentication.core.frontend.api.LoginResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.virtuellewolke.authentication.core.api.model.cas.AuthResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,4 +41,8 @@ public interface CASResource {
     default ResponseEntity<LoginResponse> loginPage(HttpServletRequest request, @RequestParam("service") String service) {
         return ResponseEntity.ok().location(URI.create("/#/login?service=" + service)).build();
     }
+
+    @CrossOrigin
+    @RequestMapping(value = "/logout", method = RequestMethod.DELETE, produces = "application/json")
+    ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response);
 }
