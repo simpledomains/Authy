@@ -18,6 +18,7 @@ import io.virtuellewolke.authentication.core.database.entity.Identity;
 import io.virtuellewolke.authentication.core.database.entity.Service;
 import io.virtuellewolke.authentication.core.database.repository.IdentityRepository;
 import io.virtuellewolke.authentication.core.spring.components.JwtProcessor;
+import io.virtuellewolke.authentication.core.spring.components.LoginSecurity;
 import io.virtuellewolke.authentication.core.spring.components.ServiceValidation;
 import io.virtuellewolke.authentication.core.spring.helper.SecureContextRequestHelper;
 import io.virtuellewolke.authentication.core.spring.security.SecureContext;
@@ -43,6 +44,7 @@ public class CASResourceImpl implements CASResource {
     private final IdentityRepository identityRepository;
     private final ServiceValidation  serviceValidation;
     private final JwtProcessor       jwtProcessor;
+    private final LoginSecurity      loginSecurity;
 
     @Override
     public ResponseEntity<AuthResponse> validate(HttpServletRequest request, String token, String service) {
@@ -80,6 +82,10 @@ public class CASResourceImpl implements CASResource {
             throw new LoginFailedException(LoginResponse.ErrorCode.SERVICE_NOT_ALLOWED);
         }
 
+        if (!loginSecurity.isAllowedToTry(req.getRemoteAddr())) {
+            throw new LoginFailedException(LoginResponse.ErrorCode.USER_ACCOUNT_BLOCKED);
+        }
+
         if (identity != null) {
             if (identity.getLocked()) {
                 throw new LoginFailedException(LoginResponse.ErrorCode.USER_ACCOUNT_BLOCKED);
@@ -88,6 +94,7 @@ public class CASResourceImpl implements CASResource {
             Md5PasswordValidator validator = new Md5PasswordValidator(identity);
 
             if (validator.isNotValid(login.getPassword())) {
+                loginSecurity.recordFailedAttempt(req.getRemoteAddr());
                 throw new LoginFailedException(LoginResponse.ErrorCode.CREDENTIAL_ERROR);
             }
 
@@ -98,6 +105,7 @@ public class CASResourceImpl implements CASResource {
                     OneTimePasswordValidator otpValidator = new OneTimePasswordValidator(identity.getOtpSecret());
 
                     if (otpValidator.isNotValid(login.getSecurityPassword())) {
+                        loginSecurity.recordFailedAttempt(req.getRemoteAddr());
                         throw new LoginFailedException(LoginResponse.ErrorCode.CREDENTIAL_ERROR);
                     }
                 }
@@ -107,10 +115,13 @@ public class CASResourceImpl implements CASResource {
                 throw new LoginFailedException(LoginResponse.ErrorCode.USER_ACCOUNT_DENIED);
             }
         } else {
+            loginSecurity.recordFailedAttempt(req.getRemoteAddr());
             throw new LoginFailedException(LoginResponse.ErrorCode.CREDENTIAL_ERROR);
         }
 
         String token = issueCookie(response, identity, service);
+
+        loginSecurity.resetAttempts(req.getRemoteAddr());
 
         return ResponseEntity.ok()
                 .body(LoginResponse.builder()

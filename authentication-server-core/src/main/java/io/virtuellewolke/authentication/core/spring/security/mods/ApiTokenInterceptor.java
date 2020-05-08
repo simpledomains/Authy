@@ -2,6 +2,7 @@ package io.virtuellewolke.authentication.core.spring.security.mods;
 
 import io.virtuellewolke.authentication.core.database.entity.Identity;
 import io.virtuellewolke.authentication.core.database.repository.IdentityRepository;
+import io.virtuellewolke.authentication.core.spring.components.LoginSecurity;
 import io.virtuellewolke.authentication.core.spring.components.ServiceValidation;
 import io.virtuellewolke.authentication.core.spring.helper.SecureContextRequestHelper;
 import io.virtuellewolke.authentication.core.spring.helper.ServiceRequestHelper;
@@ -18,18 +19,20 @@ import java.util.Optional;
 public class ApiTokenInterceptor extends ServiceAwareInterceptor implements AuthyInterceptor {
 
     private final IdentityRepository identityRepository;
+    private final LoginSecurity      loginSecurity;
 
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String API_TOKEN_HEADER     = "X-Api-Token";
 
-    public ApiTokenInterceptor(IdentityRepository identityRepository, ServiceValidation serviceValidation) {
+    public ApiTokenInterceptor(IdentityRepository identityRepository, ServiceValidation serviceValidation, LoginSecurity loginSecurity) {
         super(serviceValidation);
         this.identityRepository = identityRepository;
+        this.loginSecurity      = loginSecurity;
     }
 
     @Override
     public boolean process(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        if (!SecureContextRequestHelper.hasSecureContext(request)) {
+        if (!SecureContextRequestHelper.hasSecureContext(request) && loginSecurity.isAllowedToTry(request.getRemoteAddr())) {
             String token = getApiTokenFromHeaders(request);
 
             if (token != null) {
@@ -45,6 +48,10 @@ public class ApiTokenInterceptor extends ServiceAwareInterceptor implements Auth
                             .build();
 
                     SecureContextRequestHelper.setSecureContext(context, request);
+
+                    loginSecurity.resetAttempts(request.getRemoteAddr());
+                } else {
+                    loginSecurity.recordFailedAttempt(request.getRemoteAddr());
                 }
             }
         }

@@ -13,9 +13,9 @@ Vue.prototype.$testMode = process.env.VUE_APP_TEST_MODE === 'true' || false;
 Vue.prototype.$store = store;
 
 new Vue({
-    store,
-    router,
-    vuetify,
+    store: store,
+    router: router,
+    vuetify: vuetify,
     el: '#app',
     render: render => render(App)
 });

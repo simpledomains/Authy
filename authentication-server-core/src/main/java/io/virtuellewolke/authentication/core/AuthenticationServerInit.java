@@ -1,6 +1,7 @@
 package io.virtuellewolke.authentication.core;
 
 import io.virtuellewolke.authentication.core.database.entity.Authority;
+import io.virtuellewolke.authentication.core.database.entity.ClientAuthCert;
 import io.virtuellewolke.authentication.core.database.entity.Identity;
 import io.virtuellewolke.authentication.core.database.entity.Service;
 import io.virtuellewolke.authentication.core.database.repository.AuthorityRepository;
@@ -13,6 +14,9 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.math.BigInteger;
+import java.time.LocalDateTime;
 
 @Slf4j
 @Component
@@ -67,6 +71,14 @@ public class AuthenticationServerInit implements InitializingBean {
             identity.getAuthorities().add(authorityRepository.findByName("admin").get());
 
             identityRepository.save(identity);
+
+
+            ClientAuthCert clientAuthCert = new ClientAuthCert();
+            clientAuthCert.setSerial(new BigInteger("3947379834543"));
+            clientAuthCert.setIdentity(identity);
+            clientAuthCert.setIssuedAt(LocalDateTime.now());
+            clientAuthCert.setName("Some certificate");
+            clientAuthCertRepository.save(clientAuthCert);
 
             log.warn("Administrator-Account was added (username='admin', password='admin', apiToken='{}')", identity.getApiToken());
         }

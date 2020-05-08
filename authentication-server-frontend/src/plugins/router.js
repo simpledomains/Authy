@@ -6,6 +6,7 @@ import Logout from "../views/Logout";
 import AdminUsers from "../views/AdminUsers";
 import AdminUsersCreate from "../views/AdminUsersCreate";
 import AdminUsersModify from "../views/AdminUsersModify";
+import ProfileSecurity from "../views/ProfileSecurity";
 
 Vue.use(Router);
 
@@ -15,6 +16,14 @@ let router = new Router({
             path: '/',
             name: 'Profile',
             component: Profile,
+            meta: {
+                authenticated: true,
+            }
+        },
+        {
+            path: '/profile/security',
+            name: 'ProfileSecurity',
+            component: ProfileSecurity,
             meta: {
                 authenticated: true,
             }

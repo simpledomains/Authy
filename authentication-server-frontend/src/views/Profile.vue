@@ -23,7 +23,7 @@
                                 <v-row>
                                     <v-col cols="12" md="6">
                                         <v-text-field disabled v-model="username" label="Username"
-                                                      prepend-icon="mdi-form-textbox"></v-text-field>
+                                                      prepend-icon="mdi-form-textbox"/>
                                     </v-col>
                                     <v-col cols="12" md="6">
                                         <v-update-text-field
@@ -62,7 +62,7 @@
                                     Change password *
                                 </v-btn>
                                 <v-spacer/>
-                                <v-btn small color="orange" dark to="/profile/security">
+                                <v-btn small color="orange" dark to="/profile/security" elevation="4">
                                     <v-icon left>mdi-arrow-right</v-icon>
                                     Security
                                 </v-btn>

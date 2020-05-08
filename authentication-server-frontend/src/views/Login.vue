@@ -139,7 +139,13 @@
                             this.$refs.txtOtpCode.focus();
                         }, 200);
                     } else if (e.response.status === 401) {
-                        this.errorCode = "Username or Password does not match.";
+                        let code = e.response.data.errorCode;
+
+                        if (code === 'USER_ACCOUNT_BLOCKED') {
+                            this.errorCode = 'Too many tries with wrong credentials. Try again later.';
+                        } else {
+                            this.errorCode = "Username or Password does not match.";
+                        }
                     }
                 }).finally(() => {
                     this.form_states.isProcessing = false;
