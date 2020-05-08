@@ -32,6 +32,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,6 +43,8 @@ public class CASResourceImpl implements CASResource {
     private final IdentityRepository identityRepository;
     private final ServiceValidation  serviceValidation;
     private final JwtProcessor       jwtProcessor;
+
+    private Map<String, Integer> failedLoginAttempts = new HashMap<>();
 
     @Override
     public ResponseEntity<AuthResponse> validate(HttpServletRequest request, String token, String service) {
@@ -74,10 +78,20 @@ public class CASResourceImpl implements CASResource {
         Identity identity = identityRepository.findByUsername(login.getUsername()).orElse(null);
         Service  service  = serviceValidation.getRegisteredServiceFor(serviceUrl);
 
-        if (service == null) { throw new LoginFailedException(LoginResponse.ErrorCode.SERVICE_NOT_ALLOWED); }
+        if (service == null) {
+            throw new LoginFailedException(LoginResponse.ErrorCode.SERVICE_NOT_ALLOWED);
+        }
 
         if (identity != null) {
-            if (identity.getLocked()) { throw new LoginFailedException(LoginResponse.ErrorCode.USER_ACCOUNT_BLOCKED); }
+            if (identity.getLocked()) {
+                throw new LoginFailedException(LoginResponse.ErrorCode.USER_ACCOUNT_BLOCKED);
+            }
+
+            Md5PasswordValidator validator = new Md5PasswordValidator(identity);
+
+            if (validator.isNotValid(login.getPassword())) {
+                throw new LoginFailedException(LoginResponse.ErrorCode.CREDENTIAL_ERROR);
+            }
 
             if (identity.getOtpEnabled()) {
                 if (StringUtils.isBlank(login.getSecurityPassword())) {
@@ -89,12 +103,6 @@ public class CASResourceImpl implements CASResource {
                         throw new LoginFailedException(LoginResponse.ErrorCode.CREDENTIAL_ERROR);
                     }
                 }
-            }
-
-            Md5PasswordValidator validator = new Md5PasswordValidator(identity);
-
-            if (validator.isNotValid(login.getPassword())) {
-                throw new LoginFailedException(LoginResponse.ErrorCode.CREDENTIAL_ERROR);
             }
 
             if (service.isIdentityNotAllowed(identity)) {

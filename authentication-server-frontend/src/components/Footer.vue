@@ -2,20 +2,31 @@
     <v-footer color="primary" dark>
         <v-flex class="text-center my-1">
             <v-icon small left>far fa-copyright</v-icon>
-            2019 - Made with
-            <v-icon small right left color="red">mdi-heart</v-icon>
-            by SeaLife (<span v-if="($version).startsWith('v')">{{ $version }}</span><span
-                v-else>build {{ $version }}</span>)
+            2019 - 2020 Made with
+            <v-icon color="red">mdi-heart</v-icon>
+            by SeaLife (build <span style="font-family: 'JetBrains Mono', monospace">{{ $version }}</span>)
         </v-flex>
-        <v-switch v-if="$testMode"
-                  v-model="$vuetify.theme.dark"
+
+        <v-switch style="position: absolute;bottom: 9px;" v-model="darkMode" @change="toggleDarkMode" color="white"
                   hide-details
-                  dense
-                  inset
-                  label="Theme Dark"/>
+                  prepend-icon="mdi-theme-light-dark"/>
     </v-footer>
 </template>
 
 <script>
-    export default {}
+    export default {
+        data: () => ({
+            darkMode: false
+        }),
+        methods: {
+            toggleDarkMode() {
+                this.$store.commit('toggleDarkMode');
+                this.$vuetify.theme.dark = this.$store.state.darkMode;
+            }
+        },
+        mounted() {
+            this.$vuetify.theme.dark = this.$store.state.darkMode;
+            this.darkMode = this.$store.state.darkMode;
+        }
+    }
 </script>

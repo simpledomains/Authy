@@ -2,55 +2,64 @@
     <v-auth-app :location="'Users - Modify (' + this.$route.params.id + ')'">
         <v-content>
             <v-container>
-                <v-card :loading="loadingUser">
-                    <v-card-title>User modification</v-card-title>
-                    <v-card-subtitle>You can modify the user here!</v-card-subtitle>
-                    <v-card-text>
-                        <v-row>
-                            <v-col cols="6">
-                                <v-text-field label="Username" type="text" v-model="username"
-                                              prepend-icon="mdi-form-textbox"/>
-                            </v-col>
-                            <v-col cols="6">
-                                <v-text-field label="Display Name" type="text" v-model="displayName"
-                                              prepend-icon="mdi-form-textbox"/>
-                            </v-col>
-                            <v-col cols="6">
-                                <v-text-field label="Password" type="password" v-model="password"
-                                              prepend-icon="mdi-key"/>
-                            </v-col>
-                            <v-col cols="6">
-                                <v-text-field label="E-Mail" type="email" v-model="email" prepend-icon="mdi-at"/>
-                            </v-col>
-                            <v-col cols="6">
-                                <v-select
-                                        prepend-icon="mdi-account-group-outline"
-                                        v-model="userRoles"
-                                        :items="roles"
-                                        multiple
-                                        item-text="name"
-                                        label="Authorities"
-                                        chips small-chips
-                                        item-value="id">
-                                </v-select>
-                            </v-col>
-                            <v-col cols="6">
-                                <v-checkbox label="Authy Admin?" prepend-icon="mdi-shield-lock-outline"
-                                            v-model="admin"/>
-                            </v-col>
-                        </v-row>
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-btn small color="success" dark @click="patchUser">
-                            <v-icon left>mdi-content-save</v-icon>
-                            Save
-                        </v-btn>
-                        <v-btn small color="orange darken-2" dark @click="abortCreation">
-                            <v-icon left>mdi-close-thick</v-icon>
-                            Abort
-                        </v-btn>
-                    </v-card-actions>
-                </v-card>
+                <v-row>
+                    <v-col>
+                        <v-card :loading="loadingUser">
+                            <v-card-title>User modification</v-card-title>
+                            <v-card-subtitle>You can modify the user here!</v-card-subtitle>
+                            <v-card-text>
+                                <v-row>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field label="Username" type="text" v-model="username"
+                                                      prepend-icon="mdi-form-textbox"/>
+                                    </v-col>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field label="Display Name" type="text" v-model="displayName"
+                                                      prepend-icon="mdi-form-textbox"/>
+                                    </v-col>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field label="Password" type="password" v-model="password"
+                                                      prepend-icon="mdi-key"/>
+                                    </v-col>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field label="E-Mail" type="email" v-model="email"
+                                                      prepend-icon="mdi-at"/>
+                                    </v-col>
+                                    <v-col cols="12" md="6">
+                                        <v-select
+                                                prepend-icon="mdi-account-group-outline"
+                                                v-model="userRoles"
+                                                :items="roles"
+                                                multiple
+                                                item-text="name"
+                                                label="Authorities"
+                                                chips small-chips
+                                                item-value="id">
+                                        </v-select>
+                                    </v-col>
+                                    <v-col cols="12" md="3">
+                                        <v-checkbox label="Authy Admin?" prepend-icon="mdi-shield-lock-outline"
+                                                    v-model="admin"/>
+                                    </v-col>
+                                    <v-col cols="12" md="3">
+                                        <v-checkbox label="Locked?" prepend-icon="mdi-lock-alert"
+                                                    v-model="locked"/>
+                                    </v-col>
+                                </v-row>
+                            </v-card-text>
+                            <v-card-actions>
+                                <v-btn small color="success" dark @click="patchUser">
+                                    <v-icon left>mdi-content-save</v-icon>
+                                    Save
+                                </v-btn>
+                                <v-btn small color="orange darken-2" dark @click="abortCreation">
+                                    <v-icon left>mdi-close-thick</v-icon>
+                                    Abort
+                                </v-btn>
+                            </v-card-actions>
+                        </v-card>
+                    </v-col>
+                </v-row>
             </v-container>
         </v-content>
     </v-auth-app>
@@ -72,6 +81,7 @@
             email: '',
             userRoles: [],
             admin: false,
+            locked: false,
 
             loadingUser: true,
         }),
@@ -89,6 +99,7 @@
                     this.email = r.data.email;
                     this.admin = r.data.admin;
                     this.userRoles = [];
+                    this.locked = r.data.locked;
 
                     r.data.authorities.forEach(value => this.userRoles.push(value.id));
 
@@ -109,6 +120,7 @@
                 this.userRoles = [];
                 this.roles = [];
                 this.admin = false;
+                this.locked = false;
             },
             abortCreation() {
                 this.resetForm();
@@ -126,6 +138,7 @@
                 model.email = this.email;
                 model.displayName = this.displayName;
                 model.authorities = roles;
+                model.locked = this.locked;
 
 
                 axios.patch('/api/user/' + this.id, {data: model}).then(() => {

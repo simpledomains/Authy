@@ -15,6 +15,7 @@ const store = new Vuex.Store({
         admin: false,
         uid: null,
         username: null,
+        darkMode: false,
     },
     mutations: {
         setToken(state, token) {
@@ -31,6 +32,9 @@ const store = new Vuex.Store({
             state.admin = false;
             state.uid = null;
             state.username = null;
+        },
+        toggleDarkMode(state) {
+            state.darkMode = !state.darkMode;
         }
     },
     plugins: [vuexPersistence.plugin]

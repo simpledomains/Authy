@@ -61,7 +61,7 @@ public class AuthenticationServerInit implements InitializingBean {
             identity.setAdmin(true);
             identity.setEmail("admin@example.com");
             identity.setDisplayName("Administrator");
-            //identity.setOtpSecret("JBSWY3DPEHPK3PXP");
+            identity.setOtpSecret("JBSWY3DPEHPK3PXP");
             identity.setApiToken(RandomStringUtils.randomAlphanumeric(32));
 
             identity.getAuthorities().add(authorityRepository.findByName("admin").get());

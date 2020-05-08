@@ -22,10 +22,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Entity
 @Getter
@@ -85,10 +82,8 @@ public class Identity extends PartialUpdateableModel {
 
     @Override
     protected boolean canUpdateField(Field field) {
-        return !field.getName().equals("username") &&
-                !field.getName().equals("authorities") &&
-                !field.getName().equals("admin") &&
-                !field.getName().equals("locked") &&
-                !field.getName().equals("apiToken");
+        String[] forbiddenFields = new String[]{"username", "authorities", "admin", "locked", "apiToken"};
+
+        return Arrays.stream(forbiddenFields).noneMatch(s -> Objects.equals(s, field.getName().toLowerCase()));
     }
 }

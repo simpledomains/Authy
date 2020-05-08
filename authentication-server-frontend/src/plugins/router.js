@@ -6,10 +6,6 @@ import Logout from "../views/Logout";
 import AdminUsers from "../views/AdminUsers";
 import AdminUsersCreate from "../views/AdminUsersCreate";
 import AdminUsersModify from "../views/AdminUsersModify";
-//import AccessDenied from "../views/AccessDenied";
-//import CasError from "../views/CasError";
-//import RouteOverview from "../views/admin/RouteOverview";
-//import UserOverview from "../views/admin/UserOverview";
 
 Vue.use(Router);
 

@@ -11,7 +11,7 @@ import java.util.function.BiConsumer;
 @Slf4j
 @Setter
 public abstract class UpdateRequest<T> {
-    private Map<String, Object> data;
+    protected Map<String, Object> data;
 
     public abstract T update(T source);
 

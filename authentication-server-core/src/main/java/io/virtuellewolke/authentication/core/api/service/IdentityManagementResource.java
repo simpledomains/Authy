@@ -24,5 +24,5 @@ public interface IdentityManagementResource {
 
     @AuthorizedResource
     @PatchMapping("/me")
-    ResponseEntity<Identity> patchIdentity(@RequestBody Map<String, String> updateData);
+    ResponseEntity<Identity> patchIdentity(HttpServletRequest request, @RequestBody Map<String, Object> updateData);
 }
