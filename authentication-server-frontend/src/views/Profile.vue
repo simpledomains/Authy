@@ -16,7 +16,7 @@
                             <v-icon left>mdi-two-factor-authentication</v-icon>
                             is not enabled!
                         </v-alert>
-                        <v-card elevation="8" :loading="fetchingProfile">
+                        <v-card outlined elevation="1" :loading="fetchingProfile">
                             <v-card-title>My Profile</v-card-title>
                             <v-card-subtitle>You can customize your profile here.</v-card-subtitle>
                             <v-card-text>
@@ -33,14 +33,14 @@
                                                 label="Display name"
                                                 icon="mdi-form-textbox"/>
                                     </v-col>
-                                    <v-col cols="12" md="6">
+                                    <v-col cols="12" md="3">
                                         <v-text-field type="password" v-model="password"
                                                       label="Password (fill to change)"
                                                       prepend-icon="mdi-key" @keydown.enter="changePassword"
                                                       :error="!!passwordError"
                                                       :error-messages="passwordError"/>
                                     </v-col>
-                                    <v-col cols="12" md="6" v-if="password.length > 0">
+                                    <v-col cols="12" md="3">
                                         <v-text-field type="password" v-model="password2" label="Repeat password"
                                                       prepend-icon="mdi-key" @keydown.enter="changePassword"
                                                       :error="!!passwordError"
@@ -60,6 +60,11 @@
                                 <v-btn small color="error" v-if="password.length > 0">
                                     <v-icon left>mdi-content-save</v-icon>
                                     Change password *
+                                </v-btn>
+                                <v-spacer/>
+                                <v-btn small color="orange" dark to="/profile/security">
+                                    <v-icon left>mdi-arrow-right</v-icon>
+                                    Security
                                 </v-btn>
                             </v-card-actions>
                         </v-card>

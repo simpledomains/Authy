@@ -61,7 +61,7 @@ public class AuthenticationServerInit implements InitializingBean {
             identity.setAdmin(true);
             identity.setEmail("admin@example.com");
             identity.setDisplayName("Administrator");
-            identity.setOtpSecret("JBSWY3DPEHPK3PXP");
+            //identity.setOtpSecret("JBSWY3DPEHPK3PXP");
             identity.setApiToken(RandomStringUtils.randomAlphanumeric(32));
 
             identity.getAuthorities().add(authorityRepository.findByName("admin").get());
@@ -69,19 +69,6 @@ public class AuthenticationServerInit implements InitializingBean {
             identityRepository.save(identity);
 
             log.warn("Administrator-Account was added (username='admin', password='admin', apiToken='{}')", identity.getApiToken());
-        }
-
-        if (identityRepository.findByAdmin(false).size() == 0) {
-            Identity identity = new Identity();
-            identity.setUsername("user");
-            identity.setPassword("user");
-            identity.setAdmin(false);
-            identity.setEmail("user@example.com");
-            identity.setDisplayName("A User");
-
-            identityRepository.save(identity);
-
-            log.warn("User-Account was added (username='user', password='user', apiToken='{}')", identity.getApiToken());
         }
     }
 }

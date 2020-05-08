@@ -16,7 +16,8 @@ public class SecureContext {
         API_TOKEN,
         COOKIE,
         CLIENT_CERT,
-        WEBAUTHN
+        WEBAUTHN,
+        X509
     }
 
     private Source   source = Source.COOKIE;

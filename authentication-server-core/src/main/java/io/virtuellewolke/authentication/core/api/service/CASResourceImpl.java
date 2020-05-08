@@ -44,8 +44,6 @@ public class CASResourceImpl implements CASResource {
     private final ServiceValidation  serviceValidation;
     private final JwtProcessor       jwtProcessor;
 
-    private Map<String, Integer> failedLoginAttempts = new HashMap<>();
-
     @Override
     public ResponseEntity<AuthResponse> validate(HttpServletRequest request, String token, String service) {
         try {

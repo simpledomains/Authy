@@ -13,7 +13,7 @@ public abstract class ServiceAwareInterceptor implements AuthyInterceptor {
 
     private static final String SERVICE_PARAMETER = "service";
 
-    private ServiceValidation serviceValidation;
+    private final ServiceValidation serviceValidation;
 
     public ServiceAwareInterceptor(ServiceValidation serviceValidation) {
         this.serviceValidation = serviceValidation;
