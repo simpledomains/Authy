@@ -77,6 +77,7 @@ public class AuthenticationServerInit implements InitializingBean {
             clientAuthCert.setSerial(new BigInteger("3947379834543"));
             clientAuthCert.setIdentity(identity);
             clientAuthCert.setIssuedAt(LocalDateTime.now());
+            clientAuthCert.setLastAccess(LocalDateTime.now().minusMinutes(125));
             clientAuthCert.setName("Some certificate");
             clientAuthCertRepository.save(clientAuthCert);
 

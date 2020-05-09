@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigInteger;
@@ -23,7 +24,7 @@ public interface X509Resource {
 
     @AdminResource
     @RequestMapping(path = "/user/{id}/certificates", method = RequestMethod.POST)
-    ResponseEntity<ByteArrayResource> issueCertificate(HttpServletRequest request, @PathVariable("id") Integer id);
+    ResponseEntity<ByteArrayResource> issueCertificate(HttpServletRequest request, @PathVariable("id") Integer id, @RequestParam("deviceName") String deviceName);
 
     @AdminResource
     @RequestMapping(path = "/user/{id}/certificate/{serial}", method = RequestMethod.DELETE)
@@ -35,7 +36,7 @@ public interface X509Resource {
 
     @AuthorizedResource
     @RequestMapping(path = "/session/me/certificates", method = RequestMethod.POST)
-    ResponseEntity<ByteArrayResource> issueMyCertificate(HttpServletRequest request);
+    ResponseEntity<ByteArrayResource> issueMyCertificate(HttpServletRequest request, @RequestParam("deviceName") String deviceName);
 
     @AuthorizedResource
     @RequestMapping(path = "/session/me/certificate/{serial}", method = RequestMethod.DELETE)

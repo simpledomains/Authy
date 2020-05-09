@@ -10,12 +10,12 @@ import java.io.File;
 @Configuration
 @ConfigurationProperties(prefix = "cas.x509")
 public class X509ManagerConfiguration {
-    private File    caPublicCert           = new File("ca.pem");
-    private File    caPrivateKey           = new File("ca.pub.pem");
-    private String  caPrivateKeyPassphrase = "changeme";
+    private File    caPublicCert           = new File("ca.pub.pem");
+    private File    caPrivateKey           = new File("ca.pem");
+    private String  caPrivateKeyPassphrase = "schnitzel";
     private String  opensslBinary          = "openssl";
     private Long    cleanupTimer           = 1800000L;
-    private Boolean enabled                = false;
+    private Boolean enabled                = true;
 
     private String httpHeaderName = "X-SSL-Cert";
 

@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,7 +37,7 @@ public class X509ResourceImpl implements X509Resource {
     }
 
     @Override
-    public ResponseEntity<ByteArrayResource> issueCertificate(HttpServletRequest request, Integer id) {
+    public ResponseEntity<ByteArrayResource> issueCertificate(HttpServletRequest request, Integer id, String deviceName) {
         return null;
     }
 
@@ -57,12 +58,12 @@ public class X509ResourceImpl implements X509Resource {
     }
 
     @Override
-    public ResponseEntity<ByteArrayResource> issueMyCertificate(HttpServletRequest request) {
+    public ResponseEntity<ByteArrayResource> issueMyCertificate(HttpServletRequest request, String deviceName) {
         SecureContext context = SecureContextRequestHelper.getSecureContext(request);
 
         if (context != null && context.getIdentity() != null) {
             try {
-                byte[] cert = manager.issuePfx(context.getIdentity(), request.getParameter("deviceName"));
+                byte[] cert = manager.issuePfx(context.getIdentity(), deviceName);
 
                 ByteArrayResource resource = new ByteArrayResource(cert);
 

@@ -5,21 +5,27 @@
                 <v-row>
                     <v-col>
                         <v-alert color="indigo" dark type="info" elevation="8">
-                            Welcome {{ username }}! This is your Authy dashboard! You can change your personal data for
+                            Welcome {{ currentUsername }}! This is your Authy dashboard! You can change your personal
+                            data for
                             authentication here.
                         </v-alert>
                     </v-col>
                 </v-row>
                 <v-row>
                     <v-col>
-                        <v-alert type="error" color="error" dense v-if="!otpEnabled && !fetchingProfile" elevation="3">
-                            <v-icon left>mdi-two-factor-authentication</v-icon>
-                            is not enabled!
-                        </v-alert>
-                        <v-card outlined elevation="1" :loading="fetchingProfile">
+                        <v-card outlined elevation="2" :loading="fetchingProfile">
                             <v-card-title>My Profile</v-card-title>
                             <v-card-subtitle>You can customize your profile here.</v-card-subtitle>
                             <v-card-text>
+                                <v-alert type="error" color="error" v-if="!otpEnabled && !fetchingProfile" elevation="2"
+                                         dense>
+                                    You'r account is not secured with
+                                    <v-icon>mdi-two-factor-authentication</v-icon>
+                                    but its highly recommended to do so.<br/>
+                                    Go to your
+                                    <router-link to="/profile/security">security settings</router-link>
+                                    to enable 2FA.
+                                </v-alert>
                                 <v-row>
                                     <v-col cols="12" md="6">
                                         <v-text-field disabled v-model="username" label="Username"
@@ -83,7 +89,7 @@
     export default {
         components: {VUpdateTextField, VAuthApp},
         computed: {
-            username() {
+            currentUsername() {
                 return this.$store.state.username
             }
         },
