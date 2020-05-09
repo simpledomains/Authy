@@ -29,7 +29,6 @@ import javax.security.auth.x500.X500Principal;
 import java.io.*;
 import java.math.BigInteger;
 import java.security.*;
-import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -165,11 +164,8 @@ public class X509Manager {
 
         KeyStore ks = KeyStore.getInstance("PKCS12", "BC");
         ks.load(null, null);
+        ks.setCertificateEntry("CA Certificate", caPublicKey);
         ks.setCertificateEntry(certificate.getSerialNumber().toString(), certificate);
-        ks.setKeyEntry(certificate.getSerialNumber().toString(), keyPair.getPrivate(), new char[0], new Certificate[]{certificate});
-
-        ks.setCertificateEntry(caPublicKey.getSerialNumber().toString(), caPublicKey);
-
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ks.store(bos, new char[0]);
