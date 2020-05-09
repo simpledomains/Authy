@@ -17,7 +17,7 @@ public class ClientAuthCert {
     @Id
     private BigInteger serial;
 
-    @ManyToOne(targetEntity = Identity.class, fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = Identity.class, fetch = FetchType.EAGER)
     private Identity identity;
 
     private String name;
