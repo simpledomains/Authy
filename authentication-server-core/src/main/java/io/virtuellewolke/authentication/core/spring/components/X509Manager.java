@@ -164,8 +164,8 @@ public class X509Manager {
 
         KeyStore ks = KeyStore.getInstance("PKCS12", "BC");
         ks.load(null, null);
-        ks.setCertificateEntry("CA Certificate", caPublicKey);
         ks.setCertificateEntry(certificate.getSerialNumber().toString(), certificate);
+        ks.setCertificateEntry("CA Certificate", caPublicKey);
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ks.store(bos, new char[0]);
@@ -209,7 +209,7 @@ public class X509Manager {
 
         builder.addExtension(X509Extensions.BasicConstraints, true, new BasicConstraints(false));
         builder.addExtension(X509Extensions.KeyUsage, true, new KeyUsage(KeyUsage.digitalSignature | KeyUsage.keyEncipherment));
-        builder.addExtension(X509Extensions.ExtendedKeyUsage, true, new ExtendedKeyUsage(KeyPurposeId.id_kp_serverAuth));
+        builder.addExtension(X509Extensions.ExtendedKeyUsage, true, new ExtendedKeyUsage(KeyPurposeId.id_kp_clientAuth));
 
         builder.addExtension(X509Extensions.SubjectAlternativeName, false, new GeneralNames(
                 new GeneralName(GeneralName.rfc822Name, identity.getEmail())
