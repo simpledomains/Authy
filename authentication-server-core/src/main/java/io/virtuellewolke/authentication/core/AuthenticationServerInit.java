@@ -1,7 +1,6 @@
 package io.virtuellewolke.authentication.core;
 
 import io.virtuellewolke.authentication.core.database.entity.Authority;
-import io.virtuellewolke.authentication.core.database.entity.ClientAuthCert;
 import io.virtuellewolke.authentication.core.database.entity.Identity;
 import io.virtuellewolke.authentication.core.database.entity.Service;
 import io.virtuellewolke.authentication.core.database.repository.AuthorityRepository;
@@ -10,13 +9,9 @@ import io.virtuellewolke.authentication.core.database.repository.IdentityReposit
 import io.virtuellewolke.authentication.core.database.repository.ServiceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.math.BigInteger;
-import java.time.LocalDateTime;
 
 @Slf4j
 @Component
@@ -66,20 +61,11 @@ public class AuthenticationServerInit implements InitializingBean {
             identity.setEmail("admin@example.com");
             identity.setDisplayName("Administrator");
             //identity.setOtpSecret("JBSWY3DPEHPK3PXP");
-            identity.setApiToken(RandomStringUtils.randomAlphanumeric(32));
+            //identity.setApiToken(RandomStringUtils.randomAlphanumeric(32));
 
             identity.getAuthorities().add(authorityRepository.findByName("admin").get());
 
             identityRepository.save(identity);
-
-
-            ClientAuthCert clientAuthCert = new ClientAuthCert();
-            clientAuthCert.setSerial(new BigInteger("3947379834543"));
-            clientAuthCert.setIdentity(identity);
-            clientAuthCert.setIssuedAt(LocalDateTime.now());
-            clientAuthCert.setLastAccess(LocalDateTime.now().minusMinutes(125));
-            clientAuthCert.setName("Some certificate");
-            clientAuthCertRepository.save(clientAuthCert);
 
             log.warn("Administrator-Account was added (username='admin', password='admin', apiToken='{}')", identity.getApiToken());
         }
