@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * This Resource is a special endpoint to handle special cases for the frontend.
  */
-@RequestMapping("/api/session")
+@RequestMapping(value = "/api/session", produces = "application/json")
 @Tag(name = "Authy - Identity Management")
 public interface IdentityManagementResource {
     @AuthorizedResource

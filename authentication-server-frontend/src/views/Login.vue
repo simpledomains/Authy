@@ -107,6 +107,12 @@
 
                 setTimeout(() => this.$refs.txtUsername.focus(), 200);
             },
+            isRemoteAuthenticated() {
+                axios.get('/api/session/me').then(r => {
+                    this.$store.commit('setAuthData', r.data);
+                    this.$router.push('/');
+                })
+            },
             auth() {
                 this.form_states.isProcessing = true;
                 this.errorCode = "";
@@ -153,6 +159,7 @@
             }
         },
         mounted() {
+            this.isRemoteAuthenticated();
             this.$refs.txtUsername.focus();
         }
     }

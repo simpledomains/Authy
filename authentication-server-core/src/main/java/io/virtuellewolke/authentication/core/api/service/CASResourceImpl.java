@@ -23,6 +23,7 @@ import io.virtuellewolke.authentication.core.spring.components.ServiceValidation
 import io.virtuellewolke.authentication.core.spring.helper.SecureContextRequestHelper;
 import io.virtuellewolke.authentication.core.spring.security.SecureContext;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +36,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class CASResourceImpl implements CASResource {
@@ -48,6 +51,7 @@ public class CASResourceImpl implements CASResource {
 
     @Override
     public ResponseEntity<AuthResponse> validate(HttpServletRequest request, String token, String service) {
+        log.trace("Accept-Header: {}", request.getHeader("Accept"));
         try {
             Ticket ticket = ticketManager.getTicket(token, service);
 

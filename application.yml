@@ -9,7 +9,7 @@ cas.system-domain: http://localhost:8080
 logging:
   level:
     io:
-      virtuellewolke: INFO
+      virtuellewolke: TRACE
 
 cas:
   frontend:

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.List;
 
-@RequestMapping("/api")
+@RequestMapping(value = "/api", produces = "application/json")
 @Tag(name = "Authy - Authority Resource")
 public interface AuthorityResource {
     @AdminResource

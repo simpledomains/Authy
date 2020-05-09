@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.math.BigInteger;
 import java.util.List;
 
-@RequestMapping("/api")
+@RequestMapping(value = "/api", produces = "application/json")
 @Tag(name = "Authy - X509 User Certificates Resource")
 public interface X509Resource {
     @AdminResource

@@ -80,7 +80,7 @@ public class X509Interceptor extends ServiceAwareInterceptor implements AuthyInt
     }
 
     private void handleAuthenticationWithKey(HttpServletRequest request, X509Certificate certificate) {
-        if (validate(certificate) && !SecureContextRequestHelper.hasSecureContext(request)) {
+        if (!SecureContextRequestHelper.hasSecureContext(request) && validate(certificate)) {
             X500Principal principal = certificate.getSubjectX500Principal();
             X500Name      x500Name  = new X500Name(principal.getName());
             RDN           cn        = x500Name.getRDNs(BCStyle.CN)[0];
