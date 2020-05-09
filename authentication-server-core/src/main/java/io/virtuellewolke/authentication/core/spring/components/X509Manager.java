@@ -166,7 +166,10 @@ public class X509Manager {
         KeyStore ks = KeyStore.getInstance("PKCS12", "BC");
         ks.load(null, null);
         ks.setCertificateEntry(certificate.getSerialNumber().toString(), certificate);
-        ks.setKeyEntry(certificate.getSerialNumber().toString(), keyPair.getPrivate(), new char[0], new Certificate[]{caPublicKey, certificate});
+        ks.setKeyEntry(certificate.getSerialNumber().toString(), keyPair.getPrivate(), new char[0], new Certificate[]{certificate});
+
+        ks.setCertificateEntry(caPublicKey.getSerialNumber().toString(), caPublicKey);
+
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ks.store(bos, new char[0]);

@@ -40,7 +40,8 @@
     "webauthn": "^0.1.2",
     "xml": "^1.0.1",
     "yml": "^1.0.0",
-    "momentjs": "^2.0.0"
+    "momentjs": "^2.0.0",
+    "file-saver": "^2.0.2"
   },
   "devDependencies": {
     "@fortawesome/fontawesome-free": "^5.13.0",

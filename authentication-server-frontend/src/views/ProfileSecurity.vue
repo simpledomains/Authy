@@ -55,6 +55,11 @@
                                     <v-icon left>mdi-table-refresh</v-icon>
                                     Refresh
                                 </v-btn>
+                                <v-btn color="success" :loading="certificatesFetching" dark small
+                                       @click="issueCertificate">
+                                    <v-icon left>mdi-certificate</v-icon>
+                                    Issue new X509 certificate
+                                </v-btn>
                             </v-card-actions>
 
                             <v-divider/>
@@ -83,9 +88,16 @@
     import VAuthApp from "../components/VAuthApp";
     import axios from 'axios';
     import moment from 'moment'
+    import FileSaver from 'file-saver';
+    import sw from 'sweetalert2';
 
     export default {
         components: {VAuthApp},
+        computed: {
+            currentUsername() {
+                return this.$store.state.username;
+            }
+        },
         data: () => ({
             certificates: [],
 
@@ -119,6 +131,26 @@
             },
             formatDate(date) {
                 return moment(date, "YYYY-MM-DD[T]hh:mm:ss").format('LLL');
+            },
+            issueCertificate() {
+                sw.fire({
+                    title: 'X509 Certificate Name',
+                    input: 'text',
+                    showCancelButton: true,
+                }).then(r => {
+                    if (r.value && r.value.length > 0) {
+                        this.certificatesFetching = true;
+                        axios({
+                            url: '/api/session/me/certificates?deviceName=' + encodeURIComponent(r.value),
+                            method: 'POST',
+                            responseType: 'blob'
+                        }).then(r => {
+                            FileSaver.saveAs(new Blob([r.data]), this.currentUsername + ".pfx");
+                        }).finally(() => {
+                            this.fetchCertificates();
+                        })
+                    }
+                })
             }
         },
         mounted() {
