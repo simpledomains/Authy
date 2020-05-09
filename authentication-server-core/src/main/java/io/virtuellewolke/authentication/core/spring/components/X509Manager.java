@@ -9,8 +9,11 @@ import io.virtuellewolke.authentication.core.spring.configuration.X509ManagerCon
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.bouncycastle.asn1.x509.*;
+import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cert.X509v1CertificateBuilder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.jce.PrincipalUtil;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMDecryptorProvider;
 import org.bouncycastle.openssl.PEMEncryptedKeyPair;
@@ -18,7 +21,12 @@ import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.bouncycastle.openssl.jcajce.JcePEMDecryptorProviderBuilder;
-import org.bouncycastle.x509.X509V3CertificateGenerator;
+import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.OperatorCreationException;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.bouncycastle.pkcs.PKCS10CertificationRequest;
+import org.bouncycastle.pkcs.PKCS10CertificationRequestBuilder;
+import org.bouncycastle.pkcs.jcajce.JcaPKCS10CertificationRequestBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
@@ -29,10 +37,12 @@ import javax.security.auth.x500.X500Principal;
 import java.io.*;
 import java.math.BigInteger;
 import java.security.*;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
@@ -138,11 +148,16 @@ public class X509Manager {
         try {
             Security.addProvider(new BouncyCastleProvider());
 
-            KeyPair keyPair = loadKeys(configuration.getCaPrivateKey());
+            KeyPair caKeyPair = loadKeys(configuration.getCaPrivateKey());
 
-            X509Certificate certificate = generateV3Certificate(keyPair, serial, identity);
-
-            byte[] pfx = generatePfxStore(keyPair, certificate, identity);
+            // STEP 1: GENERATE KEY
+            KeyPair userKeyPair = generateRSAKeyPair();
+            // STEP 2: GENERATE CSR
+            PKCS10CertificationRequest csr = createCertRequest(userKeyPair, identity);
+            // STEP 3: SIGN CERTIFICATE
+            X509Certificate cert = signCertificateRequestWithCA(csr, serial, caKeyPair.getPrivate(), getCaCertificate(), identity);
+            // STEP 4: BUILD PFX FILE
+            byte[] pfx = generatePfxStore(userKeyPair, cert, identity);
 
             ClientAuthCert clientAuthCert = new ClientAuthCert();
             clientAuthCert.setSerial(serial);
@@ -159,6 +174,43 @@ public class X509Manager {
         }
     }
 
+    /**
+     * Signs a certificate request with a provide CA certificate.
+     *
+     * @implNote for some reason, a mTLS certificate cant be a V3 certificate and must be a V1 certificate. idk why.
+     */
+    private X509Certificate signCertificateRequestWithCA(PKCS10CertificationRequest request, BigInteger serial, PrivateKey caPrivateKey, X509Certificate caPublicKey, Identity identity) throws Exception {
+        LocalDateTime localDateTime = LocalDateTime.now().plusYears(5);
+        Date          notAfter      = Date.from(localDateTime.toInstant(ZoneOffset.UTC));
+
+        var certGen = new X509v1CertificateBuilder(
+                new X500Name(PrincipalUtil.getIssuerX509Principal(caPublicKey).getName()),
+                serial,
+                new Date(),
+                notAfter,
+                request.getSubject(),
+                request.getSubjectPublicKeyInfo()
+        );
+
+        var contentSigner = new JcaContentSignerBuilder("SHA256WithRSAEncryption").setProvider("BC").build(caPrivateKey);
+        return (new JcaX509CertificateConverter()).setProvider("BC").getCertificate(certGen.build(contentSigner));
+    }
+
+    /**
+     * Creates a CSR.
+     */
+    private PKCS10CertificationRequest createCertRequest(KeyPair keyPair, Identity identity) throws OperatorCreationException {
+        X500Principal subject = new X500Principal("O=Authentication Service, C=DE, CN=" + identity.getUsername());
+
+        ContentSigner                     contentSigner = new JcaContentSignerBuilder("SHA1withRSA").build(keyPair.getPrivate());
+        PKCS10CertificationRequestBuilder builder       = new JcaPKCS10CertificationRequestBuilder(subject, keyPair.getPublic());
+
+        return builder.build(contentSigner);
+    }
+
+    /**
+     * Creates a PFX keystore for the user to download.
+     */
     private byte[] generatePfxStore(KeyPair keyPair, X509Certificate certificate, Identity identity) throws NoSuchProviderException, KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
         X509Certificate caPublicKey = getCaCertificate();
 
@@ -166,12 +218,25 @@ public class X509Manager {
         ks.load(null, null);
         ks.setCertificateEntry(certificate.getSerialNumber().toString(), certificate);
         ks.setCertificateEntry("CA Certificate", caPublicKey);
+        ks.setKeyEntry(certificate.getSerialNumber().toString(), keyPair.getPrivate(), new char[0], new Certificate[]{certificate, certificate});
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ks.store(bos, new char[0]);
         return bos.toByteArray();
     }
 
+    /**
+     * Generates a new RSA keypair for the user to be downloaded.
+     */
+    public static KeyPair generateRSAKeyPair() throws Exception {
+        KeyPairGenerator kpGen = KeyPairGenerator.getInstance("RSA", "BC");
+        kpGen.initialize(2048, new SecureRandom());
+        return kpGen.generateKeyPair();
+    }
+
+    /**
+     * Loads the CA private key as keypair from file.
+     */
     private KeyPair loadKeys(File privateKey) throws Exception {
         PEMParser          pemParser = new PEMParser(new FileReader(privateKey));
         Object             object    = pemParser.readObject();
@@ -191,30 +256,13 @@ public class X509Manager {
         } else if (object instanceof X509CertificateHolder) {
             throw new ServiceException("CA Private key is probably a public key.");
         } else {
-            return null;
+            throw new ServiceException("CA Private key is not readable.");
+        }
+
+        if (kp == null) {
+            throw new ServiceException("CA Private key is not readable.");
         }
 
         return kp;
-    }
-
-    private X509Certificate generateV3Certificate(KeyPair keyPair, BigInteger serial, Identity identity) throws SignatureException, NoSuchProviderException, InvalidKeyException {
-        var builder = new X509V3CertificateGenerator();
-        builder.setSerialNumber(serial);
-        builder.setIssuerDN(new X500Principal("CN=" + configuration.getOrganisation()));
-        builder.setNotBefore(new Date(System.currentTimeMillis() - 10000));
-        builder.setNotAfter(new Date(System.currentTimeMillis() + 10000));
-        builder.setSubjectDN(new X500Principal("CN=" + identity.getUsername()));
-        builder.setPublicKey(keyPair.getPublic());
-        builder.setSignatureAlgorithm("SHA256WithRSAEncryption");
-
-        builder.addExtension(X509Extensions.BasicConstraints, true, new BasicConstraints(false));
-        builder.addExtension(X509Extensions.KeyUsage, true, new KeyUsage(KeyUsage.digitalSignature | KeyUsage.keyEncipherment));
-        builder.addExtension(X509Extensions.ExtendedKeyUsage, true, new ExtendedKeyUsage(KeyPurposeId.id_kp_clientAuth));
-
-        builder.addExtension(X509Extensions.SubjectAlternativeName, false, new GeneralNames(
-                new GeneralName(GeneralName.rfc822Name, identity.getEmail())
-        ));
-
-        return builder.generateX509Certificate(keyPair.getPrivate(), "BC");
     }
 }
