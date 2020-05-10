@@ -20,6 +20,7 @@ import io.virtuellewolke.authentication.core.database.repository.IdentityReposit
 import io.virtuellewolke.authentication.core.spring.components.JwtProcessor;
 import io.virtuellewolke.authentication.core.spring.components.LoginSecurity;
 import io.virtuellewolke.authentication.core.spring.components.ServiceValidation;
+import io.virtuellewolke.authentication.core.spring.configuration.CasConfiguration;
 import io.virtuellewolke.authentication.core.spring.helper.SecureContextRequestHelper;
 import io.virtuellewolke.authentication.core.spring.security.SecureContext;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +44,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class CASResourceImpl implements CASResource {
 
+    private final CasConfiguration   configuration;
     private final TicketManager      ticketManager;
     private final IdentityRepository identityRepository;
     private final ServiceValidation  serviceValidation;
@@ -171,7 +173,7 @@ public class CASResourceImpl implements CASResource {
     public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
         Cookie cookie = new Cookie(Constants.COOKIE_NAME, "");
         cookie.setMaxAge(1);
-        cookie.setPath("/");
+        cookie.setPath(configuration.getCookiePath());
         response.addCookie(cookie);
         return ResponseEntity.ok().build();
     }
@@ -197,9 +199,12 @@ public class CASResourceImpl implements CASResource {
         Cookie cookie = new Cookie(Constants.COOKIE_NAME, jwtProcessor.getJwtTokenFor(
                 identity, service
         ));
-        cookie.setMaxAge(60 * 60 * 12);
-        cookie.setPath("/");
+        cookie.setMaxAge(configuration.getCookieLifeTime());
+        cookie.setPath(configuration.getCookiePath());
         cookie.setComment("Authy CAS Token");
+
+        if (configuration.getCookieDomain() != null)
+            cookie.setDomain(configuration.getCookieDomain());
 
         response.addCookie(cookie);
 

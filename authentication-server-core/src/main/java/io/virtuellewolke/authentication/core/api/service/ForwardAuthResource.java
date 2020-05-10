@@ -9,5 +9,6 @@ import java.io.IOException;
 
 @RequestMapping("/auth")
 public interface ForwardAuthResource {
-    public ResponseEntity<?> forwardAuth(HttpServletRequest request, HttpServletResponse response) throws IOException;
+    @RequestMapping
+    ResponseEntity<?> forwardAuth(HttpServletRequest request, HttpServletResponse response) throws IOException;
 }
