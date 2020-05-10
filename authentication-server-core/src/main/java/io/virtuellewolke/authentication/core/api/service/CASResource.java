@@ -26,7 +26,8 @@ public interface CASResource {
             "/proxyValidate",
             "/p3/proxyValidate"
     }, produces = {
-            "application/xml"
+            "application/xml",
+            "application/json"
     }, method = RequestMethod.GET)
     ResponseEntity<AuthResponse> validate(HttpServletRequest request, @RequestParam("ticket") String ticket, @RequestParam("service") String service);
 

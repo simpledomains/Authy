@@ -11,10 +11,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @JacksonXmlRootElement(localName = "cas:serviceResponse")
 public class AuthResponse {
+
     @JacksonXmlProperty(localName = "cas:authenticationSuccess")
     private AuthSuccessResponse authenticationSuccess;
     @JacksonXmlProperty(localName = "cas:authenticationFailure")
     private AuthFailedResponse  authenticationFailure;
+
 
     public AuthResponse(AuthSuccessResponse successResponse) {
         this.authenticationSuccess = successResponse;
