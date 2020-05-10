@@ -1,5 +1,7 @@
 package io.virtuellewolke.authentication.core;
 
+import de.reynok.authentication.core.backend.modules.cas.TicketType;
+import io.virtuellewolke.authentication.core.cas.TicketManager;
 import io.virtuellewolke.authentication.core.database.entity.Authority;
 import io.virtuellewolke.authentication.core.database.entity.Identity;
 import io.virtuellewolke.authentication.core.database.entity.Service;
@@ -22,6 +24,7 @@ public class AuthenticationServerInit implements InitializingBean {
     private final AuthorityRepository      authorityRepository;
     private final ServiceRepository        serviceRepository;
     private final ClientAuthCertRepository clientAuthCertRepository;
+    private final TicketManager            ticketManager;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -66,6 +69,9 @@ public class AuthenticationServerInit implements InitializingBean {
             identity.getAuthorities().add(authorityRepository.findByName("admin").get());
 
             identityRepository.save(identity);
+
+
+            ticketManager.issue(TicketType.ST, "/", identity);
 
             log.warn("Administrator-Account was added (username='admin', password='admin', apiToken='{}')", identity.getApiToken());
         }
