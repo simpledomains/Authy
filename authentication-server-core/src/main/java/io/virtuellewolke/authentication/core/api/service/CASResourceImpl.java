@@ -1,13 +1,13 @@
 package io.virtuellewolke.authentication.core.api.service;
 
-import de.reynok.authentication.core.Constants;
-import de.reynok.authentication.core.backend.modules.cas.TicketType;
-import de.reynok.authentication.core.frontend.api.LoginRequest;
-import de.reynok.authentication.core.frontend.api.LoginResponse;
-import de.reynok.authentication.core.shared.exceptions.AccessDeniedException;
-import de.reynok.authentication.core.shared.exceptions.SecurityTokenExpiredException;
-import de.reynok.authentication.core.shared.util.validation.Md5PasswordValidator;
-import de.reynok.authentication.core.shared.util.validation.OneTimePasswordValidator;
+import io.virtuellewolke.authentication.core.api.Constants;
+import io.virtuellewolke.authentication.core.api.model.LoginRequest;
+import io.virtuellewolke.authentication.core.api.model.LoginResponse;
+import io.virtuellewolke.authentication.core.cas.TicketType;
+import io.virtuellewolke.authentication.core.exceptions.AccessDeniedException;
+import io.virtuellewolke.authentication.core.exceptions.SecurityTokenExpiredException;
+import io.virtuellewolke.authentication.core.util.validation.Md5PasswordValidator;
+import io.virtuellewolke.authentication.core.util.validation.OneTimePasswordValidator;
 import io.virtuellewolke.authentication.core.api.LoginFailedException;
 import io.virtuellewolke.authentication.core.api.model.cas.AuthFailedResponse;
 import io.virtuellewolke.authentication.core.api.model.cas.AuthResponse;
@@ -35,9 +35,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
 @Slf4j
 @RestController

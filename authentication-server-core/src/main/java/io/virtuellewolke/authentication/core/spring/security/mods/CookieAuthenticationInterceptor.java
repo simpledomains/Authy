@@ -1,7 +1,7 @@
 package io.virtuellewolke.authentication.core.spring.security.mods;
 
-import de.reynok.authentication.core.Constants;
-import de.reynok.authentication.core.shared.exceptions.SecurityTokenInvalidException;
+import io.virtuellewolke.authentication.core.api.Constants;
+import io.virtuellewolke.authentication.core.exceptions.SecurityTokenInvalidException;
 import io.jsonwebtoken.Claims;
 import io.virtuellewolke.authentication.core.database.entity.Identity;
 import io.virtuellewolke.authentication.core.database.repository.IdentityRepository;

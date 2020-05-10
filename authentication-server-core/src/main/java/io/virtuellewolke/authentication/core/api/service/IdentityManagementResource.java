@@ -1,6 +1,6 @@
 package io.virtuellewolke.authentication.core.api.service;
 
-import de.reynok.authentication.core.frontend.api.LoginRequest;
+import io.virtuellewolke.authentication.core.api.model.LoginRequest;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.virtuellewolke.authentication.core.database.entity.Identity;
 import io.virtuellewolke.authentication.core.spring.security.annotations.AuthorizedResource;

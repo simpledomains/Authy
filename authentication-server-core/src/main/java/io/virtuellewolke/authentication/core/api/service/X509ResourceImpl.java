@@ -1,6 +1,6 @@
 package io.virtuellewolke.authentication.core.api.service;
 
-import de.reynok.authentication.core.shared.exceptions.ServiceException;
+import io.virtuellewolke.authentication.core.exceptions.ServiceException;
 import io.virtuellewolke.authentication.core.database.entity.ClientAuthCert;
 import io.virtuellewolke.authentication.core.database.repository.ClientAuthCertRepository;
 import io.virtuellewolke.authentication.core.database.repository.IdentityRepository;
@@ -14,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;

@@ -2,9 +2,9 @@ package io.virtuellewolke.authentication.core.api.service;
 
 import com.amdelamar.jotp.OTP;
 import com.amdelamar.jotp.type.Type;
-import de.reynok.authentication.core.Constants;
-import de.reynok.authentication.core.frontend.api.LoginRequest;
-import de.reynok.authentication.core.shared.util.ImageHelper;
+import io.virtuellewolke.authentication.core.api.Constants;
+import io.virtuellewolke.authentication.core.api.model.LoginRequest;
+import io.virtuellewolke.authentication.core.util.ImageHelper;
 import io.virtuellewolke.authentication.core.database.entity.Identity;
 import io.virtuellewolke.authentication.core.database.repository.IdentityRepository;
 import io.virtuellewolke.authentication.core.spring.configuration.CasConfiguration;

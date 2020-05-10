@@ -1,7 +1,7 @@
 package io.virtuellewolke.authentication.core.api.service;
 
-import de.reynok.authentication.core.frontend.api.LoginRequest;
-import de.reynok.authentication.core.frontend.api.LoginResponse;
+import io.virtuellewolke.authentication.core.api.model.LoginRequest;
+import io.virtuellewolke.authentication.core.api.model.LoginResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.virtuellewolke.authentication.core.api.model.cas.AuthResponse;
 import org.springframework.http.ResponseEntity;

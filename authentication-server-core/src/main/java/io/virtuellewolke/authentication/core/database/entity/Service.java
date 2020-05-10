@@ -1,7 +1,7 @@
 package io.virtuellewolke.authentication.core.database.entity;
 
-import de.reynok.authentication.core.shared.util.ListConverter;
-import de.reynok.authentication.core.shared.util.PartialUpdateableModel;
+import io.virtuellewolke.authentication.core.util.ListConverter;
+import io.virtuellewolke.authentication.core.util.PartialUpdateableModel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

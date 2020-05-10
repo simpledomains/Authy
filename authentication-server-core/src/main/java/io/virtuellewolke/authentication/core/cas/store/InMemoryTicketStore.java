@@ -1,6 +1,6 @@
 package io.virtuellewolke.authentication.core.cas.store;
 
-import de.reynok.authentication.core.shared.exceptions.SecurityTokenExpiredException;
+import io.virtuellewolke.authentication.core.exceptions.SecurityTokenExpiredException;
 import io.virtuellewolke.authentication.core.cas.TicketStore;
 import io.virtuellewolke.authentication.core.cas.model.Ticket;
 import lombok.Getter;

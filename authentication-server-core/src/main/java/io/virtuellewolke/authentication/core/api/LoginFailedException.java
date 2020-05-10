@@ -1,6 +1,6 @@
 package io.virtuellewolke.authentication.core.api;
 
-import de.reynok.authentication.core.frontend.api.LoginResponse;
+import io.virtuellewolke.authentication.core.api.model.LoginResponse;
 import lombok.Getter;
 
 @Getter

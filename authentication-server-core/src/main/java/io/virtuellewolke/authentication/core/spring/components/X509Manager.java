@@ -1,6 +1,6 @@
 package io.virtuellewolke.authentication.core.spring.components;
 
-import de.reynok.authentication.core.shared.exceptions.ServiceException;
+import io.virtuellewolke.authentication.core.exceptions.ServiceException;
 import io.virtuellewolke.authentication.core.database.entity.ClientAuthCert;
 import io.virtuellewolke.authentication.core.database.entity.Identity;
 import io.virtuellewolke.authentication.core.database.repository.ClientAuthCertRepository;

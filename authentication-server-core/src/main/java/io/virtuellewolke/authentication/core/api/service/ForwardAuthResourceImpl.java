@@ -1,6 +1,6 @@
 package io.virtuellewolke.authentication.core.api.service;
 
-import de.reynok.authentication.core.backend.modules.cas.CasStatusCode;
+import io.virtuellewolke.authentication.core.cas.StatusCode;
 import io.virtuellewolke.authentication.core.database.entity.Identity;
 import io.virtuellewolke.authentication.core.database.entity.Service;
 import io.virtuellewolke.authentication.core.spring.components.ServiceValidation;
@@ -33,14 +33,14 @@ public class ForwardAuthResourceImpl implements ForwardAuthResource {
             Identity identity = secureContext.getIdentity();
 
             if (service == null) {
-                response.sendRedirect(configuration.getBaseDomain(request) + "/#/cas/error?service=" + serviceUrl + "&code=" + CasStatusCode.MISSING_SERVICE);
+                response.sendRedirect(configuration.getBaseDomain(request) + "/#/cas/error?service=" + serviceUrl + "&code=" + StatusCode.MISSING_SERVICE);
                 return ResponseEntity.status(302).build();
             }
 
             if (service.isIdentityAllowed(identity)) {
                 return ResponseEntity.ok().build();
             } else {
-                response.sendRedirect(configuration.getBaseDomain(request) + "/#/cas/error?service=" + serviceUrl + "&code=" + CasStatusCode.DENIED);
+                response.sendRedirect(configuration.getBaseDomain(request) + "/#/cas/error?service=" + serviceUrl + "&code=" + StatusCode.DENIED);
                 return ResponseEntity.status(302).build();
             }
         } else {

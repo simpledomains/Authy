@@ -1,9 +1,8 @@
 package io.virtuellewolke.authentication.core.cas;
 
-import de.reynok.authentication.core.backend.modules.cas.TicketType;
-import de.reynok.authentication.core.shared.exceptions.AccessDeniedException;
 import io.virtuellewolke.authentication.core.cas.model.Ticket;
 import io.virtuellewolke.authentication.core.database.entity.Identity;
+import io.virtuellewolke.authentication.core.exceptions.AccessDeniedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

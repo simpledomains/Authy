@@ -1,6 +1,5 @@
 package io.virtuellewolke.authentication.core;
 
-import de.reynok.authentication.core.backend.modules.cas.TicketType;
 import io.virtuellewolke.authentication.core.cas.TicketManager;
 import io.virtuellewolke.authentication.core.database.entity.Authority;
 import io.virtuellewolke.authentication.core.database.entity.Identity;
@@ -63,15 +62,10 @@ public class AuthenticationServerInit implements InitializingBean {
             identity.setAdmin(true);
             identity.setEmail("admin@example.com");
             identity.setDisplayName("Administrator");
-            //identity.setOtpSecret("JBSWY3DPEHPK3PXP");
-            //identity.setApiToken(RandomStringUtils.randomAlphanumeric(32));
 
             identity.getAuthorities().add(authorityRepository.findByName("admin").get());
 
             identityRepository.save(identity);
-
-
-            ticketManager.issue(TicketType.ST, "/", identity);
 
             log.warn("Administrator-Account was added (username='admin', password='admin', apiToken='{}')", identity.getApiToken());
         }

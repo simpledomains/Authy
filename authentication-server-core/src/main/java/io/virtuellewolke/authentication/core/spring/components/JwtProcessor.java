@@ -1,8 +1,8 @@
 package io.virtuellewolke.authentication.core.spring.components;
 
 import io.virtuellewolke.authentication.core.database.entity.Identity;
-import de.reynok.authentication.core.shared.exceptions.SecurityTokenExpiredException;
-import de.reynok.authentication.core.shared.exceptions.SecurityTokenInvalidException;
+import io.virtuellewolke.authentication.core.exceptions.SecurityTokenExpiredException;
+import io.virtuellewolke.authentication.core.exceptions.SecurityTokenInvalidException;
 import io.virtuellewolke.authentication.core.database.entity.Service;
 import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Value;

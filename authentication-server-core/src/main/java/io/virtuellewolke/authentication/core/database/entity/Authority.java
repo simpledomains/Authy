@@ -1,6 +1,6 @@
 package io.virtuellewolke.authentication.core.database.entity;
 
-import de.reynok.authentication.core.shared.util.PartialUpdateableModel;
+import io.virtuellewolke.authentication.core.util.PartialUpdateableModel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

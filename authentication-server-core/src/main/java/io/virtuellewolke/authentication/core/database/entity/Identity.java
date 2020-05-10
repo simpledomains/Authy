@@ -1,11 +1,11 @@
 package io.virtuellewolke.authentication.core.database.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import de.reynok.authentication.core.shared.util.HashMapConverter;
-import de.reynok.authentication.core.shared.util.PartialUpdateableModel;
-import de.reynok.authentication.core.shared.util.validation.Md5PasswordValidator;
-import de.reynok.authentication.core.shared.util.validation.StringEqualsValidator;
-import de.reynok.authentication.core.shared.util.validation.ValidatorChain;
+import io.virtuellewolke.authentication.core.util.HashMapConverter;
+import io.virtuellewolke.authentication.core.util.PartialUpdateableModel;
+import io.virtuellewolke.authentication.core.util.validation.Md5PasswordValidator;
+import io.virtuellewolke.authentication.core.util.validation.StringEqualsValidator;
+import io.virtuellewolke.authentication.core.util.validation.ValidatorChain;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
