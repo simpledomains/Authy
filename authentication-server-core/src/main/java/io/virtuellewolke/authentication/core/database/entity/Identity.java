@@ -82,7 +82,7 @@ public class Identity extends PartialUpdateableModel {
 
     @Override
     protected boolean canUpdateField(Field field) {
-        String[] forbiddenFields = new String[]{"username", "authorities", "admin", "locked", "apiToken"};
+        String[] forbiddenFields = new String[]{"username", "authorities", "admin", "locked", "apiToken", "otpSecret"};
 
         return Arrays.stream(forbiddenFields).noneMatch(s -> Objects.equals(s, field.getName().toLowerCase()));
     }

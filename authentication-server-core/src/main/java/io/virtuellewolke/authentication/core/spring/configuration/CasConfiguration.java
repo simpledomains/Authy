@@ -13,4 +13,6 @@ public class CasConfiguration {
     private String  cookieDomain;
     private Integer cookieLifeTime = 60 * 60 * 12;
     private String  cookiePath     = "/";
+
+    private String totpIssuerName = "Authy Authentication Service";
 }

@@ -26,7 +26,7 @@
                                     <router-link to="/profile/security">security settings</router-link>
                                     to enable 2FA.
                                 </v-alert>
-                                <v-row>
+                                <v-row v-if="!fetchingProfile">
                                     <v-col cols="12" md="6">
                                         <v-text-field disabled v-model="username" label="Username"
                                                       prepend-icon="mdi-form-textbox"/>

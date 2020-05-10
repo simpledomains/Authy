@@ -64,10 +64,17 @@
 
                             <v-divider/>
                             <v-card-title>2FA Settings</v-card-title>
-                            <v-card-text>
-                                <v-alert type="info" color="info" elevation="5">
-                                    Not implemented yet.
-                                </v-alert>
+                            <v-card-text v-if="otpEnabled">
+                                <v-btn color="error" dark small @click="disableTwoFactor">
+                                    Disable
+                                    <v-icon>mdi-two-factor-authentication</v-icon>
+                                </v-btn>
+                            </v-card-text>
+                            <v-card-text v-if="!otpEnabled">
+                                <v-btn color="success" dark small @click="enableTwoFactor">
+                                    Enable
+                                    <v-icon>mdi-two-factor-authentication</v-icon>
+                                </v-btn>
                             </v-card-text>
 
                             <v-card-actions>
@@ -110,6 +117,8 @@
                 {text: 'Actions', value: 'actions'},
             ],
 
+            otpEnabled: false,
+
             certificatesFetching: false,
         }),
         methods: {
@@ -151,9 +160,44 @@
                         })
                     }
                 })
-            }
+            },
+            fetchProfile() {
+                axios.get('/api/session/me').then(r => {
+                    this.otpEnabled = r.data.otpEnabled
+                });
+            },
+            disableTwoFactor() {
+                axios.delete('/api/session/me/otp').then(() => {
+                    this.fetchProfile();
+                    sw.fire({title: '2FA disabled!', type: 'error'});
+                });
+            },
+            enableTwoFactor() {
+                axios.post('/api/session/me/otp').then(() => {
+                    sw.fire({
+                        title: 'Verify OTP',
+                        html: '<img width="178px" src="/api/session/me/otp/image?cache=' + (new Date()).getTime() + '"/>',
+                        input: 'number',
+                        showCancelButton: true,
+                        confirmButtonText: 'Verify',
+                    }).then(r => {
+                        if (r.value) {
+                            axios.post('/api/session/me/otp/verify', {
+                                securityPassword: r.value,
+                            }).then(() => {
+                                sw.fire('2FA Enabled!');
+                                this.fetchProfile();
+                            }).catch(() => {
+                                this.enableTwoFactor();
+                            })
+                        }
+                    })
+                });
+            },
+
         },
         mounted() {
+            this.fetchProfile();
             this.fetchCertificates();
         }
     }
