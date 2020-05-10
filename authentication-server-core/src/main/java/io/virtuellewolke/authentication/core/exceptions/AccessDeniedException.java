@@ -10,9 +10,6 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @NoArgsConstructor
 public class AccessDeniedException extends ServiceException {
-
-    private Integer code = 403;
-
     public AccessDeniedException(String msg) {
         super(msg);
     }

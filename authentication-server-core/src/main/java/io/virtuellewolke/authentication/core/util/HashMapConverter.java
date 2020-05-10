@@ -13,7 +13,7 @@ import java.util.Map;
 @Slf4j
 public class HashMapConverter implements AttributeConverter<Map<String, String>, String> {
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public String convertToDatabaseColumn(Map<String, String> stringStringMap) {
@@ -27,7 +27,8 @@ public class HashMapConverter implements AttributeConverter<Map<String, String>,
 
     @Override
     public Map<String, String> convertToEntityAttribute(String s) {
-        TypeReference<Map<String, String>> reference = new TypeReference<Map<String, String>>() {};
+        TypeReference<Map<String, String>> reference = new TypeReference<>() {
+        };
         try {
             return objectMapper.readValue(s, reference);
         } catch (IOException | NullPointerException e) {

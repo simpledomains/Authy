@@ -30,25 +30,25 @@ public interface IdentityManagementResource {
 
     @AuthorizedResource
     @PostMapping("/me/otp")
-    public ResponseEntity<Map<?, ?>> initializeOneTimePassword(HttpSession httpSession, HttpServletRequest request);
+    ResponseEntity<Map<?, ?>> initializeOneTimePassword(HttpSession httpSession, HttpServletRequest request);
 
     @AuthorizedResource
     @DeleteMapping("/me/otp")
-    public ResponseEntity<Identity> revokeTwoFactor(HttpSession httpSession, HttpServletRequest request);
+    ResponseEntity<Identity> revokeTwoFactor(HttpSession httpSession, HttpServletRequest request);
 
     @AuthorizedResource
     @GetMapping(value = "/me/otp/image", produces = "image/png")
-    public byte[] getQrCodeImageForOneTimePassword(HttpSession httpSession, HttpServletRequest request);
+    byte[] getQrCodeImageForOneTimePassword(HttpSession httpSession, HttpServletRequest request);
 
     @AuthorizedResource
     @PostMapping(value = "/me/otp/verify")
-    public ResponseEntity<?> verifyOneTimePassword(@RequestBody LoginRequest verificationRequest, HttpServletRequest request, HttpSession httpSession) throws IOException, NoSuchAlgorithmException, InvalidKeyException;
+    ResponseEntity<?> verifyOneTimePassword(@RequestBody LoginRequest verificationRequest, HttpServletRequest request, HttpSession httpSession) throws IOException, NoSuchAlgorithmException, InvalidKeyException;
 
     @AuthorizedResource
     @PostMapping("/me/api-token")
-    public ResponseEntity<String> generateApiToken(HttpServletRequest request);
+    ResponseEntity<String> generateApiToken(HttpServletRequest request);
 
     @AuthorizedResource
     @DeleteMapping("/me/api-token")
-    public ResponseEntity<?> deleteApiToken(HttpServletRequest request);
+    ResponseEntity<?> deleteApiToken(HttpServletRequest request);
 }

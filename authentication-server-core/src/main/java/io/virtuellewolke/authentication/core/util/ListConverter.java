@@ -12,7 +12,7 @@ import java.util.List;
 @Slf4j
 public class ListConverter implements AttributeConverter<List<String>, String> {
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public String convertToDatabaseColumn(List<String> stringStringMap) {
@@ -26,7 +26,8 @@ public class ListConverter implements AttributeConverter<List<String>, String> {
 
     @Override
     public List<String> convertToEntityAttribute(String s) {
-        TypeReference<List<String>> reference = new TypeReference<List<String>>() {};
+        TypeReference<List<String>> reference = new TypeReference<>() {
+        };
         try {
             return objectMapper.readValue(s, reference);
         } catch (IOException e) {

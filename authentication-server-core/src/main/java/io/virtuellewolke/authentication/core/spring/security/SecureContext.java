@@ -20,7 +20,7 @@ public class SecureContext {
         X509
     }
 
-    private Source   source = Source.COOKIE;
+    private Source   source;
     private Identity identity;
     private Service  service;
 }

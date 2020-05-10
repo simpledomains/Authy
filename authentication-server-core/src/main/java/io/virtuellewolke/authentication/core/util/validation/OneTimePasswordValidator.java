@@ -5,7 +5,7 @@ import com.amdelamar.jotp.type.Type;
 
 public class OneTimePasswordValidator implements Validator<String> {
 
-    private String token;
+    private final String token;
 
     public OneTimePasswordValidator(String securityToken) {
         this.token = securityToken;
@@ -13,7 +13,9 @@ public class OneTimePasswordValidator implements Validator<String> {
 
     @Override
     public boolean isValid(String argument) {
-        if (token == null) { return true; }
+        if (token == null) {
+            return true;
+        }
 
         try {
             return OTP.verify(token, OTP.timeInHex(), argument, 6, Type.TOTP);

@@ -22,11 +22,11 @@ import java.lang.annotation.RetentionPolicy;
 public class ObjectMapperConfiguration implements InitializingBean {
 
     @Retention(RetentionPolicy.RUNTIME)
-    public static @interface JacksonXmlIgnore {
+    public @interface JacksonXmlIgnore {
     }
 
     @Retention(RetentionPolicy.RUNTIME)
-    public static @interface JacksonJsonIgnore {
+    public @interface JacksonJsonIgnore {
     }
 
     public static class XmlIgnoreIntrospector extends JacksonXmlAnnotationIntrospector {
@@ -47,7 +47,7 @@ public class ObjectMapperConfiguration implements InitializingBean {
     private final MappingJackson2HttpMessageConverter    converter;
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         ObjectMapper xmlMapper = xmlConverter.getObjectMapper();
         if (xmlMapper instanceof XmlMapper) {
             ((XmlMapper) xmlMapper).configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);

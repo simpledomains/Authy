@@ -8,6 +8,7 @@ import io.virtuellewolke.authentication.core.spring.helper.SecureContextRequestH
 import io.virtuellewolke.authentication.core.spring.helper.ServiceRequestHelper;
 import io.virtuellewolke.authentication.core.spring.security.SecureContext;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,6 +25,7 @@ public class ApiTokenInterceptor extends ServiceAwareInterceptor implements Auth
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String API_TOKEN_HEADER     = "X-Api-Token";
 
+    @Autowired
     public ApiTokenInterceptor(IdentityRepository identityRepository, ServiceValidation serviceValidation, LoginSecurity loginSecurity) {
         super(serviceValidation);
         this.identityRepository = identityRepository;
@@ -31,7 +33,7 @@ public class ApiTokenInterceptor extends ServiceAwareInterceptor implements Auth
     }
 
     @Override
-    public boolean process(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean process(HttpServletRequest request, HttpServletResponse response, Object handler) {
         if (!SecureContextRequestHelper.hasSecureContext(request) && loginSecurity.isAllowedToTry(request.getRemoteAddr())) {
             String token = getApiTokenFromHeaders(request);
 

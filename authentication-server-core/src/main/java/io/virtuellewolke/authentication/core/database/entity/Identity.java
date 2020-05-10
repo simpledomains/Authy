@@ -12,24 +12,16 @@ import lombok.Setter;
 import lombok.ToString;
 import org.apache.commons.codec.digest.Md5Crypt;
 
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.lang.reflect.Field;
 import java.util.*;
 
-@Entity
 @Getter
 @Setter
+@Entity(name = "identity")
+@SuppressWarnings("JpaAttributeTypeInspection")
 @ToString(exclude = {"password", "otpSecret", "apiToken"})
-@Table(name = "identity")
-@EqualsAndHashCode(exclude = {"authorities", "metaData"}, callSuper = false)
+@EqualsAndHashCode(exclude = {"authorities", "metaData"}, callSuper = true)
 public class Identity extends PartialUpdateableModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

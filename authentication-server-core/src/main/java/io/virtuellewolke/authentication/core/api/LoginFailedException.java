@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 public class LoginFailedException extends RuntimeException {
-    private LoginResponse.ErrorCode errorCode;
+    private final LoginResponse.ErrorCode errorCode;
 
     public LoginFailedException(LoginResponse.ErrorCode code) {
         this.errorCode = code;

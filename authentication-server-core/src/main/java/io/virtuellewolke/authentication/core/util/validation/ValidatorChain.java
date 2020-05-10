@@ -5,7 +5,7 @@ import java.util.List;
 
 public class ValidatorChain<T> implements Validator<T> {
 
-    private List<Validator<T>> validators = new ArrayList<>();
+    private final List<Validator<T>> validators = new ArrayList<>();
 
     public void addValidator(Validator<T> validator) {
         this.validators.add(validator);

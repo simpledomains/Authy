@@ -33,7 +33,7 @@ public class CookieAuthenticationInterceptor extends ServiceAwareInterceptor imp
     }
 
     @Override
-    public boolean process(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean process(HttpServletRequest request, HttpServletResponse response, Object handler) {
         if (!SecureContextRequestHelper.hasSecureContext(request)) {
             Cookie[] cookies = request.getCookies() != null ? request.getCookies() : new Cookie[0];
 

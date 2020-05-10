@@ -6,7 +6,7 @@ import org.apache.commons.codec.digest.Md5Crypt;
 
 public class Md5PasswordValidator implements Validator<String> {
 
-    private Identity identity;
+    private final Identity identity;
 
     public Md5PasswordValidator(Identity identity) {
         this.identity = identity;

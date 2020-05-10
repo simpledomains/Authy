@@ -5,7 +5,7 @@ import java.util.Objects;
 
 public class StringEqualsValidator implements Validator<String> {
 
-    private String validateAgainst = null;
+    private final String validateAgainst;
 
     public StringEqualsValidator(String validateAgainst) {
         this.validateAgainst = validateAgainst;

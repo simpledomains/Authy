@@ -26,7 +26,7 @@ public class AuthenticationServerInit implements InitializingBean {
     private final TicketManager            ticketManager;
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         if (serviceRepository.findAll().size() == 0) {
             Service applicationService = new Service();
             applicationService.setName("Authentication Service");

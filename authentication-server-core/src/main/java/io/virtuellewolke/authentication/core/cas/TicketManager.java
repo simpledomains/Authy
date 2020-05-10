@@ -18,7 +18,7 @@ import java.util.Random;
 public class TicketManager {
     private final TicketStore ticketStore;
 
-    private Random random = new SecureRandom();
+    private final Random random = new SecureRandom();
 
     @Value("${app.security.service-validation:#{true}}")
     private boolean isServiceValidationEnabled;

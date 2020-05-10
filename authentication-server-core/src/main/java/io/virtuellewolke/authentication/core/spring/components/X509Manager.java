@@ -1,10 +1,10 @@
 package io.virtuellewolke.authentication.core.spring.components;
 
-import io.virtuellewolke.authentication.core.exceptions.ServiceException;
 import io.virtuellewolke.authentication.core.database.entity.ClientAuthCert;
 import io.virtuellewolke.authentication.core.database.entity.Identity;
 import io.virtuellewolke.authentication.core.database.repository.ClientAuthCertRepository;
 import io.virtuellewolke.authentication.core.database.repository.IdentityRepository;
+import io.virtuellewolke.authentication.core.exceptions.ServiceException;
 import io.virtuellewolke.authentication.core.spring.configuration.X509ManagerConfiguration;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -121,20 +121,18 @@ public class X509Manager {
         }
     }
 
-    public boolean revoke(BigInteger serial, Identity identity) {
+    public void revoke(BigInteger serial, Identity identity) {
         ClientAuthCert cert = clientAuthCertRepository.findById(serial).orElseThrow();
 
         if (cert != null && (cert.getIdentity().equals(identity) || (identity != null && identity.getAdmin()))) {
             cert.setRevokedAt(LocalDateTime.now());
-            log.info("Revoked {} for Identitiy {}", cert.getSerial(), identity.getId());
+            log.info("Revoked {} for Identity {}", cert.getSerial(), identity.getId());
             clientAuthCertRepository.save(cert);
-            return true;
         }
-        return false;
     }
 
     @SuppressWarnings("SpellCheckingInspection")
-    public byte[] issuePfx(Identity identity, String certificateName) throws IOException {
+    public byte[] issuePfx(Identity identity, String certificateName) {
         if (!configuration.getEnabled()) {
             throw new ServiceException("X509 authentication is not enabled.");
         }

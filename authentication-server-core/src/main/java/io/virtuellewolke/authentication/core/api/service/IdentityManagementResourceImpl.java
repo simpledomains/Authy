@@ -68,7 +68,7 @@ public class IdentityManagementResourceImpl implements IdentityManagementResourc
         }
 
         output.put("message", "Secret created, verification required.");
-        output.put("qr_code_location", "/api/profile/otp/qrcode");
+        output.put("qr_code_location", "/api/session/me/otp/image");
 
         return ResponseEntity.ok(output);
     }
@@ -151,6 +151,6 @@ public class IdentityManagementResourceImpl implements IdentityManagementResourc
         SecureContext context = SecureContextRequestHelper.getSecureContext(request);
 
         if (context != null) return context.getIdentity();
-        throw new IllegalArgumentException("Identity is null but shouldnt be.");
+        throw new IllegalArgumentException("Identity is null but should not be.");
     }
 }
