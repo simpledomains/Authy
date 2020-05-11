@@ -1,6 +1,5 @@
 include:
   - remote: 'https://git.virtuellewolke.de/generic/ci-templates/raw/master/maven+docker.gitlab-ci.yml'
-  - template: Dependency-Scanning.gitlab-ci.yml
 
 variables:
   DOCKER_IMAGE_NAME: forward-auth-server
@@ -9,10 +8,6 @@ variables:
   MAVEN_ARGS: "-s .docker/settings.xml --batch-mode -P r3ktm8"
   VUE_APP_CI_COMMIT_SHORT_SHA: "$CI_JOB_ID"
   MAVEN_PREPARE_SCRIPT: "" # will be set to empty string to prevent executing VW-script
-
-dependency_scanning:
-  variables:
-    MAVEN_CLI_OPTS: "-s .docker/settings.xml"
 
 compile maven (with version):
   variables:
