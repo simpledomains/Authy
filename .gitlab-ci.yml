@@ -10,6 +10,10 @@ variables:
   VUE_APP_CI_COMMIT_SHORT_SHA: "$CI_JOB_ID"
   MAVEN_PREPARE_SCRIPT: "" # will be set to empty string to prevent executing VW-script
 
+dependency_scanning:
+  variables:
+    MAVEN_CLI_OPTS: "-s .docker/settings.xml"
+
 compile maven (with version):
   variables:
     VUE_APP_CI_COMMIT_SHORT_SHA: "v$CI_COMMIT_TAG"
