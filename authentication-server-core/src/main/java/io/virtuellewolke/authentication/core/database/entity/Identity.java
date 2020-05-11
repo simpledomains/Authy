@@ -21,7 +21,7 @@ import java.util.*;
 @Entity(name = "identity")
 @SuppressWarnings("JpaAttributeTypeInspection")
 @ToString(exclude = {"password", "otpSecret", "apiToken"})
-@EqualsAndHashCode(exclude = {"authorities", "metaData"}, callSuper = true)
+@EqualsAndHashCode(exclude = {"authorities", "metaData", "avatar"}, callSuper = false)
 public class Identity extends PartialUpdateableModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
