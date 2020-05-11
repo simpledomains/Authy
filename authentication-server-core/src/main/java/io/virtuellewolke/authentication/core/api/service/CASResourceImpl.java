@@ -171,6 +171,8 @@ public class CASResourceImpl implements CASResource {
         Cookie cookie = new Cookie(Constants.COOKIE_NAME, "");
         cookie.setMaxAge(1);
         cookie.setPath(configuration.getCookiePath());
+        if (configuration.getCookieDomain() != null)
+            cookie.setDomain(configuration.getCookieDomain());
         response.addCookie(cookie);
         return ResponseEntity.ok().build();
     }
