@@ -14,4 +14,6 @@ public interface ClientAuthCertRepository extends CrudRepository<ClientAuthCert,
     List<ClientAuthCert> findAll();
 
     List<ClientAuthCert> findAllByRevokedAtLessThanAndRevokedAtIsNotNull(LocalDateTime checkDate);
+
+    void deleteAllByIdentityId(Integer identityId);
 }

@@ -2,6 +2,7 @@ package io.virtuellewolke.authentication.core.api.service;
 
 import io.virtuellewolke.authentication.core.api.model.UpdateUserRequest;
 import io.virtuellewolke.authentication.core.database.entity.Identity;
+import io.virtuellewolke.authentication.core.database.repository.ClientAuthCertRepository;
 import io.virtuellewolke.authentication.core.database.repository.IdentityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +15,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserResourceImpl implements UserResource {
 
-    private final IdentityRepository identityRepository;
+    private final IdentityRepository       identityRepository;
+    private final ClientAuthCertRepository clientAuthCertRepository;
 
     @Override
     public ResponseEntity<List<Identity>> listUsers() {
@@ -36,6 +38,7 @@ public class UserResourceImpl implements UserResource {
 
     @Override
     public void deleteUser(Integer id) {
+        clientAuthCertRepository.deleteAllByIdentityId(id);
         identityRepository.deleteById(id);
     }
 
