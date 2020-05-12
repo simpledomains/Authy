@@ -1,15 +1,23 @@
-logging:
-  level:
-    de:
-      reynok: DEBUG
+## Logging
+logging.level.de.reynok: INFO
+
+## Spring Configuration
 spring:
+  application:
+    name: authentication-server
   jpa:
-    show-sql: true
-
-app.version: ${env.CI_CONCURRENT_PROJECT_ID}
-
-spring.jackson.serialization.FAIL_ON_EMPTY_BEANS: false
-spring.jackson.default-property-inclusion: "non-absent"
-
-cas:
-  cookie-domain: localhost
+    show-sql: false
+  boot:
+    admin:
+      client:
+        enabled: false
+  jackson:
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false
+    default-property-inclusion: "non_absent"
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+  redis:
+    enabled: false
+    timeout: PT0.500S

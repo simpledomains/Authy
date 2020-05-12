@@ -1,0 +1,2 @@
+*.java @root
+Dockerfile @root

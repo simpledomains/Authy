@@ -1,10 +1,18 @@
-app:
-  secrets:
-    jwt: dJHDjkahdjknsjkchnbJKHNKJWndk
-
+## System Config
 server.port: 3000
 
-cas:
-  system-domain: http://localhost:8080
+## Application Configuration
+app.secrets.jwt: dJHDjkahdjknsjkchnbJKHNKJWndk
+cas.system-domain: http://localhost:8080
 
-#app.cas.cookie.domain: example.com
+## Logging
+logging:
+  level:
+    io:
+      virtuellewolke: TRACE
+
+cas:
+  frontend:
+    clientCertAuth: true
+    darkMode: false
+  test-mode: true

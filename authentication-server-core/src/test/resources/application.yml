@@ -1,0 +1,12 @@
+app:
+  secrets:
+    jwt: 234357643857893
+
+logging:
+  level:
+    io:
+      virtuellewolke: TRACE
+
+spring.redis:
+  enabled: false
+  timeout: PT0.500S

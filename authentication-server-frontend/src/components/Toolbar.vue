@@ -2,21 +2,13 @@
     <div>
         <v-app-bar dense app color="primary" dark>
             <v-app-bar-nav-icon @click="drawer = !drawer" v-if="isAdmin"></v-app-bar-nav-icon>
-            <v-icon>fas fa-lock</v-icon>&nbsp; &nbsp;
+            <v-icon left>fas fa-lock</v-icon>&nbsp; &nbsp;
             <v-toolbar-title>Authy - {{ location }}</v-toolbar-title>
 
             <div class="flex-grow-1"></div>
-            <v-btn fab x-small color="pink" v-if="showLogoutButton" @click="signOut" elevation="1">
+            <v-btn fab x-small color="pink" @click="signOut" elevation="1">
                 <v-icon small>fas fa-sign-out-alt</v-icon>
             </v-btn>
-
-            <v-progress-linear v-if="isProcessing"
-                               :active="isProcessing"
-                               :indeterminate="isProcessing"
-                               absolute
-                               bottom
-                               color="red lighten-2"
-            ></v-progress-linear>
         </v-app-bar>
 
         <v-navigation-drawer v-model="drawer" absolute temporary>
@@ -78,9 +70,6 @@
         }),
         props: {
             location: String,
-            isAdmin: Boolean,
-            processing: Boolean,
-            logoutButton: Boolean,
         },
         methods: {
             openMenu() {
@@ -94,16 +83,12 @@
                 }
             },
             signOut() {
-                localStorage.removeItem('AuthyUser');
-                window.location = '/cas/logout';
+                this.$router.push("/logout");
             }
         },
         computed: {
-            isProcessing() {
-                return this.processing;
-            },
-            showLogoutButton() {
-                return this.logoutButton;
+            isAdmin() {
+                return this.$store.state.admin
             }
         }
     }

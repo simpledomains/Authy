@@ -1,0 +1,15 @@
+spring:
+  cloud:
+    consul:
+      enabled: ${CONSUL:false}
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
+      scheme: ${CONSUL_SCHEME:http}
+      config:
+        format: YAML
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'

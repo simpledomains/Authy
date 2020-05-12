@@ -14,3 +14,12 @@ dist/
 
 ### Maven ###
 target/
+
+### Certificates ###
+*.pem
+*.csr
+*.key
+*.pfx
+
+### Others ###
+*.pid

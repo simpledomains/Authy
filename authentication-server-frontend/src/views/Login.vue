@@ -9,13 +9,13 @@
                         Sign in
                     </v-card-title>
                     <v-card-text>
-                        <v-alert class="ma-2" icon="mdi-key-star" v-if="status === ST.LOGIN_SUCCESS" type="success"
-                                 border="bottom">
+                        <v-alert class="ma-2" elevation="4" icon="mdi-key-star" type="success"
+                                 v-if="form_states.success">
                             Login Success!
                         </v-alert>
-                        <div v-if="status !== ST.LOGIN_SUCCESS">
+                        <div v-if="!form_states.success">
                             <v-text-field ref="txtUsername"
-                                          v-if="formStatus !== ST.SECURITY_TOKEN_REQUIRED"
+                                          v-if="!form_states.requireOtp"
                                           :error="!!errorCode"
                                           v-model="username"
                                           @keydown.enter="auth"
@@ -23,7 +23,7 @@
                                           label="Name">
                             </v-text-field>
                             <v-text-field
-                                    v-if="formStatus !== ST.SECURITY_TOKEN_REQUIRED"
+                                    v-if="!form_states.requireOtp"
                                     :error="!!errorCode"
                                     :error-messages="errorCode"
                                     @keydown.enter="auth"
@@ -33,7 +33,7 @@
                             </v-text-field>
                             <v-expand-transition>
                                 <v-text-field ref="txtOtpCode"
-                                              v-if="formStatus === ST.SECURITY_TOKEN_REQUIRED"
+                                              v-if="form_states.requireOtp"
                                               :error="!!errorCode"
                                               :error-messages="errorCode"
                                               @keydown.enter="auth"
@@ -47,7 +47,7 @@
                             <br>
                             <v-row>
                                 <v-col>
-                                    <v-btn :loading="status === ST.PROCESSING" color="primary" dark
+                                    <v-btn :loading="form_states.isProcessing" color="primary" dark
                                            @click.prevent="auth" block
                                            type="button">
                                         Sign in &nbsp;
@@ -55,24 +55,13 @@
                                     </v-btn>
                                 </v-col>
 
-                                <v-col v-if="formStatus === ST.SECURITY_TOKEN_REQUIRED">
+                                <v-col v-if="form_states.requireOtp">
                                     <v-btn color="warning" dark @click.prevent="abortAuth" block
                                            type="button">
                                         <v-icon small left>fas fa-times</v-icon>
                                         Abort
                                     </v-btn>
                                 </v-col>
-
-                                <!--
-                                <v-col v-if="publicKeyCredentialEnabled">
-                                    <v-btn :loading="status === ST.WEBAUTHN" color="primary" dark
-                                           @click.prevent="startWebAuthN" block
-                                           type="button">
-                                        Sign in (beta)
-                                        <v-icon>mdi-fingerprint</v-icon>
-                                    </v-btn>
-                                </v-col>
-                                -->
                             </v-row>
                         </div>
                     </v-card-text>
@@ -87,126 +76,91 @@
 <script>
     import axios from "axios";
     import Footer from "../components/Footer";
-    import {get} from '@github/webauthn-json';
-    import {fromByteArray, toByteArray} from 'base64-js';
 
     export default {
         props: ['cas'],
         components: {Footer},
         data: () => ({
-
-            ST: {
-                IDLE: 1,
-                NOT_AUTHENTICATED: 1,
-                LOGIN_SUCCESS: 2,
-                LOGIN_FAILED: 3,
-                SECURITY_TOKEN_REQUIRED: 4,
-                PROCESSING: 999,
-                WEBAUTHN: 998,
-            },
-
-            formStatus: 1,
-            status: 1,
-            errorCode: null,
-
             username: '',
             password: '',
-
             securityPassword: '',
 
-            publicKeyCredentialEnabled: window.PublicKeyCredential,
+            errorCode: "",
+
+            form_states: {
+                requireOtp: false,
+                isLoginProcess: false,
+                isProcessing: false,
+                success: false,
+            }
         }),
         methods: {
-            /*
-            async startWebAuthN() {
-                this.setStatus(this.ST.WEBAUTHN);
-                try {
-                    let start = await axios.post('/webauthn/assertion/start?username=' + this.username);
-                    let options = start.data.publicKeyCredentialRequestOptions;
-                    options.allowCredentials = options.allowCredentials || [];
-
-                    let credential = await get({
-                        publicKey: options
-                    });
-
-                    credential.clientExtensionResults = assertion.getClientExtensionResults();
-
-                    axios.post('/webauthn/assertion/finish', credential, {
-                        withCredentials: true
-                    }).then(r => {
-                        window.location.href = '/';
-                    })
-                } catch (e) {
-                    console.log("Something went wrong doing webauthn", e);
-                    this.setStatus(this.ST.LOGIN_FAILED);
-                    this.errorCode = e.message;
-                }
-                this.setStatus(this.ST.IDLE);
-            },*/
-            setStatus(code, form) {
-                this.status = code;
-
-                if (form)
-                    this.formStatus = form;
-            },
             abortAuth() {
-                this.setStatus(this.ST.NOT_AUTHENTICATED, this.ST.IDLE);
-                this.password = '';
+                this.form_states.requireOtp = false;
+                this.form_states.isLoginProcess = false;
+                this.form_states.isProcessing = false;
+                this.form_states.success = false;
+
                 this.securityPassword = '';
+                this.username = '';
+                this.password = '';
+
+                setTimeout(() => this.$refs.txtUsername.focus(), 200);
+            },
+            isRemoteAuthenticated() {
+                axios.get('/api/session/me').then(r => {
+                    this.$store.commit('setAuthData', r.data);
+                    this.$router.push('/');
+                })
             },
             auth() {
-                this.setStatus(this.ST.PROCESSING);
+                this.form_states.isProcessing = true;
+                this.errorCode = "";
 
-                setTimeout(() => {
-                    axios.post('/cas/login?service=' + this.$route.query.service, {
-                        username: this.username,
-                        password: this.password,
-                        securityPassword: this.securityPassword.length > 0 ? this.securityPassword : null,
-                        cas: this.cas ? 'true' : 'false',
-                    }, {timeout: 10000}).then(response => {
-                        this.setStatus(this.ST.LOGIN_SUCCESS);
-                        localStorage.removeItem('AuthyUser');
+                axios.post('/cas/login?service=' + this.$route.query.service, {
+                    username: this.username,
+                    password: this.password,
+                    securityPassword: this.securityPassword.length > 0 ? this.securityPassword : null,
+                    cas: this.cas ? 'true' : 'false',
+                }).then(response => {
+                    this.form_states.success = true;
 
-                        if (this.cas) {
-                            setTimeout(() => location.replace(response.data.location), 1250);
+                    if (response.data.token) {
+                        this.$store.commit('setToken', response.data.token);
+                    }
+
+                    if (this.cas) {
+                        setTimeout(() => location.replace(response.data.location), 1250);
+                    } else {
+                        if (this.$route.query.service) {
+                            setTimeout(() => this.$router.push(this.$route.query.service), 1250);
+                        }
+                    }
+
+                }).catch(e => {
+                    if (e.response.status === 409) {
+                        this.form_states.requireOtp = true;
+
+                        setTimeout(() => {
+                            this.$refs.txtOtpCode.focus();
+                        }, 200);
+                    } else if (e.response.status === 401) {
+                        let code = e.response.data.errorCode;
+
+                        if (code === 'USER_ACCOUNT_BLOCKED') {
+                            this.errorCode = 'Too many tries with wrong credentials. Try again later.';
                         } else {
-                            if (this.$route.query.service) {
-                                setTimeout(() => location.replace(this.$route.query.service), 1250);
-                            }
+                            this.errorCode = "Username or Password does not match.";
                         }
-                    }).catch(err => {
-                        // CATCH: OTP Required Error (HTTP 409)
-                        if (err.response && err.response.status === 409) {
-                            this.setStatus(this.ST.SECURITY_TOKEN_REQUIRED, this.ST.SECURITY_TOKEN_REQUIRED);
-
-                            if (err.response.data.message) {
-                                this.errorCode = err.response.data.message;
-                            }
-                        } else {
-                            throw err;
-                        }
-                    }).catch(err => {
-                        // CATCH: any other error
-                        if (err.response) {
-                            this.setStatus(this.ST.LOGIN_FAILED, this.ST.IDLE);
-                            this.errorCode = err.response.data.message ? err.response.data.message : err.toString();
-                        }
-                    });
-                }, 1250);
-            },
-            signOut() {
-                this.setStatus(this.ST.PROCESSING, this.ST.IDLE);
-                axios.get('/cas/logout').then(() => {
-                    this.username = '';
-                    this.password = '';
-                    this.securityPassword = '';
-                    this.setStatus(this.ST.IDLE, this.ST.IDLE);
-
-                    localStorage.removeItem('AuthyUser');
-                }).catch(() => {
-                    this.setStatus(this.ST.IDLE, this.ST.IDLE);
+                    }
+                }).finally(() => {
+                    this.form_states.isProcessing = false;
                 })
             }
+        },
+        mounted() {
+            this.isRemoteAuthenticated();
+            this.$refs.txtUsername.focus();
         }
     }
 </script>

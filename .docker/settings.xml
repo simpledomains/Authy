@@ -1,0 +1,52 @@
+<settings xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.1.0 http://maven.apache.org/xsd/settings-1.1.0.xsd"
+          xmlns="http://maven.apache.org/SETTINGS/1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <servers>
+        <server>
+            <id>r3ktm8-snapshots</id>
+            <username>${env.MAVEN_REPO_USER}</username>
+            <password>${env.MAVEN_REPO_PASS}</password>
+        </server>
+        <server>
+            <id>r3ktm8-releases</id>
+            <username>${env.MAVEN_REPO_USER}</username>
+            <password>${env.MAVEN_REPO_PASS}</password>
+        </server>
+    </servers>
+    <profiles>
+        <profile>
+            <id>r3ktm8</id>
+            <properties>
+                <argLine>-Xmx1024m -Duser.timezone=Europe/Berlin -Duser.country=DE -Duser.language=en</argLine>
+            </properties>
+            <repositories>
+                <repository>
+                    <id>r3ktm8-releases</id>
+                    <url>https://artifactory.r3ktm8.de/artifactory/libs-release-local</url>
+                    <releases>
+                        <enabled>true</enabled>
+                        <updatePolicy>daily</updatePolicy>
+                        <checksumPolicy>warn</checksumPolicy>
+                    </releases>
+                </repository>
+                <repository>
+                    <id>r3ktm8-snapshots</id>
+                    <url>https://artifactory.r3ktm8.de/artifactory/libs-snapshot-local</url>
+                    <snapshots>
+                        <enabled>true</enabled>
+                        <updatePolicy>always</updatePolicy>
+                    </snapshots>
+                </repository>
+            </repositories>
+            <pluginRepositories>
+                <pluginRepository>
+                    <id>r3ktm8-releases</id>
+                    <url>https://artifactory.r3ktm8.de/artifactory/libs-release-local</url>
+                </pluginRepository>
+            </pluginRepositories>
+        </profile>
+    </profiles>
+
+    <activeProfiles>
+        <activeProfile>r3ktm8</activeProfile>
+    </activeProfiles>
+</settings>
