@@ -4,8 +4,11 @@
             <v-container>
                 <v-row>
                     <v-col>
-
                         <v-card :loading="states.loadingUsers">
+                            <v-card-title>User Administration</v-card-title>
+                            <v-card-subtitle>
+                                You can modify, create and delete users here.
+                            </v-card-subtitle>
                             <v-data-table :headers="user_table.headers" :items="users" item-key="id" multi-sort>
                                 <template v-slot:item.flags="{ item }">
                                     <v-icon :color="getColorState(item.admin)" left>mdi-shield-lock-outline</v-icon>

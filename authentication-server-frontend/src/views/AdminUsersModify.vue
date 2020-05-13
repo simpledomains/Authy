@@ -36,6 +36,12 @@
                                                 label="Authorities"
                                                 chips small-chips
                                                 item-value="id" :loading="loadingUser">
+                                            <template v-slot:selection="{ item, index }">
+                                                <v-chip>
+                                                    <v-icon left>mdi-account</v-icon>
+                                                    {{ item.name }}
+                                                </v-chip>
+                                            </template>
                                         </v-select>
                                     </v-col>
                                     <v-col cols="12" md="3">

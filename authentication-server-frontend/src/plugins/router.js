@@ -8,6 +8,9 @@ import AdminUsersCreate from "../views/AdminUsersCreate";
 import AdminUsersModify from "../views/AdminUsersModify";
 import ProfileSecurity from "../views/ProfileSecurity";
 import AdminAuthority from "../views/AdminAuthority";
+import AdminServices from "../views/AdminServices";
+import AdminServicesCreate from "../views/AdminServicesCreate";
+import AdminServicesModify from "../views/AdminServicesModify";
 
 Vue.use(Router);
 
@@ -79,6 +82,27 @@ let router = new Router({
         {
             path: '/admin/authorities',
             component: AdminAuthority,
+            meta: {
+                admin: true
+            }
+        },
+        {
+            path: '/admin/services',
+            component: AdminServices,
+            meta: {
+                admin: true
+            }
+        },
+        {
+            path: '/admin/services/create',
+            component: AdminServicesCreate,
+            meta: {
+                admin: true
+            }
+        },
+        {
+            path: '/admin/service/:id',
+            component: AdminServicesModify,
             meta: {
                 admin: true
             }

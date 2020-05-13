@@ -54,7 +54,7 @@ public class AuthorizationRequiredInterceptor implements HandlerInterceptor {
             log.warn("{} {} from {} was denied", request.getMethod(), request.getRequestURI(), request.getRemoteAddr());
             response.sendError(401);
         } else {
-            log.info("{} {} from {} accepted.", request.getMethod(), request.getRequestURI(), request.getRemoteAddr());
+            log.debug("{} {} from {} accepted.", request.getMethod(), request.getRequestURI(), request.getRemoteAddr());
         }
 
         return isAllowed;

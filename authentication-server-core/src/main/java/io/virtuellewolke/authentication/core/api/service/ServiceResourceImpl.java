@@ -46,7 +46,9 @@ public class ServiceResourceImpl implements ServiceResource {
 
     @Override
     public ResponseEntity<Service> updateService(Integer id, UpdateServiceRequest request) {
-        return null;
+        Service service = serviceRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        serviceRepository.save(request.update(service));
+        return ResponseEntity.ok(service);
     }
 
     @Override

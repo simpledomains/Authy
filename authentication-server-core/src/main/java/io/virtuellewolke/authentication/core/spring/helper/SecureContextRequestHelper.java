@@ -13,7 +13,7 @@ public class SecureContextRequestHelper {
     }
 
     public static void setSecureContext(SecureContext secureContext, HttpServletRequest request) {
-        log.info("SecureContext was set to {} (source={})", secureContext.getIdentity(), secureContext.getSource());
+        log.debug("SecureContext was set to {} (source={})", secureContext.getIdentity(), secureContext.getSource());
         request.setAttribute(AuthyInterceptor.SECURE_CONTEXT, secureContext);
     }
 

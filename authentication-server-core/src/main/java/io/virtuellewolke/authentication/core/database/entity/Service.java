@@ -53,11 +53,6 @@ public class Service extends PartialUpdateableModel {
                 break;
         }
 
-        if (isAllowed)
-            log.info("Identity {} is allowed to access the service {}", identity, this);
-        else
-            log.warn("Identity {} is not allowed to access the service {}", identity, this);
-
         return isAllowed;
     }
 
