@@ -16,22 +16,22 @@ import java.util.List;
 @Tag(name = "Authy - User Resource")
 public interface UserResource {
     @AdminResource
-    @RequestMapping(path = "/users", method = RequestMethod.GET)
+    @RequestMapping(path = "/identities", method = RequestMethod.GET)
     ResponseEntity<List<Identity>> listUsers();
 
     @AdminResource
-    @RequestMapping(path = "/users", method = RequestMethod.POST)
+    @RequestMapping(path = "/identities", method = RequestMethod.POST)
     ResponseEntity<Identity> createUser(@RequestBody Identity identity);
 
     @AdminResource
-    @RequestMapping(path = "/user/{id}", method = RequestMethod.PATCH)
+    @RequestMapping(path = "/identity/{id}", method = RequestMethod.PATCH)
     ResponseEntity<Identity> updateUser(@PathVariable("id") Integer id, @RequestBody UpdateUserRequest request);
 
     @AdminResource
-    @RequestMapping(path = "/user/{id}", method = RequestMethod.DELETE)
+    @RequestMapping(path = "/identity/{id}", method = RequestMethod.DELETE)
     void deleteUser(@PathVariable("id") Integer id);
 
     @AdminResource
-    @RequestMapping(path = "/user/{id}", method = RequestMethod.GET)
+    @RequestMapping(path = "/identity/{id}", method = RequestMethod.GET)
     ResponseEntity<Identity> getUser(@PathVariable("id") Integer id);
 }

@@ -7,6 +7,7 @@ import AdminUsers from "../views/AdminUsers";
 import AdminUsersCreate from "../views/AdminUsersCreate";
 import AdminUsersModify from "../views/AdminUsersModify";
 import ProfileSecurity from "../views/ProfileSecurity";
+import AdminAuthority from "../views/AdminAuthority";
 
 Vue.use(Router);
 
@@ -74,7 +75,14 @@ let router = new Router({
             meta: {
                 admin: true
             }
-        }
+        },
+        {
+            path: '/admin/authorities',
+            component: AdminAuthority,
+            meta: {
+                admin: true
+            }
+        },
     ]
 });
 

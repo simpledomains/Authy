@@ -14,4 +14,6 @@ public interface IdentityRepository extends CrudRepository<Identity, Integer> {
     List<Identity> findByAdmin(boolean isAdmin);
 
     List<Identity> findAll();
+
+    List<Identity> findAllByAuthoritiesId(Integer id);
 }

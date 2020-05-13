@@ -3,6 +3,7 @@ package io.virtuellewolke.authentication.core.api.service;
 import io.virtuellewolke.authentication.core.api.model.UpdateAuthorityRequest;
 import io.virtuellewolke.authentication.core.database.entity.Authority;
 import io.virtuellewolke.authentication.core.database.repository.AuthorityRepository;
+import io.virtuellewolke.authentication.core.database.repository.IdentityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +16,7 @@ import java.util.List;
 public class AuthorityResourceImpl implements AuthorityResource {
 
     private final AuthorityRepository authorityRepository;
+    private final IdentityRepository  identityRepository;
 
     @Override
     public ResponseEntity<List<Authority>> listAuthority() {
@@ -37,6 +39,12 @@ public class AuthorityResourceImpl implements AuthorityResource {
 
     @Override
     public void deleteAuthority(Integer id) {
+
+        identityRepository.findAllByAuthoritiesId(id).forEach(identity -> {
+            identity.getAuthorities().removeIf(authority -> authority.getId().equals(id));
+            identityRepository.save(identity);
+        });
+
         authorityRepository.deleteById(id);
     }
 

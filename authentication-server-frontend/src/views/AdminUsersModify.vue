@@ -11,19 +11,20 @@
                                 <v-row>
                                     <v-col cols="12" md="6">
                                         <v-text-field label="Username" type="text" v-model="username"
-                                                      prepend-icon="mdi-form-textbox"/>
+                                                      prepend-icon="mdi-form-textbox" :loading="loadingUser"
+                                                      :disabled="currentUserId === id"/>
                                     </v-col>
                                     <v-col cols="12" md="6">
                                         <v-text-field label="Display Name" type="text" v-model="displayName"
-                                                      prepend-icon="mdi-form-textbox"/>
+                                                      prepend-icon="mdi-form-textbox" :loading="loadingUser"/>
                                     </v-col>
                                     <v-col cols="12" md="6">
                                         <v-text-field label="Password" type="password" v-model="password"
-                                                      prepend-icon="mdi-key"/>
+                                                      prepend-icon="mdi-key" :loading="loadingUser"/>
                                     </v-col>
                                     <v-col cols="12" md="6">
                                         <v-text-field label="E-Mail" type="email" v-model="email"
-                                                      prepend-icon="mdi-at"/>
+                                                      prepend-icon="mdi-at" :loading="loadingUser"/>
                                     </v-col>
                                     <v-col cols="12" md="6">
                                         <v-select
@@ -34,21 +35,23 @@
                                                 item-text="name"
                                                 label="Authorities"
                                                 chips small-chips
-                                                item-value="id">
+                                                item-value="id" :loading="loadingUser">
                                         </v-select>
                                     </v-col>
                                     <v-col cols="12" md="3">
                                         <v-checkbox label="Authy Admin?" prepend-icon="mdi-shield-lock-outline"
-                                                    v-model="admin"/>
+                                                    v-model="admin" :loading="loadingUser"
+                                                    :disabled="currentUserId === id"/>
                                     </v-col>
                                     <v-col cols="12" md="3">
                                         <v-checkbox label="Locked?" prepend-icon="mdi-lock-alert"
-                                                    v-model="locked"/>
+                                                    v-model="locked" :loading="loadingUser"
+                                                    :disabled="currentUserId === id"/>
                                     </v-col>
                                 </v-row>
                             </v-card-text>
                             <v-card-actions>
-                                <v-btn small color="success" dark @click="patchUser">
+                                <v-btn small color="success" dark @click="patchUser" :disabled="loadingUser">
                                     <v-icon left>mdi-content-save</v-icon>
                                     Save
                                 </v-btn>
@@ -57,6 +60,20 @@
                                     Abort
                                 </v-btn>
                             </v-card-actions>
+                        </v-card>
+                    </v-col>
+                </v-row>
+                <v-row>
+                    <v-col cols="12" class="d-none d-lg-block">
+                        <v-card>
+                            <v-card-title>Services the user has access to</v-card-title>
+                            <v-data-table :headers="serviceDataTableHeaders"
+                                          :items="allowedServices"
+                                          disable-sort
+                                          disable-pagination
+                                          disable-filtering
+                                          hide-default-footer>
+                            </v-data-table>
                         </v-card>
                     </v-col>
                 </v-row>
@@ -71,8 +88,14 @@
 
     export default {
         components: {VAuthApp},
+        computed: {
+            currentUserId() {
+                return this.$store.state.uid;
+            }
+        },
         data: () => ({
             roles: [],
+            allowedServices: [],
 
             id: null,
             username: '',
@@ -84,6 +107,13 @@
             locked: false,
 
             loadingUser: true,
+
+            serviceDataTableHeaders: [
+                {text: 'Service Name', value: 'name'},
+                {text: 'Mode', value: 'mode'},
+                {text: 'Service URIs', value: 'allowedUrls'},
+                {text: 'Required Roles', value: 'requiredRoles'},
+            ]
         }),
         methods: {
             fetchRoles() {
@@ -91,8 +121,15 @@
                     this.roles = r.data;
                 })
             },
+            fetchAllowedServices() {
+                axios.get('/api/identity/' + this.$route.params.id + '/services').then(r => {
+                    this.allowedServices = r.data;
+                })
+            },
             fetchUser() {
-                axios.get('/api/user/' + this.$route.params.id).then(r => {
+                this.loadingUser = true;
+
+                axios.get('/api/identity/' + this.$route.params.id).then(r => {
                     this.id = r.data.id;
                     this.username = r.data.username;
                     this.displayName = r.data.displayName;
@@ -104,6 +141,8 @@
                     r.data.authorities.forEach(value => this.userRoles.push(value.id));
 
                     this.loadingUser = false;
+
+                    this.fetchAllowedServices();
                 }).catch(() => {
                     sw.fire({
                         type: 'error',
@@ -141,9 +180,9 @@
                 model.locked = this.locked;
 
 
-                axios.patch('/api/user/' + this.id, {data: model}).then(() => {
-                    this.resetForm();
-                    this.$router.push('/admin/users');
+                axios.patch('/api/identity/' + this.id, {data: model}).then(() => {
+                    this.fetchRoles();
+                    this.fetchUser();
                 }).catch(() => {
                     sw.fire({
                         type: 'error',

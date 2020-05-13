@@ -28,7 +28,7 @@
                                     :error-messages="errorCode"
                                     @keydown.enter="auth"
                                     v-model="password" type="password"
-                                    prepend-icon="mdi-textbox-password"
+                                    prepend-icon="mdi-key"
                                     label="Password">
                             </v-text-field>
                             <v-expand-transition>
@@ -148,7 +148,7 @@
                         let code = e.response.data.errorCode;
 
                         if (code === 'USER_ACCOUNT_BLOCKED') {
-                            this.errorCode = 'Too many tries with wrong credentials. Try again later.';
+                            this.errorCode = 'The request was blocked due to a security policy. (ERR_USER_ACCOUNT_BLOCKED)';
                         } else {
                             this.errorCode = "Username or Password does not match.";
                         }
