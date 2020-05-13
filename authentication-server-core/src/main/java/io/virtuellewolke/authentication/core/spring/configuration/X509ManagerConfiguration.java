@@ -24,4 +24,9 @@ public class X509ManagerConfiguration {
 
     private String organisation = "Authentication Server";
     private String countryCode  = "DE";
+
+    public Boolean getEnabled() {
+        if (caPublicKey.exists() && caPrivateKey.exists()) { return enabled; }
+        return false;
+    }
 }

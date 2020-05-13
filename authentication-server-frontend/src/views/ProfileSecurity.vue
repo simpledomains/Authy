@@ -12,11 +12,40 @@
                             </v-card-subtitle>
                             <v-divider/>
 
-                            <v-card-title>mTLS Settings</v-card-title>
-                            <v-data-table
-                                    :loading="certificatesFetching"
-                                    :items="certificates"
-                                    :headers="certificateTableHeaders">
+                            <!-- SECTION: PASSWORD -->
+                            <v-card-subtitle>
+                                Password Settings
+                            </v-card-subtitle>
+                            <v-card-text>
+                                <v-btn small outlined color="orange" @click="changePassword">
+                                    <v-icon left>mdi-key-change</v-icon>
+                                    Change my Password
+                                </v-btn>
+                            </v-card-text>
+                            <v-divider/>
+                            <!-- END SECTION: PASSWORD -->
+
+                            <!-- SECTION: 2FA -->
+                            <v-card-subtitle>2FA Settings</v-card-subtitle>
+                            <v-card-text>
+                                <v-btn v-if="otpEnabled" color="error" dark small @click="disableTwoFactor">
+                                    <v-icon left>mdi-delete-empty-outline</v-icon>
+                                    Disable 2FA
+                                </v-btn>
+                                <v-btn v-else color="secondary" dark small @click="enableTwoFactor">
+                                    <v-icon left>mdi-sticker-check-outline</v-icon>
+                                    Enable 2FA
+                                </v-btn>
+                            </v-card-text>
+                            <v-divider/>
+                            <!-- END SECTION: 2FA -->
+
+                            <!-- SECTION: mTLS -->
+                            <v-card-subtitle v-if="isTLSEnabled">mTLS Settings</v-card-subtitle>
+                            <v-data-table v-if="isTLSEnabled"
+                                          :loading="certificatesFetching"
+                                          :items="certificates"
+                                          :headers="certificateTableHeaders">
                                 <template v-slot:item.name="{ item }">
                                     <i>{{ item.name }}</i>
                                 </template>
@@ -48,35 +77,39 @@
                                     </v-btn>
                                 </template>
                             </v-data-table>
-
-                            <v-card-actions>
-                                <v-btn color="success" :loading="certificatesFetching" dark small
+                            <v-card-actions v-if="isTLSEnabled">
+                                <v-btn color="secondary" :loading="certificatesFetching" dark small
                                        @click="fetchCertificates">
                                     <v-icon left>mdi-table-refresh</v-icon>
                                     Refresh
                                 </v-btn>
-                                <v-btn color="success" :loading="certificatesFetching" dark small
+                                <v-btn color="secondary" :loading="certificatesFetching" dark small
                                        @click="issueCertificate">
                                     <v-icon left>mdi-certificate</v-icon>
                                     Issue new X509 certificate
                                 </v-btn>
                             </v-card-actions>
+                            <v-divider v-if="isTLSEnabled"/>
+                            <!-- END SECTION: mTLS -->
+
+                            <!-- SECTION: API KEY -->
+                            <v-card-subtitle>
+                                API Token
+                            </v-card-subtitle>
+                            <v-card-text>
+                                <v-text-field
+                                        prepend-icon="mdi-refresh"
+                                        append-icon="mdi-delete-empty-outline"
+                                        v-model="apiToken"
+                                        readonly
+                                        :hint="apiToken.length > 0 ? 'Copy the token to a secure place, it wont be displayed again.' : ''"
+                                        @click:append="revokeAPIToken"
+                                        @click:prepend="requestAPIToken">
+                                </v-text-field>
+                            </v-card-text>
+                            <!-- END SECTION: API KEY -->
 
                             <v-divider/>
-                            <v-card-title>2FA Settings</v-card-title>
-                            <v-card-text v-if="otpEnabled">
-                                <v-btn color="error" dark small @click="disableTwoFactor">
-                                    Disable
-                                    <v-icon>mdi-two-factor-authentication</v-icon>
-                                </v-btn>
-                            </v-card-text>
-                            <v-card-text v-if="!otpEnabled">
-                                <v-btn color="success" dark small @click="enableTwoFactor">
-                                    Enable
-                                    <v-icon>mdi-two-factor-authentication</v-icon>
-                                </v-btn>
-                            </v-card-text>
-
                             <v-card-actions>
                                 <v-btn color="orange" to="/" small dark elevation="4">
                                     <v-icon left>mdi-arrow-left</v-icon>
@@ -103,6 +136,15 @@
         computed: {
             currentUsername() {
                 return this.$store.state.username;
+            },
+            isTLSEnabled() {
+                let isEnabled = localStorage.getItem('mTLSEnabled');
+
+                if (isEnabled == null) {
+                    return this.serverInfo.mTLSEnabled;
+                } else {
+                    return isEnabled === 'true';
+                }
             }
         },
         data: () => ({
@@ -117,9 +159,15 @@
                 {text: 'Actions', value: 'actions'},
             ],
 
-            otpEnabled: false,
-
             certificatesFetching: false,
+
+            serverInfo: {
+                mTLSEnabled: false,
+            },
+
+            apiToken: '',
+
+            otpEnabled: false,
         }),
         methods: {
             revokeCertificate(serial) {
@@ -141,6 +189,13 @@
             formatDate(date) {
                 return moment(date, "YYYY-MM-DD[T]hh:mm:ss").format('LLL');
             },
+            fetchServerInfo() {
+                axios.get('/api/ui/info').then(r => {
+                    this.serverInfo.mTLSEnabled = r.data.mTLSEnabled;
+
+                    localStorage.setItem('mTLSEnabled', r.data.mTLSEnabled ? 'true' : 'false');
+                })
+            },
             issueCertificate() {
                 sw.fire({
                     title: 'X509 Certificate Name',
@@ -155,6 +210,12 @@
                             responseType: 'blob'
                         }).then(r => {
                             FileSaver.saveAs(new Blob([r.data]), this.currentUsername + ".pfx");
+                        }).catch(() => {
+                            sw.fire({
+                                type: 'error',
+                                title: 'Error',
+                                html: 'Failed to issue new certificate.<br/>If this issue persist, contact a system administrator.'
+                            })
                         }).finally(() => {
                             this.fetchCertificates();
                         })
@@ -194,11 +255,72 @@
                     })
                 });
             },
+            changePassword() {
+                sw.fire({
+                    title: 'New Password',
+                    input: 'password',
+                    inputValidator(inputValue) {
+                        if (inputValue.length < 8) return 'Password is not secure enough!';
+                    },
+                    showCancelButton: true,
+                }).then(r => {
+                    if (r.value) {
+                        let password = r.value;
 
+                        sw.fire({
+                            title: 'New password verification',
+                            input: 'password',
+                            inputValidator(inputValue) {
+                                if (inputValue !== password) return 'Passwords do not match!';
+                            },
+                            showCancelButton: true,
+                        }).then(() => {
+                            axios.patch('/api/session/me', {
+                                password: password
+                            }).then(() => {
+                                sw.fire({
+                                    type: 'success',
+                                    title: 'Done!',
+                                    html: 'Password has been changed.'
+                                });
+                            }).catch(() => {
+                                sw.fire({
+                                    type: 'error',
+                                    title: 'Failed to update field password',
+                                    html: 'If this issue persist, contact a admin about this.'
+                                });
+                            })
+                        })
+                    }
+                })
+            },
+            requestAPIToken() {
+                axios.post('/api/session/me/api-token').then(r => {
+                    this.apiToken = r.data;
+                }).catch(() => {
+                    sw.fire({
+                        type: 'error',
+                        title: 'Error',
+                        html: 'Failed to delete api token.<br/>If this issue persist, contact a system admin.'
+                    })
+                })
+            },
+            revokeAPIToken() {
+                axios.delete('/api/session/me/api-token').then(() => {
+                    this.apiToken = '';
+                }).catch(() => {
+                    sw.fire({
+                        type: 'error',
+                        title: 'Error',
+                        html: 'Failed to delete api token.<br/>If this issue persist, contact a system admin.'
+                    })
+                })
+            },
         },
         mounted() {
             this.fetchProfile();
             this.fetchCertificates();
+            this.fetchServerInfo();
         }
     }
 </script>

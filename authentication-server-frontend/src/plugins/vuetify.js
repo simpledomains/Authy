@@ -19,7 +19,7 @@ export default new Vuetify({
                 'service-card-urls': colors.blue.darken3,
                 primary: '#1A237E',
                 accent: '#FF4081',
-                secondary: '#ffe18d',
+                secondary: '#06137e',
                 success: '#469349',
                 info: '#2196F3',
                 warning: '#FB8C00',
