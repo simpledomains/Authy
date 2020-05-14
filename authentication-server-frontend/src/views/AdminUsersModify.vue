@@ -37,8 +37,7 @@
                                                 chips small-chips
                                                 item-value="id" :loading="loadingUser">
                                             <template v-slot:selection="{ item, index }">
-                                                <v-chip>
-                                                    <v-icon left>mdi-account</v-icon>
+                                                <v-chip small color="success" outlined>
                                                     {{ item.name }}
                                                 </v-chip>
                                             </template>

@@ -19,6 +19,7 @@ public class AuthFailedResponse {
         INVALID_TICKET,
         INVALID_SERVICE,
         INTERNAL_ERROR,
+        AUTHORIZATION_DENIED,
     }
 
     @JacksonXmlProperty(isAttribute = true, localName = "code")

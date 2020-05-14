@@ -1,8 +1,8 @@
 package io.virtuellewolke.authentication.core.api.service;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import io.virtuellewolke.authentication.core.api.model.LoginRequest;
 import io.virtuellewolke.authentication.core.api.model.LoginResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import io.virtuellewolke.authentication.core.api.model.cas.AuthResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.net.URI;
 
 @Tag(name = "Authy - CAS Endpoint")
@@ -43,6 +44,10 @@ public interface CASResource {
     }
 
     @CrossOrigin
-    @RequestMapping(value = "/logout", method = RequestMethod.DELETE, produces = "application/json")
-    ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response);
+    @RequestMapping(value = "/logout", method = {RequestMethod.DELETE}, produces = "application/json")
+    ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) throws IOException;
+
+    @CrossOrigin
+    @RequestMapping(value = "/logout", method = {RequestMethod.GET}, produces = "application/json")
+    ResponseEntity<Void> getLogoutPage(HttpServletRequest request, HttpServletResponse response) throws IOException;
 }

@@ -1,28 +1,28 @@
 package io.virtuellewolke.authentication.core.api.service;
 
 import io.virtuellewolke.authentication.core.api.Constants;
+import io.virtuellewolke.authentication.core.api.LoginFailedException;
 import io.virtuellewolke.authentication.core.api.model.LoginRequest;
 import io.virtuellewolke.authentication.core.api.model.LoginResponse;
-import io.virtuellewolke.authentication.core.cas.TicketType;
-import io.virtuellewolke.authentication.core.exceptions.AccessDeniedException;
-import io.virtuellewolke.authentication.core.exceptions.SecurityTokenExpiredException;
-import io.virtuellewolke.authentication.core.util.validation.Md5PasswordValidator;
-import io.virtuellewolke.authentication.core.util.validation.OneTimePasswordValidator;
-import io.virtuellewolke.authentication.core.api.LoginFailedException;
 import io.virtuellewolke.authentication.core.api.model.cas.AuthFailedResponse;
 import io.virtuellewolke.authentication.core.api.model.cas.AuthResponse;
 import io.virtuellewolke.authentication.core.api.model.cas.AuthSuccessResponse;
 import io.virtuellewolke.authentication.core.cas.TicketManager;
+import io.virtuellewolke.authentication.core.cas.TicketType;
 import io.virtuellewolke.authentication.core.cas.model.Ticket;
 import io.virtuellewolke.authentication.core.database.entity.Identity;
 import io.virtuellewolke.authentication.core.database.entity.Service;
 import io.virtuellewolke.authentication.core.database.repository.IdentityRepository;
+import io.virtuellewolke.authentication.core.exceptions.AccessDeniedException;
+import io.virtuellewolke.authentication.core.exceptions.SecurityTokenExpiredException;
 import io.virtuellewolke.authentication.core.spring.components.JwtProcessor;
 import io.virtuellewolke.authentication.core.spring.components.LoginSecurity;
 import io.virtuellewolke.authentication.core.spring.components.ServiceValidation;
 import io.virtuellewolke.authentication.core.spring.configuration.CasConfiguration;
 import io.virtuellewolke.authentication.core.spring.helper.SecureContextRequestHelper;
 import io.virtuellewolke.authentication.core.spring.security.SecureContext;
+import io.virtuellewolke.authentication.core.util.validation.Md5PasswordValidator;
+import io.virtuellewolke.authentication.core.util.validation.OneTimePasswordValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.net.URI;
 
 @Slf4j
@@ -145,11 +146,15 @@ public class CASResourceImpl implements CASResource {
             Identity identity = ctx.getIdentity();
             Service  service  = serviceValidation.getRegisteredServiceFor(serviceUrl);
 
-            if (service != null && service.isIdentityAllowed(identity) && service.getEnabled()) {
-                String redirectUrl = getRedirectLogin(serviceUrl, identity);
-                return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT)
-                        .header("Location", redirectUrl)
-                        .body(LoginResponse.builder().location(redirectUrl).message("OK").build());
+            if (service != null && service.getEnabled()) {
+                if (service.isIdentityAllowed(identity)) {
+                    String redirectUrl = getRedirectLogin(serviceUrl, identity);
+                    return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT)
+                            .header("Location", redirectUrl)
+                            .body(LoginResponse.builder().location(redirectUrl).message("OK").build());
+                } else {
+                    return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(URI.create("/#/error?code=" + AuthFailedResponse.ErrorCode.AUTHORIZATION_DENIED + "&service=" + serviceUrl)).build();
+                }
             }
         }
 
@@ -171,10 +176,16 @@ public class CASResourceImpl implements CASResource {
         Cookie cookie = new Cookie(Constants.COOKIE_NAME, "");
         cookie.setMaxAge(1);
         cookie.setPath(configuration.getCookiePath());
-        if (configuration.getCookieDomain() != null)
-            cookie.setDomain(configuration.getCookieDomain());
+        if (configuration.getCookieDomain() != null) { cookie.setDomain(configuration.getCookieDomain()); }
+
         response.addCookie(cookie);
+
         return ResponseEntity.ok().build();
+    }
+
+    @Override
+    public ResponseEntity<Void> getLogoutPage(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(URI.create("/#/logout")).build();
     }
 
     @ExceptionHandler(LoginFailedException.class)
@@ -202,8 +213,7 @@ public class CASResourceImpl implements CASResource {
         cookie.setPath(configuration.getCookiePath());
         cookie.setComment("Authy CAS Token");
 
-        if (configuration.getCookieDomain() != null)
-            cookie.setDomain(configuration.getCookieDomain());
+        if (configuration.getCookieDomain() != null) { cookie.setDomain(configuration.getCookieDomain()); }
 
         response.addCookie(cookie);
 

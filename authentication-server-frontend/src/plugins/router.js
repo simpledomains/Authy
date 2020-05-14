@@ -11,6 +11,7 @@ import AdminAuthority from "../views/AdminAuthority";
 import AdminServices from "../views/AdminServices";
 import AdminServicesCreate from "../views/AdminServicesCreate";
 import AdminServicesModify from "../views/AdminServicesModify";
+import ErrorPage from "../views/ErrorPage";
 
 Vue.use(Router);
 
@@ -23,6 +24,11 @@ let router = new Router({
             meta: {
                 authenticated: true,
             }
+        },
+        {
+            path: '/error',
+            name: 'ErrorPage',
+            component: ErrorPage,
         },
         {
             path: '/profile/security',

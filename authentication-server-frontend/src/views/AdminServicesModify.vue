@@ -48,7 +48,7 @@
                                     </v-col>
                                     <v-col cols="12" md="6">
                                         <v-checkbox label="Enabled?" prepend-icon="mdi-check-circle-outline"
-                                                    v-model="enabled"/>
+                                                    v-model="enabled" :disabled="id===1"/>
                                     </v-col>
                                 </v-row>
                             </v-card-text>

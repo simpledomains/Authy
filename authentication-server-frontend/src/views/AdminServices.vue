@@ -19,7 +19,8 @@
                                     <v-btn icon small color="orange" :to="'/admin/service/' + item.id">
                                         <v-icon>mdi-pencil</v-icon>
                                     </v-btn>
-                                    <v-btn icon small color="error" @click="deleteService(item)">
+                                    <v-btn icon small color="error" @click="deleteService(item)"
+                                           :disabled="item.id===1">
                                         <v-icon>mdi-delete-empty-outline</v-icon>
                                     </v-btn>
                                 </template>
