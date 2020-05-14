@@ -2,8 +2,10 @@ package io.virtuellewolke.authentication.core.api.service;
 
 import io.virtuellewolke.authentication.core.api.model.UpdateAuthorityRequest;
 import io.virtuellewolke.authentication.core.database.entity.Authority;
+import io.virtuellewolke.authentication.core.database.entity.Service;
 import io.virtuellewolke.authentication.core.database.repository.AuthorityRepository;
 import io.virtuellewolke.authentication.core.database.repository.IdentityRepository;
+import io.virtuellewolke.authentication.core.database.repository.ServiceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,6 +19,7 @@ public class AuthorityResourceImpl implements AuthorityResource {
 
     private final AuthorityRepository authorityRepository;
     private final IdentityRepository  identityRepository;
+    private final ServiceRepository   serviceRepository;
 
     @Override
     public ResponseEntity<List<Authority>> listAuthority() {
@@ -39,10 +42,21 @@ public class AuthorityResourceImpl implements AuthorityResource {
 
     @Override
     public void deleteAuthority(Integer id) {
+        Authority authority = authorityRepository.findById(id).orElseThrow(EntityNotFoundException::new);
 
         identityRepository.findAllByAuthoritiesId(id).forEach(identity -> {
-            identity.getAuthorities().removeIf(authority -> authority.getId().equals(id));
+            identity.getAuthorities().removeIf(a -> a.getId().equals(id));
             identityRepository.save(identity);
+        });
+
+        serviceRepository.findAll().forEach(service -> {
+            if (service.getRequiredRoles().contains(authority.getName())) {
+                service.getRequiredRoles().removeIf(s -> s.equalsIgnoreCase(authority.getName()));
+                if (service.getRequiredRoles().size() == 0 && service.getMode() == Service.ServiceMode.AUTHORIZED) {
+                    service.setMode(Service.ServiceMode.PUBLIC);
+                }
+                serviceRepository.save(service);
+            }
         });
 
         authorityRepository.deleteById(id);
