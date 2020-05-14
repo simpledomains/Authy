@@ -7,6 +7,7 @@ import io.virtuellewolke.authentication.core.api.model.LoginResponse;
 import io.virtuellewolke.authentication.core.api.model.cas.AuthFailedResponse;
 import io.virtuellewolke.authentication.core.api.model.cas.AuthResponse;
 import io.virtuellewolke.authentication.core.api.model.cas.AuthSuccessResponse;
+import io.virtuellewolke.authentication.core.cas.StatusCode;
 import io.virtuellewolke.authentication.core.cas.TicketManager;
 import io.virtuellewolke.authentication.core.cas.TicketType;
 import io.virtuellewolke.authentication.core.cas.model.Ticket;
@@ -153,7 +154,7 @@ public class CASResourceImpl implements CASResource {
                             .header("Location", redirectUrl)
                             .body(LoginResponse.builder().location(redirectUrl).message("OK").build());
                 } else {
-                    return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(URI.create("/#/error?code=" + AuthFailedResponse.ErrorCode.AUTHORIZATION_DENIED + "&service=" + serviceUrl)).build();
+                    return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(URI.create("/#/error?code=" + StatusCode.DENIED + "&service=" + serviceUrl)).build();
                 }
             }
         }
@@ -161,7 +162,7 @@ public class CASResourceImpl implements CASResource {
         Service service = serviceValidation.getRegisteredServiceFor(serviceUrl);
 
         if (service == null || !service.getEnabled()) {
-            return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(URI.create("/#/error?code=" + AuthFailedResponse.ErrorCode.INVALID_SERVICE + "&service=" + serviceUrl)).build();
+            return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(URI.create("/#/error?code=" + StatusCode.INVALID_SERVICE + "&service=" + serviceUrl)).build();
         }
 
         if (serviceUrl.equals("/")) {
