@@ -48,7 +48,18 @@
                     </v-list-item-content>
                 </v-list-item>
 
-                <v-list-item link to="/admin/routes">
+                <v-list-item link to="/admin/authorities">
+                    <v-list-item-icon>
+                        <v-icon small>mdi-account-group-outline</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-content>
+                        <v-list-item-title>
+                            Authority Management
+                        </v-list-item-title>
+                    </v-list-item-content>
+                </v-list-item>
+
+                <v-list-item link to="/admin/services">
                     <v-list-item-icon>
                         <v-icon small>fas fa-globe</v-icon>
                     </v-list-item-icon>

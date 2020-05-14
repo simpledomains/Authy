@@ -39,19 +39,6 @@
                                                 label="Display name"
                                                 icon="mdi-form-textbox"/>
                                     </v-col>
-                                    <v-col cols="12" md="3">
-                                        <v-text-field type="password" v-model="password"
-                                                      label="Password (fill to change)"
-                                                      prepend-icon="mdi-key" @keydown.enter="changePassword"
-                                                      :error="!!passwordError"
-                                                      :error-messages="passwordError"/>
-                                    </v-col>
-                                    <v-col cols="12" md="3">
-                                        <v-text-field type="password" v-model="password2" label="Repeat password"
-                                                      prepend-icon="mdi-key" @keydown.enter="changePassword"
-                                                      :error="!!passwordError"
-                                                      :error-messages="passwordError"/>
-                                    </v-col>
                                     <v-col cols="12" md="6">
                                         <v-update-text-field
                                                 type="text"
@@ -62,12 +49,9 @@
                                     </v-col>
                                 </v-row>
                             </v-card-text>
+
+                            <v-divider/>
                             <v-card-actions>
-                                <v-btn small color="error" v-if="password.length > 0">
-                                    <v-icon left>mdi-content-save</v-icon>
-                                    Change password *
-                                </v-btn>
-                                <v-spacer/>
                                 <v-btn small color="orange" dark to="/profile/security" elevation="4">
                                     <v-icon left>mdi-arrow-right</v-icon>
                                     Security
@@ -98,28 +82,10 @@
             fetchingProfile: true,
 
             username: '',
-            password: '',
-            password2: '',
             email: '',
             displayName: '',
-
-            passwordError: '',
         }),
         methods: {
-            changePassword() {
-                this.passwordError = '';
-
-                if (this.password.length >= 8 && this.password === this.password2) {
-                    axios.patch('/api/session/me', {
-                        password: this.password,
-                    }).then(() => {
-                        this.password = '';
-                        this.password2 = '';
-                    })
-                } else {
-                    this.passwordError = 'Password is not strong enough or do not match.';
-                }
-            },
             fetchProfile() {
                 axios.get('/api/session/me').then(r => {
                     this.username = r.data.username;

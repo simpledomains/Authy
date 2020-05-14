@@ -4,8 +4,11 @@
             <v-container>
                 <v-row>
                     <v-col>
-
                         <v-card :loading="states.loadingUsers">
+                            <v-card-title>User Administration</v-card-title>
+                            <v-card-subtitle>
+                                You can modify, create and delete users here.
+                            </v-card-subtitle>
                             <v-data-table :headers="user_table.headers" :items="users" item-key="id" multi-sort>
                                 <template v-slot:item.flags="{ item }">
                                     <v-icon :color="getColorState(item.admin)" left>mdi-shield-lock-outline</v-icon>
@@ -13,7 +16,7 @@
                                     <v-icon :color="getColorState(item.otpEnabled)" left>mdi-cellphone-key</v-icon>
                                 </template>
                                 <template v-slot:item.actions="{ item }">
-                                    <v-btn :disabled="currentUserId === item.id" icon small
+                                    <v-btn icon small
                                            :to="'/admin/user/' + item.id">
                                         <v-icon color="gray">mdi-lead-pencil</v-icon>
                                     </v-btn>
@@ -76,7 +79,7 @@
             fetchUsers() {
                 this.states.loadingUsers = true;
 
-                axios.get("/api/users").then(r => {
+                axios.get("/api/identities").then(r => {
                     this.users = r.data;
                 }).catch(e => {
                     alert(e.response.data);
@@ -96,7 +99,7 @@
                     showConfirmButton: true
                 }).then(r => {
                     if (r.value) {
-                        axios.patch('/api/user/' + userId, {
+                        axios.patch('/api/identity/' + userId, {
                             data: {
                                 otpSecret: null
                             }
@@ -118,7 +121,7 @@
                     showConfirmButton: true
                 }).then(r => {
                     if (r.value) {
-                        axios.delete('/api/user/' + userId).then(() => {
+                        axios.delete('/api/identity/' + userId).then(() => {
                             sw.fire('User removed.').then(() => this.fetchUsers());
                         }).catch(() => {
                             sw.fire({

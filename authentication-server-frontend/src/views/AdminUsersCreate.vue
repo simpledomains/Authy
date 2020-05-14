@@ -101,7 +101,7 @@
 
                 this.userRoles.forEach(value => roles.push({id: value}));
 
-                axios.post('/api/users', {
+                axios.post('/api/identities', {
                     username: this.username,
                     password: this.password,
                     email: this.email,
