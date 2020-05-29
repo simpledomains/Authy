@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -16,6 +17,8 @@ public class LoginSecurity {
     private final Integer            MAX_ATTEMPTS        = 3;
     private final Integer            RETRY_AFTER_MINUTES = 60;
     private final List<LoginAttempt> attempts            = new ArrayList<>();
+
+    private final String[] WHITELIST = new String[]{"0:0:0:0:0:0:0:1", "127.0.0.1"};
 
     private static class LoginAttempt {
         private int           count = 1;
@@ -36,6 +39,8 @@ public class LoginSecurity {
 
     public void recordFailedAttempt(String source) {
         LoginAttempt attempt = attempts.stream().filter(loginAttempt -> Objects.equals(loginAttempt.source, source)).findFirst().orElse(null);
+
+        if (Arrays.asList(WHITELIST).contains(source)) return;
 
         if (attempt != null) {
             attempt.count         = attempt.count + 1;

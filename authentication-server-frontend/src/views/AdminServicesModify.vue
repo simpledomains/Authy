@@ -109,9 +109,9 @@
                 this.isFetchingServices = true;
 
                 axios.get('/api/service/' + this.$route.params.id).then(r => {
-                    this.mode = r.data.mode;
                     this.id = r.data.id;
                     this.requiredRoles = r.data.requiredRoles;
+                    this.mode = r.data.mode;
                     this.allowedUrls = r.data.allowedUrls;
                     this.enabled = r.data.enabled;
                     this.name = r.data.name;
@@ -144,7 +144,7 @@
             requiredRoles: function (newValue) {
                 if (newValue.length > 0)
                     this.mode = 'AUTHORIZED';
-                else
+                else if (this.mode === 'AUTHORIZED')
                     this.mode = 'PUBLIC';
             }
         }

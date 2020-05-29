@@ -13,5 +13,5 @@ public class LoginRequest {
     private String  password;
     private String  securityPassword;
     @JsonAlias("cas")
-    private Boolean cas;
+    private Boolean cas = true;
 }

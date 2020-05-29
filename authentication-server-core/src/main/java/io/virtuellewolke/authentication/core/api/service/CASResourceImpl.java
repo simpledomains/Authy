@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Base64;
 
 @Slf4j
 @RestController
@@ -130,9 +131,9 @@ public class CASResourceImpl implements CASResource {
 
         return ResponseEntity.ok()
                 .body(LoginResponse.builder()
-                        .location(getRedirectLogin(serviceUrl, identity))
-                        .message("OK")
+                        .location(login.getCas() ? getRedirectLogin(serviceUrl, identity) : serviceUrl)
                         .token(token)
+                        .message("OK")
                         .build()
                 );
     }
@@ -177,7 +178,9 @@ public class CASResourceImpl implements CASResource {
         Cookie cookie = new Cookie(Constants.COOKIE_NAME, "");
         cookie.setMaxAge(1);
         cookie.setPath(configuration.getCookiePath());
-        if (configuration.getCookieDomain() != null) { cookie.setDomain(configuration.getCookieDomain()); }
+        if (configuration.getCookieDomain() != null) {
+            cookie.setDomain(configuration.getCookieDomain());
+        }
 
         response.addCookie(cookie);
 
@@ -207,14 +210,15 @@ public class CASResourceImpl implements CASResource {
     }
 
     private String issueCookie(HttpServletResponse response, Identity identity, Service service) {
-        Cookie cookie = new Cookie(Constants.COOKIE_NAME, jwtProcessor.getJwtTokenFor(
-                identity, service
-        ));
+        String token  = jwtProcessor.getJwtTokenFor(identity, service);
+        Cookie cookie = new Cookie(Constants.COOKIE_NAME, Base64.getEncoder().encodeToString(token.getBytes()));
         cookie.setMaxAge(configuration.getCookieLifeTime());
         cookie.setPath(configuration.getCookiePath());
         cookie.setComment("Authy CAS Token");
 
-        if (configuration.getCookieDomain() != null) { cookie.setDomain(configuration.getCookieDomain()); }
+        if (configuration.getCookieDomain() != null) {
+            cookie.setDomain(configuration.getCookieDomain());
+        }
 
         response.addCookie(cookie);
 
