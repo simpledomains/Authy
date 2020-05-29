@@ -19,6 +19,7 @@ const store = new Vuex.Store({
     },
     mutations: {
         setToken(state, token) {
+            token = atob(token);
             let data = token.split(".");
             let identity = JSON.parse(atob(data[1]));
 

@@ -2,30 +2,28 @@
     <v-auth-app location="My Profile">
         <v-content>
             <v-container>
-                <v-row>
-                    <v-col>
-                        <v-alert color="indigo" dark type="info" elevation="8">
-                            Welcome {{ currentUsername }}! This is your Authy dashboard! You can change your personal
-                            data for
-                            authentication here.
-                        </v-alert>
-                    </v-col>
-                </v-row>
+                <cas-dismissable-alert id="profile_welcome_notice" color="indigo" dark type="info" elevation="8">
+                    Welcome {{ currentUsername }}! This is your Authy dashboard! You can change your personal
+                    data for
+                    authentication here.
+                </cas-dismissable-alert>
+                <v-alert type="error" color="error"
+                         v-if="!otpEnabled && !fetchingProfile" elevation="8">
+                    You'r account is not secured with
+                    <v-icon>mdi-two-factor-authentication</v-icon>
+                    but its highly recommended to do so.<br/>
+                    Go to your
+                    <router-link style="text-decoration: underline dotted;color: white;"
+                                 to="/profile/security">security settings
+                    </router-link>
+                    to enable 2FA.
+                </v-alert>
                 <v-row>
                     <v-col>
                         <v-card outlined elevation="2" :loading="fetchingProfile">
                             <v-card-title>My Profile</v-card-title>
                             <v-card-subtitle>You can customize your profile here.</v-card-subtitle>
                             <v-card-text>
-                                <v-alert type="error" color="error" v-if="!otpEnabled && !fetchingProfile" elevation="2"
-                                         dense>
-                                    You'r account is not secured with
-                                    <v-icon>mdi-two-factor-authentication</v-icon>
-                                    but its highly recommended to do so.<br/>
-                                    Go to your
-                                    <router-link to="/profile/security">security settings</router-link>
-                                    to enable 2FA.
-                                </v-alert>
                                 <v-row v-if="!fetchingProfile">
                                     <v-col cols="12" md="6">
                                         <v-text-field disabled v-model="username" label="Username"
@@ -69,9 +67,10 @@
     import VAuthApp from "../components/VAuthApp";
     import axios from 'axios'
     import VUpdateTextField from "../components/VUpdateTextField";
+    import CasDismissableAlert from "../components/CasDismissableAlert";
 
     export default {
-        components: {VUpdateTextField, VAuthApp},
+        components: {CasDismissableAlert, VUpdateTextField, VAuthApp},
         computed: {
             currentUsername() {
                 return this.$store.state.username

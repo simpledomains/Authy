@@ -10,9 +10,3 @@ logging:
   level:
     io:
       virtuellewolke: INFO
-
-cas:
-  frontend:
-    clientCertAuth: true
-    darkMode: false
-  test-mode: true

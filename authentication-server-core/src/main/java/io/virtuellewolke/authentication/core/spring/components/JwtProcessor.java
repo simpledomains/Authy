@@ -1,10 +1,10 @@
 package io.virtuellewolke.authentication.core.spring.components;
 
+import io.jsonwebtoken.*;
 import io.virtuellewolke.authentication.core.database.entity.Identity;
+import io.virtuellewolke.authentication.core.database.entity.Service;
 import io.virtuellewolke.authentication.core.exceptions.SecurityTokenExpiredException;
 import io.virtuellewolke.authentication.core.exceptions.SecurityTokenInvalidException;
-import io.virtuellewolke.authentication.core.database.entity.Service;
-import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 

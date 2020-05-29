@@ -33,14 +33,14 @@ public class ForwardAuthResourceImpl implements ForwardAuthResource {
             Identity identity = secureContext.getIdentity();
 
             if (service == null) {
-                response.sendRedirect(configuration.getBaseDomain(request) + "/#/cas/error?service=" + serviceUrl + "&code=" + StatusCode.MISSING_SERVICE);
+                response.sendRedirect(configuration.getBaseDomain(request) + "/#/error?service=" + serviceUrl + "&code=" + StatusCode.MISSING_SERVICE);
                 return ResponseEntity.status(302).build();
             }
 
             if (service.isIdentityAllowed(identity)) {
                 return ResponseEntity.ok().build();
             } else {
-                response.sendRedirect(configuration.getBaseDomain(request) + "/#/cas/error?service=" + serviceUrl + "&code=" + StatusCode.DENIED);
+                response.sendRedirect(configuration.getBaseDomain(request) + "/#/error?service=" + serviceUrl + "&code=" + StatusCode.DENIED);
                 return ResponseEntity.status(302).build();
             }
         } else {

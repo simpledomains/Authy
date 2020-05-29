@@ -65,7 +65,7 @@ public class X509Manager {
         if (configuration.getEnabled()) {
             log.info("Cleaning revoked certificates ...");
 
-            List<ClientAuthCert> certs = clientAuthCertRepository.findAllByRevokedAtLessThanAndRevokedAtIsNotNull(LocalDateTime.now().minusDays(1));
+            List<ClientAuthCert> certs = clientAuthCertRepository.findAllByRevokedAtLessThanAndRevokedAtIsNotNull(LocalDateTime.now().minusHours(1));
 
             if (log.isDebugEnabled()) {
                 certs.forEach(cert -> log.debug("Deleting revoked certificate {}, revoked at {} for identity {}", cert.getSerial(), cert.getRevokedAt(), cert.getIdentity().getId()));

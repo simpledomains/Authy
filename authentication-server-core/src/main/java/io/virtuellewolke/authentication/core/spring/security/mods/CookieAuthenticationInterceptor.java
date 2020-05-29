@@ -1,10 +1,10 @@
 package io.virtuellewolke.authentication.core.spring.security.mods;
 
-import io.virtuellewolke.authentication.core.api.Constants;
-import io.virtuellewolke.authentication.core.exceptions.SecurityTokenInvalidException;
 import io.jsonwebtoken.Claims;
+import io.virtuellewolke.authentication.core.api.Constants;
 import io.virtuellewolke.authentication.core.database.entity.Identity;
 import io.virtuellewolke.authentication.core.database.repository.IdentityRepository;
+import io.virtuellewolke.authentication.core.exceptions.SecurityTokenInvalidException;
 import io.virtuellewolke.authentication.core.spring.components.JwtProcessor;
 import io.virtuellewolke.authentication.core.spring.components.ServiceValidation;
 import io.virtuellewolke.authentication.core.spring.helper.SecureContextRequestHelper;
@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Base64;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -42,7 +43,9 @@ public class CookieAuthenticationInterceptor extends ServiceAwareInterceptor imp
             authCookie.ifPresent(cookie -> {
                 String cookieData = cookie.getValue();
                 try {
-                    Claims claims = jwtProcessor.validateToken(cookieData);
+                    String cookieDecoded = new String(Base64.getDecoder().decode(cookieData.getBytes()));
+
+                    Claims claims = jwtProcessor.validateToken(cookieDecoded);
 
                     Object uidStr = claims.get("uid");
 
@@ -60,7 +63,7 @@ public class CookieAuthenticationInterceptor extends ServiceAwareInterceptor imp
                             SecureContextRequestHelper.setSecureContext(ctx, request);
                         }
                     }
-                } catch (NullPointerException | SecurityTokenInvalidException ignored) {
+                } catch (IllegalArgumentException | NullPointerException | SecurityTokenInvalidException ignored) {
                 }
             });
         }
