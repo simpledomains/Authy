@@ -16,18 +16,21 @@
                             <v-card-subtitle>
                                 Password Settings
                             </v-card-subtitle>
-                            <v-card-text>
+                            <v-card-text v-if="remoteAuthy == null">
                                 <v-btn small outlined color="orange" @click="changePassword">
                                     <v-icon left>mdi-key-change</v-icon>
                                     Change my Password
                                 </v-btn>
+                            </v-card-text>
+                            <v-card-text v-else>
+                                <i>This setting is managed on your origin authy.</i>
                             </v-card-text>
                             <v-divider/>
                             <!-- END SECTION: PASSWORD -->
 
                             <!-- SECTION: 2FA -->
                             <v-card-subtitle>2FA Settings</v-card-subtitle>
-                            <v-card-text>
+                            <v-card-text v-if="remoteAuthy == null">
                                 <v-btn v-if="otpEnabled" color="error" dark small @click="disableTwoFactor">
                                     <v-icon left>mdi-delete-empty-outline</v-icon>
                                     Disable 2FA
@@ -36,6 +39,9 @@
                                     <v-icon left>mdi-sticker-check-outline</v-icon>
                                     Enable 2FA
                                 </v-btn>
+                            </v-card-text>
+                            <v-card-text v-else>
+                                <i>This setting is managed on your origin authy.</i>
                             </v-card-text>
                             <v-divider/>
                             <!-- END SECTION: 2FA -->
@@ -96,7 +102,7 @@
                             <v-card-subtitle>
                                 API Token
                             </v-card-subtitle>
-                            <v-card-text>
+                            <v-card-text v-if="remoteAuthy == null">
                                 <v-text-field
                                         prepend-icon="mdi-refresh"
                                         append-icon="mdi-delete-empty-outline"
@@ -107,6 +113,9 @@
                                         @click:prepend="requestAPIToken">
                                 </v-text-field>
                             </v-card-text>
+                            <v-card-text v-else>
+                                <i>This setting is managed on your origin authy.</i>
+                            </v-card-text>
                             <!-- END SECTION: API KEY -->
 
                             <v-divider/>
@@ -114,6 +123,11 @@
                                 <v-btn color="orange" to="/" small dark elevation="4">
                                     <v-icon left>mdi-arrow-left</v-icon>
                                     to Profile
+                                </v-btn>
+                                <v-btn target="_blank" elevation="4" small color="primary" :href="remoteAuthy"
+                                       v-if="remoteAuthy != null">
+                                    Origin Authy
+                                    <v-icon right>mdi-arrow-right</v-icon>
                                 </v-btn>
                             </v-card-actions>
                         </v-card>
@@ -168,6 +182,7 @@
             apiToken: '',
 
             otpEnabled: false,
+            remoteAuthy: null,
         }),
         methods: {
             revokeCertificate(serial) {
@@ -225,6 +240,7 @@
             fetchProfile() {
                 axios.get('/api/session/me').then(r => {
                     this.otpEnabled = r.data.otpEnabled
+                    this.remoteAuthy = r.data.remoteAuthy
                 });
             },
             disableTwoFactor() {

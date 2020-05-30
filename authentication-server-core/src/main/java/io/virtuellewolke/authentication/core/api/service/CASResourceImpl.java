@@ -1,5 +1,6 @@
 package io.virtuellewolke.authentication.core.api.service;
 
+import feign.FeignException;
 import io.virtuellewolke.authentication.core.api.Constants;
 import io.virtuellewolke.authentication.core.api.LoginFailedException;
 import io.virtuellewolke.authentication.core.api.model.LoginRequest;
@@ -7,6 +8,8 @@ import io.virtuellewolke.authentication.core.api.model.LoginResponse;
 import io.virtuellewolke.authentication.core.api.model.cas.AuthFailedResponse;
 import io.virtuellewolke.authentication.core.api.model.cas.AuthResponse;
 import io.virtuellewolke.authentication.core.api.model.cas.AuthSuccessResponse;
+import io.virtuellewolke.authentication.core.api.remote.AuthyRemoteClient;
+import io.virtuellewolke.authentication.core.api.remote.AuthyRemoteClientBuilder;
 import io.virtuellewolke.authentication.core.cas.StatusCode;
 import io.virtuellewolke.authentication.core.cas.TicketManager;
 import io.virtuellewolke.authentication.core.cas.TicketType;
@@ -97,11 +100,28 @@ public class CASResourceImpl implements CASResource {
                 throw new LoginFailedException(LoginResponse.ErrorCode.USER_ACCOUNT_BLOCKED);
             }
 
-            Md5PasswordValidator validator = new Md5PasswordValidator(identity);
+            if (identity.getRemoteAuthy() != null) {
+                try {
+                    log.info("Authorization of {} was delegated to {}", identity.getUsername(), identity.getRemoteAuthy());
+                    AuthyRemoteClient client = AuthyRemoteClientBuilder.builder()
+                            .setUrl(identity.getRemoteAuthy())
+                            .setTimeout(10000L)
+                            .build();
 
-            if (validator.isNotValid(login.getPassword())) {
-                loginSecurity.recordFailedAttempt(req.getRemoteAddr());
-                throw new LoginFailedException(LoginResponse.ErrorCode.CREDENTIAL_ERROR);
+                    client.login(login, serviceUrl);
+                } catch (FeignException.Unauthorized | FeignException.Forbidden e) {
+                    loginSecurity.recordFailedAttempt(req.getRemoteAddr());
+                    throw new LoginFailedException(LoginResponse.ErrorCode.CREDENTIAL_ERROR);
+                } catch (FeignException.Conflict e) {
+                    throw new LoginFailedException(LoginResponse.ErrorCode.OTP_REQUIRED);
+                }
+            } else {
+                Md5PasswordValidator validator = new Md5PasswordValidator(identity);
+
+                if (validator.isNotValid(login.getPassword())) {
+                    loginSecurity.recordFailedAttempt(req.getRemoteAddr());
+                    throw new LoginFailedException(LoginResponse.ErrorCode.CREDENTIAL_ERROR);
+                }
             }
 
             if (identity.getOtpEnabled()) {

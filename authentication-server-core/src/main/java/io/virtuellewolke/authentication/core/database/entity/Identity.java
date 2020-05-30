@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.apache.commons.codec.digest.Md5Crypt;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
 import java.lang.reflect.Field;
@@ -45,7 +46,12 @@ public class Identity extends PartialUpdateableModel {
     private Map<String, String> metaData    = new HashMap<>();
     @ManyToMany(targetEntity = Authority.class, fetch = FetchType.EAGER)
     private List<Authority>     authorities = new ArrayList<>();
+    private String              remoteAuthy;
 
+    public void setRemoteAuthy(String authy) {
+        if (StringUtils.isEmpty(authy)) this.remoteAuthy = null;
+        else this.remoteAuthy = authy;
+    }
 
     public void setPassword(String password) {
         this.password = Md5Crypt.md5Crypt(password.getBytes());
@@ -67,6 +73,8 @@ public class Identity extends PartialUpdateableModel {
     protected void onUpdateField(Field field, Object value) {
         if (field.getName().equals("password")) {
             this.setPassword(value.toString());
+        } else if (field.getName().equals("remoteAuthy")) {
+            this.setRemoteAuthy(value.toString());
         } else {
             super.onUpdateField(field, value);
         }
@@ -74,7 +82,7 @@ public class Identity extends PartialUpdateableModel {
 
     @Override
     protected boolean canUpdateField(Field field) {
-        String[] forbiddenFields = new String[]{"username", "authorities", "admin", "locked", "apiToken", "otpSecret"};
+        String[] forbiddenFields = new String[]{"username", "authorities", "admin", "locked", "apiToken", "otpSecret", "remoteAuthy"};
 
         return Arrays.stream(forbiddenFields).noneMatch(s -> Objects.equals(s, field.getName().toLowerCase()));
     }

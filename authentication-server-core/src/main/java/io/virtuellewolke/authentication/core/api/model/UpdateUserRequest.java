@@ -20,6 +20,7 @@ public class UpdateUserRequest extends UpdateRequest<Identity> {
         updateField(source, "apiToken");
         updateField(source, "otpSecret");
         updateField(source, "locked");
+        updateField(source, "remoteAuthy");
         updateField(source, "admin", ((identity, o) -> identity.setAdmin(o.toString().toLowerCase().equals("true"))));
 
         if (data.containsKey("authorities")) {

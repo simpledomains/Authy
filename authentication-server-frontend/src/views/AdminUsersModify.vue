@@ -20,11 +20,16 @@
                                     </v-col>
                                     <v-col cols="12" md="6">
                                         <v-text-field label="Password" type="password" v-model="password"
-                                                      prepend-icon="mdi-key" :loading="loadingUser"/>
+                                                      prepend-icon="mdi-key" :loading="loadingUser"
+                                                      :disabled="!isFieldEmpty(remoteAuthy)"/>
                                     </v-col>
                                     <v-col cols="12" md="6">
                                         <v-text-field label="E-Mail" type="email" v-model="email"
                                                       prepend-icon="mdi-at" :loading="loadingUser"/>
+                                    </v-col>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field label="Remote Authy" type="text" v-model="remoteAuthy"
+                                                      prepend-icon="mdi-earth" :loading="loadingUser"/>
                                     </v-col>
                                     <v-col cols="12" md="6">
                                         <v-select
@@ -110,6 +115,7 @@
             userRoles: [],
             admin: false,
             locked: false,
+            remoteAuthy: '',
 
             loadingUser: true,
 
@@ -142,6 +148,7 @@
                     this.admin = r.data.admin;
                     this.userRoles = [];
                     this.locked = r.data.locked;
+                    this.remoteAuthy = r.data.remoteAuthy;
 
                     r.data.authorities.forEach(value => this.userRoles.push(value.id));
 
@@ -165,6 +172,7 @@
                 this.roles = [];
                 this.admin = false;
                 this.locked = false;
+                this.remoteAuthy = '';
             },
             abortCreation() {
                 this.resetForm();
@@ -183,6 +191,7 @@
                 model.displayName = this.displayName;
                 model.authorities = roles;
                 model.locked = this.locked;
+                model.remoteAuthy = this.remoteAuthy;
 
 
                 axios.patch('/api/identity/' + this.id, {data: model}).then(() => {
@@ -194,6 +203,9 @@
                         title: 'Failed to update user, check server log!'
                     })
                 })
+            },
+            isFieldEmpty(field) {
+                return field == null || field.trim() === '';
             }
         },
         mounted() {
