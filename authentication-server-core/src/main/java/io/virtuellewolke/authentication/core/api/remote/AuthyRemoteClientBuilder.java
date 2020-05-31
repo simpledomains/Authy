@@ -1,7 +1,10 @@
 package io.virtuellewolke.authentication.core.api.remote;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.Feign;
 import feign.Request;
+import feign.jackson.JacksonDecoder;
+import feign.jackson.JacksonEncoder;
 import feign.okhttp.OkHttpClient;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -18,8 +21,9 @@ import java.util.concurrent.TimeUnit;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AuthyRemoteClientBuilder {
 
-    private String url;
-    private Long   timeout;
+    private String       url;
+    private Long         timeout;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     public static AuthyRemoteClientBuilder builder() {
         return new AuthyRemoteClientBuilder();
@@ -36,6 +40,8 @@ public class AuthyRemoteClientBuilder {
                 .build();
 
         return builder
+                .encoder(new JacksonEncoder(objectMapper))
+                .decoder(new JacksonDecoder(objectMapper))
                 .client(new OkHttpClient(client))
                 .options(new Request.Options(timeout, TimeUnit.MILLISECONDS, timeout, TimeUnit.MILLISECONDS, false))
                 .target(AuthyRemoteClient.class, url);
