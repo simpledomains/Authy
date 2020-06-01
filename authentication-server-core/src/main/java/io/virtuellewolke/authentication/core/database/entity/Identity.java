@@ -32,6 +32,7 @@ public class Identity extends PartialUpdateableModel {
     @Column(nullable = false)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String              password;
+    @Column(unique = true)
     private String              email;
     private String              displayName;
     private byte[]              avatar;

@@ -84,8 +84,11 @@ public class CASResourceImpl implements CASResource {
 
     @Override
     public ResponseEntity<LoginResponse> login(HttpServletRequest req, HttpServletResponse response, LoginRequest login, String serviceUrl) {
-        Identity identity = identityRepository.findByUsername(login.getUsername()).orElse(null);
-        Service  service  = serviceValidation.getRegisteredServiceFor(serviceUrl);
+        Identity identity = identityRepository.findByUsernameOrEmail(
+                login.getUsername(), login.getUsername()
+        ).orElse(null);
+
+        Service service = serviceValidation.getRegisteredServiceFor(serviceUrl);
 
         if (service == null) {
             throw new LoginFailedException(LoginResponse.ErrorCode.SERVICE_NOT_ALLOWED);
