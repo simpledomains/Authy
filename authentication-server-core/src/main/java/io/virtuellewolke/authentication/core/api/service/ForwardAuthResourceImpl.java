@@ -38,7 +38,13 @@ public class ForwardAuthResourceImpl implements ForwardAuthResource {
             }
 
             if (service.isIdentityAllowed(identity)) {
-                return ResponseEntity.ok().build();
+                return ResponseEntity
+                        .ok()
+                        .header("X-Auth-User", identity.getUsername())
+                        .header("X-Auth-Display-Name", identity.getDisplayName())
+                        .header("X-Auth-E-Mail", identity.getEmail())
+                        .header("X-Auth-Admin", identity.getAdmin().toString())
+                        .build();
             } else {
                 response.sendRedirect(configuration.getBaseDomain(request) + "/#/error?service=" + serviceUrl + "&code=" + StatusCode.DENIED);
                 return ResponseEntity.status(302).build();
