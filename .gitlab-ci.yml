@@ -1,5 +1,5 @@
 include:
-  - remote: 'https://git.virtuellewolke.de/generic/ci-templates/raw/master/maven+docker.gitlab-ci.yml'
+  - remote: 'https://git.virtuellewolke.org/generic/ci-templates/raw/master/maven+docker.gitlab-ci.yml'
 
 variables:
   DOCKER_IMAGE_NAME: forward-auth-server
