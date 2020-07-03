@@ -21,3 +21,10 @@ spring:
   redis:
     enabled: false
     timeout: PT0.500S
+
+cas:
+  security:
+    error-whitelist:
+      - '::1'
+      - '127.0.0.1/32'
+      - '172.16.0.1/16'

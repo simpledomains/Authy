@@ -1,6 +1,8 @@
 package io.virtuellewolke.authentication.core.spring.components;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.web.util.matcher.IpAddressMatcher;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -18,7 +20,8 @@ public class LoginSecurity {
     private final Integer            RETRY_AFTER_MINUTES = 60;
     private final List<LoginAttempt> attempts            = new ArrayList<>();
 
-    private final String[] WHITELIST = new String[]{"0:0:0:0:0:0:0:1", "127.0.0.1"};
+    @Value("${cas.security.error-whitelist}")
+    private String[] WHITELIST;
 
     private static class LoginAttempt {
         private int           count = 1;
@@ -40,7 +43,10 @@ public class LoginSecurity {
     public void recordFailedAttempt(String source) {
         LoginAttempt attempt = attempts.stream().filter(loginAttempt -> Objects.equals(loginAttempt.source, source)).findFirst().orElse(null);
 
-        if (Arrays.asList(WHITELIST).contains(source)) return;
+        if (Arrays.stream(WHITELIST).anyMatch(s -> {
+            IpAddressMatcher ipAddressMatcher = new IpAddressMatcher(s);
+            return ipAddressMatcher.matches(source);
+        })) return;
 
         if (attempt != null) {
             attempt.count         = attempt.count + 1;
