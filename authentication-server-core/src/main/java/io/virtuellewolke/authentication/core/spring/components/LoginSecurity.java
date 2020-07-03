@@ -1,7 +1,8 @@
 package io.virtuellewolke.authentication.core.spring.components;
 
+import io.virtuellewolke.authentication.core.spring.configuration.CasConfiguration;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.web.util.matcher.IpAddressMatcher;
 import org.springframework.stereotype.Component;
 
@@ -14,14 +15,14 @@ import java.util.Objects;
 @Slf4j
 @Component
 @SuppressWarnings("FieldCanBeLocal")
+@RequiredArgsConstructor
 public class LoginSecurity {
 
     private final Integer            MAX_ATTEMPTS        = 3;
     private final Integer            RETRY_AFTER_MINUTES = 60;
     private final List<LoginAttempt> attempts            = new ArrayList<>();
 
-    @Value("${cas.security.error-whitelist}")
-    private String[] WHITELIST;
+    private final CasConfiguration casConfiguration;
 
     private static class LoginAttempt {
         private int           count = 1;
@@ -43,7 +44,7 @@ public class LoginSecurity {
     public void recordFailedAttempt(String source) {
         LoginAttempt attempt = attempts.stream().filter(loginAttempt -> Objects.equals(loginAttempt.source, source)).findFirst().orElse(null);
 
-        if (Arrays.stream(WHITELIST).anyMatch(s -> {
+        if (Arrays.stream(casConfiguration.getLoginWhitelistIps()).anyMatch(s -> {
             IpAddressMatcher ipAddressMatcher = new IpAddressMatcher(s);
             return ipAddressMatcher.matches(source);
         })) return;
