@@ -34,7 +34,7 @@ public class ApiTokenInterceptor extends ServiceAwareInterceptor implements Auth
 
     @Override
     public boolean process(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        if (!SecureContextRequestHelper.hasSecureContext(request) && loginSecurity.isAllowedToTry(request.getRemoteAddr())) {
+        if (!SecureContextRequestHelper.hasSecureContext(request) && loginSecurity.isAllowedToTry(request)) {
             String token = getApiTokenFromHeaders(request);
 
             if (token != null) {
@@ -51,9 +51,9 @@ public class ApiTokenInterceptor extends ServiceAwareInterceptor implements Auth
 
                     SecureContextRequestHelper.setSecureContext(context, request);
 
-                    loginSecurity.resetAttempts(request.getRemoteAddr());
+                    loginSecurity.resetAttempts(request);
                 } else {
-                    loginSecurity.recordFailedAttempt(request.getRemoteAddr());
+                    loginSecurity.recordFailedAttempt(request);
                 }
             }
         }

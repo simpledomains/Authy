@@ -94,7 +94,7 @@ public class CASResourceImpl implements CASResource {
             throw new LoginFailedException(LoginResponse.ErrorCode.SERVICE_NOT_ALLOWED);
         }
 
-        if (!loginSecurity.isAllowedToTry(req.getRemoteAddr())) {
+        if (!loginSecurity.isAllowedToTry(req)) {
             throw new LoginFailedException(LoginResponse.ErrorCode.USER_ACCOUNT_BLOCKED);
         }
 
@@ -113,7 +113,7 @@ public class CASResourceImpl implements CASResource {
 
                     client.login(login, serviceUrl);
                 } catch (FeignException.Unauthorized | FeignException.Forbidden e) {
-                    loginSecurity.recordFailedAttempt(req.getRemoteAddr());
+                    loginSecurity.recordFailedAttempt(req);
                     throw new LoginFailedException(LoginResponse.ErrorCode.CREDENTIAL_ERROR);
                 } catch (FeignException.Conflict e) {
                     throw new LoginFailedException(LoginResponse.ErrorCode.OTP_REQUIRED);
@@ -122,7 +122,7 @@ public class CASResourceImpl implements CASResource {
                 Md5PasswordValidator validator = new Md5PasswordValidator(identity);
 
                 if (validator.isNotValid(login.getPassword())) {
-                    loginSecurity.recordFailedAttempt(req.getRemoteAddr());
+                    loginSecurity.recordFailedAttempt(req);
                     throw new LoginFailedException(LoginResponse.ErrorCode.CREDENTIAL_ERROR);
                 }
             }
@@ -134,7 +134,7 @@ public class CASResourceImpl implements CASResource {
                     OneTimePasswordValidator otpValidator = new OneTimePasswordValidator(identity.getOtpSecret());
 
                     if (otpValidator.isNotValid(login.getSecurityPassword())) {
-                        loginSecurity.recordFailedAttempt(req.getRemoteAddr());
+                        loginSecurity.recordFailedAttempt(req);
                         throw new LoginFailedException(LoginResponse.ErrorCode.CREDENTIAL_ERROR);
                     }
                 }
@@ -144,13 +144,13 @@ public class CASResourceImpl implements CASResource {
                 throw new LoginFailedException(LoginResponse.ErrorCode.USER_ACCOUNT_DENIED);
             }
         } else {
-            loginSecurity.recordFailedAttempt(req.getRemoteAddr());
+            loginSecurity.recordFailedAttempt(req);
             throw new LoginFailedException(LoginResponse.ErrorCode.CREDENTIAL_ERROR);
         }
 
         String token = issueCookie(response, identity, service);
 
-        loginSecurity.resetAttempts(req.getRemoteAddr());
+        loginSecurity.resetAttempts(req);
 
         return ResponseEntity.ok()
                 .body(LoginResponse.builder()

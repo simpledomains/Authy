@@ -2,7 +2,7 @@
 server.port: 3000
 
 ## Application Configuration
-app.secrets.jwt: dJHDjkahdjknsjkchnbJKHNKJWndk
+app.secrets.jwt: dJHDjkahdjknsjkchnbJKHNKJWndk343dJHDjkahdjknsjkchnbJKHNKJWndk343dJHDjkahdjknsjkchnbJKHNKJWndk343dJHDjkahdjknsjkchnbJKHNKJWndk343
 cas.system-domain: http://localhost:8080
 
 ## Logging
