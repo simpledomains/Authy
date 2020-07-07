@@ -17,9 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 @Configuration
 @ConditionalOnProperty(prefix = "sentry", name = "dsn")
 public class SentryConfiguration {
-    public SentryConfiguration() {
-        log.info("Sentry configured and enabled.");
-    }
 
     @Bean
     public HandlerExceptionResolver sentry() {
