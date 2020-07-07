@@ -4,6 +4,7 @@ import io.sentry.spring.SentryExceptionResolver;
 import io.virtuellewolke.authentication.core.exceptions.AccessDeniedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.HandlerExceptionResolver;
@@ -29,5 +30,10 @@ public class SentryConfiguration {
                 return super.resolveException(request, response, handler, ex);
             }
         };
+    }
+
+    @Bean
+    public ServletContextInitializer sentryServletContextInitializer() {
+        return new io.sentry.spring.SentryServletContextInitializer();
     }
 }
