@@ -200,7 +200,9 @@ public class CASResourceImpl implements CASResource {
     public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
         Cookie cookie = new Cookie(Constants.COOKIE_NAME, "");
         cookie.setMaxAge(1);
+        cookie.setHttpOnly(true);
         cookie.setPath(configuration.getCookiePath());
+        cookie.setSecure(configuration.isCookieSecure());
         if (configuration.getCookieDomain() != null) {
             cookie.setDomain(configuration.getCookieDomain());
         }
@@ -237,7 +239,9 @@ public class CASResourceImpl implements CASResource {
         Cookie cookie = new Cookie(Constants.COOKIE_NAME, Base64.getEncoder().encodeToString(token.getBytes()));
         cookie.setMaxAge(configuration.getCookieLifeTime());
         cookie.setPath(configuration.getCookiePath());
+        cookie.setHttpOnly(true);
         cookie.setComment("Authy CAS Token");
+        cookie.setSecure(configuration.isCookieSecure());
 
         if (configuration.getCookieDomain() != null) {
             cookie.setDomain(configuration.getCookieDomain());
