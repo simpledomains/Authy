@@ -1,6 +1,5 @@
 FROM openjdk:13-buster
-ENV SERVER_PORT    8080
-ENV SENTRY_RELEASE $CI_COMMIT_SHA
+ENV SERVER_PORT 8080
 EXPOSE $SERVER_PORT
 RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 WORKDIR /data
