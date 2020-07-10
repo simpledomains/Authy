@@ -34,6 +34,10 @@ public class TicketManager {
             }
         }
 
+        if (service == null || identity == null) {
+            throw new IllegalArgumentException("Neither identity or service can be null");
+        }
+
         Ticket data = new Ticket();
         data.setIdentity(identity);
         data.setServiceUrl(service);

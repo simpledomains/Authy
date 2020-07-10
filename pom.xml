@@ -11,7 +11,7 @@
     </parent>
 
     <packaging>pom</packaging>
-    <groupId>de.reynok</groupId>
+    <groupId>io.virtuellewolke</groupId>
     <artifactId>authentication-server</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <name>authentication-server</name>
