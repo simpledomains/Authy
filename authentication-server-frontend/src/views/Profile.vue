@@ -8,7 +8,7 @@
                     authentication here.
                 </cas-dismissable-alert>
                 <v-alert type="error" color="error"
-                         v-if="!otpEnabled && !fetchingProfile" elevation="8">
+                         v-if="!otpEnabled && !fetchingProfile && isFieldEmpty(remoteAuthy)" elevation="8">
                     You'r account is not secured with
                     <v-icon>mdi-two-factor-authentication</v-icon>
                     but its highly recommended to do so.<br/>
@@ -51,8 +51,8 @@
                             <v-divider/>
                             <v-card-actions>
                                 <v-btn small color="orange" dark to="/profile/security" elevation="4">
-                                    <v-icon left>mdi-arrow-right</v-icon>
                                     Security
+                                    <v-icon right>mdi-arrow-right</v-icon>
                                 </v-btn>
                             </v-card-actions>
                         </v-card>
@@ -83,6 +83,7 @@
             username: '',
             email: '',
             displayName: '',
+            remoteAuthy: ''
         }),
         methods: {
             fetchProfile() {
@@ -91,9 +92,13 @@
                     this.displayName = r.data.displayName;
                     this.email = r.data.email;
                     this.otpEnabled = r.data.otpEnabled
+                    this.remoteAuthy = r.data.remoteAuthy
                 }).finally(() => {
                     this.fetchingProfile = false;
                 })
+            },
+            isFieldEmpty(field) {
+                return field == null || field.trim() === '';
             }
         },
         mounted() {

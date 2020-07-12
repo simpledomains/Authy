@@ -24,6 +24,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -122,7 +123,7 @@ public class IdentityManagementResourceImpl implements IdentityManagementResourc
     @AuthorizedResource
     public ResponseEntity<String> generateApiToken(HttpServletRequest request) {
         Identity identity = getIdentityFromRequest(request);
-        String   key      = RandomStringUtils.randomAlphanumeric(32);
+        String   key      = RandomStringUtils.random(32, 0, 0, true, true, null, new SecureRandom());
 
         identity.setApiToken(key);
 

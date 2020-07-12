@@ -1,2 +1,2 @@
-*.java @root
 Dockerfile @root
+authentication-server-frontend/* @root

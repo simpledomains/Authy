@@ -22,6 +22,10 @@
                                                       prepend-icon="mdi-key"/>
                                     </v-col>
                                     <v-col cols="12" md="6">
+                                        <v-text-field label="Remote Authy" type="text" v-model="remoteAuthy"
+                                                      prepend-icon="mdi-earth"/>
+                                    </v-col>
+                                    <v-col cols="12" md="6">
                                         <v-text-field label="E-Mail" type="email" v-model="email"
                                                       prepend-icon="mdi-at"/>
                                     </v-col>
@@ -76,6 +80,7 @@
             email: '',
             userRoles: [],
             admin: false,
+            remoteAuthy: '',
         }),
         methods: {
             fetchRoles() {
@@ -91,6 +96,7 @@
                 this.userRoles = [];
                 this.roles = [];
                 this.admin = false;
+                this.remoteAuthy = '';
             },
             abortCreation() {
                 this.resetForm();
@@ -108,6 +114,7 @@
                     displayName: this.displayName,
                     authorities: roles,
                     admin: this.admin,
+                    remoteAuthy: this.remoteAuthy,
                 }).then(() => {
                     this.resetForm();
                     this.$router.push('/admin/users');

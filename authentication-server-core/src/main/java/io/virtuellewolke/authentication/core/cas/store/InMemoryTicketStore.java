@@ -1,9 +1,10 @@
 package io.virtuellewolke.authentication.core.cas.store;
 
-import io.virtuellewolke.authentication.core.exceptions.SecurityTokenExpiredException;
 import io.virtuellewolke.authentication.core.cas.TicketStore;
 import io.virtuellewolke.authentication.core.cas.model.Ticket;
+import io.virtuellewolke.authentication.core.exceptions.SecurityTokenExpiredException;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -14,14 +15,22 @@ import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Slf4j
+@NoArgsConstructor
 public class InMemoryTicketStore implements TicketStore {
 
+    private static final int DEFAULT_EXPIRE_TIME = 10;
+
+    /**
+     * The name was changed to "expiring" because of the explanation stated here: https://english.stackexchange.com/a/312087
+     * <p>
+     * Expirable can but dont need to expire, but 'expiring' will always expire someday.
+     */
     @Getter
     @Setter
-    private static class ExpirableTicket extends Ticket {
+    private static class ExpiringTicket extends Ticket {
         private LocalDateTime expireAfter;
 
-        public ExpirableTicket(Ticket castFrom, LocalDateTime expireAfter) {
+        public ExpiringTicket(Ticket castFrom, LocalDateTime expireAfter) {
             this.setIdentity(castFrom.getIdentity());
             this.setServiceUrl(castFrom.getServiceUrl());
             this.setToken(castFrom.getToken());
@@ -33,40 +42,40 @@ public class InMemoryTicketStore implements TicketStore {
         }
     }
 
-    private final List<ExpirableTicket> tickets = new CopyOnWriteArrayList<>();
+    private final List<ExpiringTicket> tickets = new CopyOnWriteArrayList<>();
 
     @Scheduled(fixedDelay = 10000)
     public void cleanup() {
-        tickets.removeIf(ExpirableTicket::isExpired);
+        tickets.removeIf(ExpiringTicket::isExpired);
     }
 
     @Override
     public Ticket getTicket(String token) {
-        ExpirableTicket ticket = getTicketFromMap(token);
+        ExpiringTicket ticket = getTicketFromMap(token);
 
-        if (ticket != null && !ticket.isExpired()) return ticket;
+        if (ticket != null && !ticket.isExpired()) { return ticket; }
 
         throw new SecurityTokenExpiredException("Token " + token + " expired.");
     }
 
     @Override
     public boolean isExpired(String token) {
-        ExpirableTicket ticket = getTicketFromMap(token);
+        ExpiringTicket ticket = getTicketFromMap(token);
 
         return ticket == null || ticket.isExpired();
     }
 
     @Override
     public void save(Ticket ticket) {
-        tickets.add(new ExpirableTicket(ticket, LocalDateTime.now().plusSeconds(20)));
+        tickets.add(new ExpiringTicket(ticket, LocalDateTime.now().plusSeconds(DEFAULT_EXPIRE_TIME)));
     }
 
     @Override
     public void invalidate(String token) {
-        tickets.removeIf(expirableTicket -> Objects.equals(token, expirableTicket.getToken()));
+        tickets.removeIf(expiringTicket -> Objects.equals(token, expiringTicket.getToken()));
     }
 
-    private ExpirableTicket getTicketFromMap(String token) {
-        return tickets.stream().filter(expirableTicket -> Objects.equals(token, expirableTicket.getToken())).findFirst().orElse(null);
+    private ExpiringTicket getTicketFromMap(String token) {
+        return tickets.stream().filter(expiringTicket -> Objects.equals(token, expiringTicket.getToken())).findFirst().orElse(null);
     }
 }

@@ -1,5 +1,6 @@
 package io.virtuellewolke.authentication.core.api.service;
 
+import feign.FeignException;
 import io.virtuellewolke.authentication.core.api.Constants;
 import io.virtuellewolke.authentication.core.api.LoginFailedException;
 import io.virtuellewolke.authentication.core.api.model.LoginRequest;
@@ -7,6 +8,8 @@ import io.virtuellewolke.authentication.core.api.model.LoginResponse;
 import io.virtuellewolke.authentication.core.api.model.cas.AuthFailedResponse;
 import io.virtuellewolke.authentication.core.api.model.cas.AuthResponse;
 import io.virtuellewolke.authentication.core.api.model.cas.AuthSuccessResponse;
+import io.virtuellewolke.authentication.core.api.remote.AuthyRemoteClient;
+import io.virtuellewolke.authentication.core.api.remote.AuthyRemoteClientBuilder;
 import io.virtuellewolke.authentication.core.cas.StatusCode;
 import io.virtuellewolke.authentication.core.cas.TicketManager;
 import io.virtuellewolke.authentication.core.cas.TicketType;
@@ -81,14 +84,17 @@ public class CASResourceImpl implements CASResource {
 
     @Override
     public ResponseEntity<LoginResponse> login(HttpServletRequest req, HttpServletResponse response, LoginRequest login, String serviceUrl) {
-        Identity identity = identityRepository.findByUsername(login.getUsername()).orElse(null);
-        Service  service  = serviceValidation.getRegisteredServiceFor(serviceUrl);
+        Identity identity = identityRepository.findByUsernameOrEmail(
+                login.getUsername(), login.getUsername()
+        ).orElse(null);
+
+        Service service = serviceValidation.getRegisteredServiceFor(serviceUrl);
 
         if (service == null) {
             throw new LoginFailedException(LoginResponse.ErrorCode.SERVICE_NOT_ALLOWED);
         }
 
-        if (!loginSecurity.isAllowedToTry(req.getRemoteAddr())) {
+        if (!loginSecurity.isAllowedToTry(req)) {
             throw new LoginFailedException(LoginResponse.ErrorCode.USER_ACCOUNT_BLOCKED);
         }
 
@@ -97,11 +103,28 @@ public class CASResourceImpl implements CASResource {
                 throw new LoginFailedException(LoginResponse.ErrorCode.USER_ACCOUNT_BLOCKED);
             }
 
-            Md5PasswordValidator validator = new Md5PasswordValidator(identity);
+            if (identity.getRemoteAuthy() != null) {
+                try {
+                    log.info("Authorization of {} was delegated to {}", identity.getUsername(), identity.getRemoteAuthy());
+                    AuthyRemoteClient client = AuthyRemoteClientBuilder.builder()
+                            .setUrl(identity.getRemoteAuthy())
+                            .setTimeout(10000L)
+                            .build();
 
-            if (validator.isNotValid(login.getPassword())) {
-                loginSecurity.recordFailedAttempt(req.getRemoteAddr());
-                throw new LoginFailedException(LoginResponse.ErrorCode.CREDENTIAL_ERROR);
+                    client.login(login, serviceUrl);
+                } catch (FeignException.Unauthorized | FeignException.Forbidden e) {
+                    loginSecurity.recordFailedAttempt(req);
+                    throw new LoginFailedException(LoginResponse.ErrorCode.CREDENTIAL_ERROR);
+                } catch (FeignException.Conflict e) {
+                    throw new LoginFailedException(LoginResponse.ErrorCode.OTP_REQUIRED);
+                }
+            } else {
+                Md5PasswordValidator validator = new Md5PasswordValidator(identity);
+
+                if (validator.isNotValid(login.getPassword())) {
+                    loginSecurity.recordFailedAttempt(req);
+                    throw new LoginFailedException(LoginResponse.ErrorCode.CREDENTIAL_ERROR);
+                }
             }
 
             if (identity.getOtpEnabled()) {
@@ -111,7 +134,7 @@ public class CASResourceImpl implements CASResource {
                     OneTimePasswordValidator otpValidator = new OneTimePasswordValidator(identity.getOtpSecret());
 
                     if (otpValidator.isNotValid(login.getSecurityPassword())) {
-                        loginSecurity.recordFailedAttempt(req.getRemoteAddr());
+                        loginSecurity.recordFailedAttempt(req);
                         throw new LoginFailedException(LoginResponse.ErrorCode.CREDENTIAL_ERROR);
                     }
                 }
@@ -121,13 +144,13 @@ public class CASResourceImpl implements CASResource {
                 throw new LoginFailedException(LoginResponse.ErrorCode.USER_ACCOUNT_DENIED);
             }
         } else {
-            loginSecurity.recordFailedAttempt(req.getRemoteAddr());
+            loginSecurity.recordFailedAttempt(req);
             throw new LoginFailedException(LoginResponse.ErrorCode.CREDENTIAL_ERROR);
         }
 
         String token = issueCookie(response, identity, service);
 
-        loginSecurity.resetAttempts(req.getRemoteAddr());
+        loginSecurity.resetAttempts(req);
 
         return ResponseEntity.ok()
                 .body(LoginResponse.builder()
@@ -177,7 +200,9 @@ public class CASResourceImpl implements CASResource {
     public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
         Cookie cookie = new Cookie(Constants.COOKIE_NAME, "");
         cookie.setMaxAge(1);
+        cookie.setHttpOnly(true);
         cookie.setPath(configuration.getCookiePath());
+        cookie.setSecure(configuration.isCookieSecure());
         if (configuration.getCookieDomain() != null) {
             cookie.setDomain(configuration.getCookieDomain());
         }
@@ -214,7 +239,9 @@ public class CASResourceImpl implements CASResource {
         Cookie cookie = new Cookie(Constants.COOKIE_NAME, Base64.getEncoder().encodeToString(token.getBytes()));
         cookie.setMaxAge(configuration.getCookieLifeTime());
         cookie.setPath(configuration.getCookiePath());
+        cookie.setHttpOnly(true);
         cookie.setComment("Authy CAS Token");
+        cookie.setSecure(configuration.isCookieSecure());
 
         if (configuration.getCookieDomain() != null) {
             cookie.setDomain(configuration.getCookieDomain());
