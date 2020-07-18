@@ -45,5 +45,5 @@ public interface CASResource {
 
     @CrossOrigin
     @RequestMapping(value = "/cas/logout", method = {RequestMethod.GET}, produces = "application/json")
-    ResponseEntity<Void> getLogoutPage(HttpServletRequest request, HttpServletResponse response) throws IOException;
+    ResponseEntity<Void> getLogoutPage(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "service", required = false) String service) throws IOException;
 }
