@@ -9,7 +9,12 @@
         mounted() {
             axios.delete('/cas/logout').then(() => {
                 this.$store.commit('removeToken');
-                this.$router.push({path: '/login', query: {service: '/'}});
+
+                if (this.$route.query.redirectTo && this.$route.query.redirectTo.startsWith('http')) {
+                    window.location.href = this.$route.query.redirectTo;
+                } else {
+                    this.$router.push({path: '/login', query: {service: '/'}});
+                }
             });
         }
     }

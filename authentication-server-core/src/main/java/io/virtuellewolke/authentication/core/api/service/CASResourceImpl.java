@@ -33,6 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.Cookie;
@@ -213,8 +214,12 @@ public class CASResourceImpl implements CASResource {
     }
 
     @Override
-    public ResponseEntity<Void> getLogoutPage(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(URI.create("/#/logout")).build();
+    public ResponseEntity<Void> getLogoutPage(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "service", required = false) String service) throws IOException {
+        if (service == null) {
+            return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(URI.create("/#/logout")).build();
+        } else {
+            return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(URI.create("/#/logout?redirectTo=" + service)).build();
+        }
     }
 
     @ExceptionHandler(LoginFailedException.class)
