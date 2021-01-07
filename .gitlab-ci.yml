@@ -1,8 +1,16 @@
 include:
-  - remote: 'https://git.virtuellewolke.org/generic/ci-templates/raw/master/maven.gitlab-ci.yml'
-  - remote: 'https://git.virtuellewolke.org/generic/ci-templates/raw/master/docker-img.gitlab-ci.yml'
+  - project: 'general/ci-templates'
+    file: 'workflow.gitlab-ci.yml'
+
+  - project: 'general/ci-templates'
+    file: 'maven.gitlab-ci.yml'
+
+  - project: 'general/ci-templates'
+    file: 'docker-img.gitlab-ci.yml'
 
 variables:
+  IMG_PUSH_LATEST: 'yes'
+  IMG_PUSH_UNSTABLE: 'yes'
   DOCKER_IMAGE_NAME: forward-auth-server
   DOCKER_NAMESPACE: sealife
   MAVEN_VERSION: 3.6-jdk-13
